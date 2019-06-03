@@ -1,0 +1,8 @@
+{
+  "ext": "ts,js,json",
+  "watch": ["./src", "./tests", "./@CustomTypes"],
+  "env": {
+    "NODE_ENV": "development"
+  },
+  "verbose": true
+}
