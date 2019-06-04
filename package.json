@@ -75,22 +75,23 @@
   "devDependencies": {
     "@types/chai": "4.1.7",
     "@types/faker": "4.1.5",
-    "@types/joi": "14.3.3",
+    "@types/hapi__joi": "15.0.1",
+    "@types/ioredis": "4.0.11",
     "@types/lodash": "4.14.133",
     "@types/mocha": "5.2.7",
     "@types/node": "12.0.4",
     "@types/sinon": "7.0.12",
-    "@typescript-eslint/eslint-plugin": "^1.9.0",
+    "@typescript-eslint/eslint-plugin": "1.9.0",
     "chai": "4.2.0",
     "codacy-coverage": "3.4.0",
     "eslint": "5.16.0",
-    "eslint-config-prettier": "^4.3.0",
-    "eslint-config-standard": "^12.0.0",
-    "eslint-plugin-import": "^2.17.3",
-    "eslint-plugin-node": "^9.1.0",
-    "eslint-plugin-prettier": "^3.1.0",
-    "eslint-plugin-promise": "^4.1.1",
-    "eslint-plugin-standard": "^4.0.0",
+    "eslint-config-prettier": "4.3.0",
+    "eslint-config-standard": "12.0.0",
+    "eslint-plugin-import": "2.17.3",
+    "eslint-plugin-node": "9.1.0",
+    "eslint-plugin-prettier": "3.1.0",
+    "eslint-plugin-promise": "4.1.1",
+    "eslint-plugin-standard": "4.0.0",
     "faker": "4.1.0",
     "mocha": "6.1.4",
     "mocha-junit-reporter": "1.22.0",
@@ -102,7 +103,7 @@
     "prettier-stylelint": "0.4.2",
     "rimraf": "2.6.3",
     "sinon": "7.3.2",
-    "snyk": "1.171.0",
+    "snyk": "1.171.1",
     "ts-node": "8.2.0",
     "typescript": "3.5.1"
   },
@@ -114,5 +115,12 @@
   },
   "engines": {
     "node": ">=10.0.0"
+  },
+  "dependencies": {
+    "@hapi/joi": "15.0.3",
+    "immer": "3.1.2",
+    "ioredis": "4.9.5",
+    "lodash": "^4.17.11",
+    "loghandler": "1.0.7"
   }
 }

@@ -10,7 +10,7 @@ module.exports = function() {
       {instrument: true, pattern: 'src/**/**.ts'},
       {ignore: true, pattern: 'src/tests/**/**.test.ts'},
     ],
-    filesWithNoCoverageCalculated: ['src/tests/testFiles/**/**.ts'],
+    filesWithNoCoverageCalculated: ['src/tests/**/**.ts'],
     localProjectDir: __dirname,
     setup: function(wallaby) {
       var mocha = wallaby.testFramework
