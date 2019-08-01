@@ -1,7 +1,9 @@
 import {Config as logHandlerConfig} from 'loghandler'
 import {DisabledService} from './services'
 import {CacheConfig} from '../services/cache/interfaces'
-import {ServiceConfigurator} from './serviceConfigurator'
+import {ServiceConfigurator, QueueService} from './serviceConfigurator'
+import {DatabaseConfig} from '../services/database/interfaces'
+import {QueueConfig} from '../services/queue/interfaces'
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export interface Config<Services extends ServiceConfigurator = any> {
@@ -11,7 +13,11 @@ export interface Config<Services extends ServiceConfigurator = any> {
     readonly version: string
   }
   readonly log: logHandlerConfig
-  readonly storage: {
+  readonly services: {
     readonly cache: Services['cache'] extends true ? CacheConfig : DisabledService
+    readonly database: Services['db'] extends true ? DatabaseConfig : DisabledService
+    readonly queue: Services['queue'] extends QueueService
+      ? QueueConfig<Services['queue']['exchanges']>
+      : DisabledService
   }
 }

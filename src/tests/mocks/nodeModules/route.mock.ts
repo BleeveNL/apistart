@@ -16,7 +16,9 @@ const controller = (...args: any[]) => {
 
 class Instance {
   public readonly method: string
+
   public readonly path: string
+
   public readonly middleware: any[]
 
   public readonly controller = controller

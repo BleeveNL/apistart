@@ -13,14 +13,14 @@ const stubs = {
 }
 
 const reset = () => {
-  stubs.alert.resetHistory()
-  stubs.crit.resetHistory()
-  stubs.debug.resetHistory()
-  stubs.emerg.resetHistory()
-  stubs.err.resetHistory()
-  stubs.info.resetHistory()
-  stubs.notice.resetHistory()
-  stubs.warn.resetHistory()
+  stubs.alert.reset()
+  stubs.crit.reset()
+  stubs.debug.reset()
+  stubs.emerg.reset()
+  stubs.err.reset()
+  stubs.info.reset()
+  stubs.notice.reset()
+  stubs.warn.reset()
 }
 
 const Instance = class {

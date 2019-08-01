@@ -1,57 +1,10 @@
 import LogSchema from 'loghandler/lib/schemas/configSchema'
-import {valid, alternatives, object, string, number, boolean, func, array} from '@hapi/joi'
+import {valid, alternatives, object, string} from '@hapi/joi'
+import cacheEnabledConfigSchema from '../services/cache/validationSchemas/cacheEnabledConfig.schema'
+import databaseEnabledConfigSchema from '../services/database/validationSchemas/databaseEnabledConfig.schema'
 
 const serviceDisabled = object({
   enabled: valid(false).required(),
-})
-
-const cacheEnabled = object({
-  autoResendUnfulfilledCommands: boolean().optional(),
-  autoResubscribe: boolean().optional(),
-  connectTimeout: number()
-    .integer()
-    .optional(),
-  connectionName: string().optional(),
-  db: number()
-    .integer()
-    .optional(),
-  dropBufferSupport: boolean().optional(),
-  enableOfflineQueue: boolean().optional(),
-  enableReadyCheck: boolean().optional(),
-  enabled: valid(true).required(),
-  family: valid([4, 6]).optional(),
-  host: string().optional(),
-  keepAlive: number()
-    .integer()
-    .optional(),
-  keyPrefix: string().optional(),
-  lazyConnect: boolean().optional(),
-  name: string().optional(),
-  password: string().optional(),
-  path: string().optional(),
-  port: number()
-    .integer()
-    .optional(),
-  readOnly: boolean().optional(),
-  reconnectOnError: func()
-    .arity(1)
-    .optional(),
-  retryStrategy: func()
-    .arity(1)
-    .optional(),
-  sentinels: array()
-    .items(
-      object({
-        host: string().required(),
-        port: number()
-          .integer()
-          .required(),
-      }),
-    )
-    .optional(),
-  showFriendlyErrorStack: boolean().optional(),
-  tls: object().optional(),
-  url: string().optional(),
 })
 
 export default object({
@@ -61,9 +14,15 @@ export default object({
     version: string().required(),
   }).required(),
   log: LogSchema,
-  storage: object({
+  services: object({
     cache: alternatives()
-      .try([serviceDisabled, cacheEnabled])
+      .try([serviceDisabled, cacheEnabledConfigSchema])
+      .required(),
+    database: alternatives()
+      .try([serviceDisabled, databaseEnabledConfigSchema])
+      .required(),
+    queue: alternatives()
+      .try([serviceDisabled, databaseEnabledConfigSchema])
       .required(),
   }).required(),
 })

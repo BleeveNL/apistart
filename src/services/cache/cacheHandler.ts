@@ -7,6 +7,7 @@ import * as redis from 'ioredis'
 
 export class CacheHandler {
   private deps: Dependencies
+
   private config: Config
 
   public constructor(deps: Dependencies, config: Config) {
@@ -28,7 +29,7 @@ export class CacheHandler {
 
   public async setup() {
     if (this.CacheIsEnabled(this.config)) {
-      const cacheConfig = this.config.storage.cache
+      const cacheConfig = this.config.services.cache
 
       const client = cacheConfig.url
         ? new this.deps.Redis(cacheConfig.url, cacheConfig)
@@ -43,7 +44,7 @@ export class CacheHandler {
   }
 
   private CacheIsEnabled(config: Config): config is Config<ServiceConfiguratorCacheEnabled> {
-    return config.storage.cache.enabled
+    return config.services.cache.enabled
   }
 
   private setListeners(client: redis.Redis) {

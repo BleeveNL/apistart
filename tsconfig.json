@@ -21,9 +21,9 @@
     "noEmitOnError": true,
     "rootDir": "src",
     "preserveConstEnums": true,
-    "typeRoots": ["@CustomTypes", "node_modules/@types"]
+    "typeRoots": ["node_modules/@types"]
   },
-  "exclude": ["node_modules", "public"],
-  "include": ["./test/**/*.d.ts", "./src/**/*.ts", "**/*.ts"],
+  "exclude": ["./src/tests"],
+  "include": [ "./src/**/*.ts"],
   "types": ["node", "mocha", "chai"]
 }

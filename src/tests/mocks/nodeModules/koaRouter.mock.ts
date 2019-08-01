@@ -21,6 +21,7 @@ const reset = () => {
 
 class Instance {
   public readonly middleware: any[] = []
+
   public constructor(...args: any[]) {
     stubs.constructor(...args)
   }

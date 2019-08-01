@@ -13,15 +13,21 @@ export const correct: Config = {
       silent: true,
     },
   },
-  storage: {
+  services: {
     cache: {
+      enabled: false,
+    },
+    database: {
+      enabled: false,
+    },
+    queue: {
       enabled: false,
     },
   },
 }
 
 export const error = ({
-  app: 'hello World!',
+  app: 'Broken Config',
   log: {
     reporters: [],
     reporting: {
@@ -30,7 +36,47 @@ export const error = ({
   },
 } as unknown) as Config
 
+export const dbEnabled: Config<{
+  cache: false
+  db: true
+  queue: false
+}> = {
+  app: {
+    env: faker.lorem.word(),
+    name: faker.lorem.slug(),
+    version: faker.system.semver(),
+  },
+  log: {
+    reporters: [],
+    reporting: {
+      silent: true,
+    },
+  },
+  services: {
+    cache: {
+      enabled: false,
+    },
+    database: {
+      database: faker.random.word(),
+      dialect: 'postgres',
+      enabled: true,
+      folder: {
+        migrations: faker.system.filePath(),
+        seeds: faker.system.filePath(),
+      },
+      models: [],
+      password: faker.random.alphaNumeric(15),
+      port: faker.random.number(),
+      username: faker.random.alphaNumeric(15),
+    },
+    queue: {
+      enabled: false,
+    },
+  },
+}
+
 export default {
   correct,
+  dbEnabled,
   error,
 }

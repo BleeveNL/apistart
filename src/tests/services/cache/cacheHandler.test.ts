@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import * as chai from 'chai'
+import {assert} from 'chai'
 import * as _ from 'lodash'
 import * as faker from 'faker'
 import immer from 'immer'
@@ -8,14 +8,12 @@ import configMocked from '../../mocks/config.mock'
 import DependencyMock from './mocks/dependencies.mock'
 import {Config} from '../../../systemInterfaces/config'
 import {ServiceConfiguratorCacheEnabled} from '../../../services/cache/interfaces'
-import {Instance as RedisInstance} from '../../mocks/nodeModules/redis'
-
-const assert = chai.assert
+import {Instance as RedisInstance} from '../../mocks/nodeModules/redis.mock'
 
 suite('Test CacheHandler (./services/cache/cacheHandler.ts)', () => {
   let correctConfig = _.cloneDeep(configMocked.correct)
 
-  beforeEach(() => {
+  setup(() => {
     correctConfig = _.cloneDeep(configMocked.correct)
   })
 
@@ -38,7 +36,7 @@ suite('Test CacheHandler (./services/cache/cacheHandler.ts)', () => {
   suite('Test setup()', () => {
     const cacheHandlerClass = new CacheHandler(DependencyMock.dependencies, correctConfig)
 
-    beforeEach(() => {
+    setup(() => {
       DependencyMock.reset()
     })
 
@@ -48,7 +46,7 @@ suite('Test CacheHandler (./services/cache/cacheHandler.ts)', () => {
 
     test('Setup throws Error when cache is disabled in config', async () => {
       const config = immer(correctConfig, draft => {
-        draft.storage.cache.enabled = false
+        draft.services.cache.enabled = false
       })
       const cacheHandler = new CacheHandler(DependencyMock.dependencies, config)
       try {
@@ -68,11 +66,16 @@ suite('Test CacheHandler (./services/cache/cacheHandler.ts)', () => {
 
         const config: Config<ServiceConfiguratorCacheEnabled> = {
           ...correctConfig,
-          storage: {
-            ...correctConfig.storage,
+          services: {
             cache: {
               enabled: true,
               url,
+            },
+            database: {
+              enabled: false,
+            },
+            queue: {
+              enabled: false,
             },
           },
         }
@@ -83,18 +86,23 @@ suite('Test CacheHandler (./services/cache/cacheHandler.ts)', () => {
         assert.isTrue(DependencyMock.stubs.redis.constructor.called)
         assert.equal(DependencyMock.stubs.redis.constructor.callCount, 1)
         assert.equal(DependencyMock.stubs.redis.constructor.args[0][0], url)
-        assert.deepEqual(DependencyMock.stubs.redis.constructor.args[0][1], config.storage.cache)
+        assert.deepEqual(DependencyMock.stubs.redis.constructor.args[0][1], config.services.cache)
       })
 
       test('When URL is not given make connection by other settings', async () => {
         const config: Config<ServiceConfiguratorCacheEnabled> = {
           ...correctConfig,
-          storage: {
-            ...correctConfig.storage,
+          services: {
             cache: {
               enabled: true,
               host: 'example.com',
               port: 1234,
+            },
+            database: {
+              enabled: false,
+            },
+            queue: {
+              enabled: false,
             },
           },
         }
@@ -104,18 +112,23 @@ suite('Test CacheHandler (./services/cache/cacheHandler.ts)', () => {
 
         assert.isTrue(DependencyMock.stubs.redis.constructor.called)
         assert.equal(DependencyMock.stubs.redis.constructor.callCount, 1)
-        assert.deepEqual(DependencyMock.stubs.redis.constructor.args[0][0], config.storage.cache)
+        assert.deepEqual(DependencyMock.stubs.redis.constructor.args[0][0], config.services.cache)
       })
 
       test('connect() is called after instanceOf ioredis is created.', async () => {
         const config: Config<ServiceConfiguratorCacheEnabled> = {
           ...correctConfig,
-          storage: {
-            ...correctConfig.storage,
+          services: {
             cache: {
               enabled: true,
               host: 'example.com',
               port: 1234,
+            },
+            database: {
+              enabled: false,
+            },
+            queue: {
+              enabled: false,
             },
           },
         }
@@ -130,12 +143,17 @@ suite('Test CacheHandler (./services/cache/cacheHandler.ts)', () => {
     test('Listeners are created for redis and communicates to Loghandler', async () => {
       const config: Config<ServiceConfiguratorCacheEnabled> = {
         ...correctConfig,
-        storage: {
-          ...correctConfig.storage,
+        services: {
           cache: {
             enabled: true,
             host: 'example.com',
             port: 1234,
+          },
+          database: {
+            enabled: false,
+          },
+          queue: {
+            enabled: false,
           },
         },
       }
@@ -150,12 +168,17 @@ suite('Test CacheHandler (./services/cache/cacheHandler.ts)', () => {
     test('setup() returns instanceOf ioredis when Cache is enabled', async () => {
       const config: Config<ServiceConfiguratorCacheEnabled> = {
         ...correctConfig,
-        storage: {
-          ...correctConfig.storage,
+        services: {
           cache: {
             enabled: true,
             host: 'example.com',
             port: 1234,
+          },
+          database: {
+            enabled: false,
+          },
+          queue: {
+            enabled: false,
           },
         },
       }
