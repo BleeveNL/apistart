@@ -1,5 +1,9 @@
 {
   "compilerOptions": {
+    "composite": true,
+    "declarationDir": "./lib/@types",
+    "incremental": true,
+    "inlineSourceMap": true,
     "module": "commonjs",
     "moduleResolution": "node",
     "noImplicitAny": true,
@@ -9,11 +13,9 @@
     "noUnusedParameters": true,
     "removeComments": true,
     "skipLibCheck": false,
-    "sourceMap": true,
     "strictNullChecks": true,
     "target": "ES2017",
     "outDir": "./lib",
-    "declaration": true,
     "diagnostics": true,
     "alwaysStrict": true,
     "allowJs": false,
@@ -23,7 +25,6 @@
     "preserveConstEnums": true,
     "typeRoots": ["node_modules/@types"]
   },
-  "exclude": ["./src/tests"],
-  "include": [ "./src/**/*.ts"],
-  "types": ["node", "mocha", "chai"]
+  "exclude": [],
+  "include": [ "./src/**/*.ts",]
 }

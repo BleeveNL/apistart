@@ -1,6 +1,7 @@
 import {Log} from 'loghandler'
 import * as amqp from 'amqplib'
 import {EnabledService} from '../../systemInterfaces/services'
+import {ServiceConfigurator} from '../../systemInterfaces/serviceConfigurator'
 
 export interface Dependencies {
   readonly Amqp: typeof amqp
@@ -21,4 +22,8 @@ export interface QueueExchangeSettings<TExchangeNames extends string = string> {
 
 export interface QueueConfig<ExchangeNames extends string = string> extends EnabledService, amqp.Options.Connect {
   readonly exchanges: QueueExchangeSettings<ExchangeNames>[]
+}
+
+export interface ServiceConfiguratorQueueEnabled extends ServiceConfigurator {
+  queue: QueueService
 }

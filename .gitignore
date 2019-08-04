@@ -62,3 +62,6 @@ typings/
 
 # personal IDE settings
 .vscode
+
+# ignore compiled code
+lib/

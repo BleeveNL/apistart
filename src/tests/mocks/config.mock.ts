@@ -75,8 +75,47 @@ export const dbEnabled: Config<{
   },
 }
 
+export const queueEnabled: Config<{
+  cache: false
+  db: false
+  queue: {
+    enabled: true
+    exchanges: 'test'
+  }
+}> = {
+  app: {
+    env: faker.lorem.word(),
+    name: faker.lorem.slug(),
+    version: faker.system.semver(),
+  },
+  log: {
+    reporters: [],
+    reporting: {
+      silent: true,
+    },
+  },
+  services: {
+    cache: {
+      enabled: false,
+    },
+    database: {
+      enabled: false,
+    },
+    queue: {
+      enabled: true,
+      exchanges: [
+        {
+          name: 'test',
+          type: 'default',
+        },
+      ],
+    },
+  },
+}
+
 export default {
   correct,
   dbEnabled,
   error,
+  queueEnabled,
 }

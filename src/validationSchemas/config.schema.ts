@@ -2,6 +2,7 @@ import LogSchema from 'loghandler/lib/schemas/configSchema'
 import {valid, alternatives, object, string} from '@hapi/joi'
 import cacheEnabledConfigSchema from '../services/cache/validationSchemas/cacheEnabledConfig.schema'
 import databaseEnabledConfigSchema from '../services/database/validationSchemas/databaseEnabledConfig.schema'
+import queueEnabledConfigSchema from '../services/queue/validationSchemas/queueEnabledConfig.schema'
 
 const serviceDisabled = object({
   enabled: valid(false).required(),
@@ -22,7 +23,7 @@ export default object({
       .try([serviceDisabled, databaseEnabledConfigSchema])
       .required(),
     queue: alternatives()
-      .try([serviceDisabled, databaseEnabledConfigSchema])
+      .try([serviceDisabled, queueEnabledConfigSchema])
       .required(),
   }).required(),
 })

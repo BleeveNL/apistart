@@ -6,7 +6,7 @@ const stubs = {
 }
 
 const reset = () => {
-  stubs.connect.resetHistory()
+  stubs.connect.reset()
 }
 
 const Instance = class {

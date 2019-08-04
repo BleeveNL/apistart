@@ -2,8 +2,8 @@ import {Config} from '../../systemInterfaces/config'
 import Immer from 'immer'
 import Loghandler from 'loghandler'
 import * as _ from 'lodash'
-import {Dependencies, ServiceConfiguratorDBEnabled, DatabaseConfig} from './interfaces'
-import {Sequelize} from 'sequelize'
+import {Dependencies, ServiceConfiguratorDBEnabled} from './interfaces'
+import {Sequelize, Options} from 'sequelize'
 import * as fs from 'fs'
 import Migrations from './models/migrations'
 import {Model, Models} from './interfaces/model'
@@ -74,7 +74,7 @@ export class DatabaseHandler {
     return config.services.database.enabled
   }
 
-  private connect(config: DatabaseConfig) {
+  private connect(config: Options) {
     const log = this.deps.Log
     const connection = new this.deps.Sequelize({
       benchmark: true,

@@ -37,7 +37,7 @@ suite('Test DatabaseHandler (./services/database/databaseHandler.ts)', () => {
     assert.equal(DatabaseHandler.factory.length, 1)
   })
 
-  test('factory() returns instance of cacheHanlder', () => {
+  test('factory() returns instance of databaseHandler', () => {
     assert.instanceOf(DatabaseHandler.factory(correctConfig), DatabaseHandler)
   })
 
