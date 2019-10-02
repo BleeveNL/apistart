@@ -108,6 +108,10 @@ export const queueEnabled: Config<{
           name: 'test',
           type: 'default',
         },
+        {
+          name: 'test2',
+          type: 'default',
+        },
       ],
     },
   },
