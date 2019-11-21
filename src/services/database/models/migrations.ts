@@ -1,7 +1,7 @@
 import {STRING, INTEGER, Model as SequelizeModel} from 'sequelize'
-import {Model} from '../interfaces/model'
+import {ModelAbstract} from '../interfaces/model'
 
-export default class Migrations extends SequelizeModel implements Model {
+export default class Migrations extends SequelizeModel implements ModelAbstract {
   public file!: string
 
   public round!: number

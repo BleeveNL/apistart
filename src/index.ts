@@ -1,5 +1,4 @@
 import Microservice from './microservice'
-import {validate} from '@hapi/joi'
 import configSchema from './validationSchemas/config.schema'
 import {Config} from './systemInterfaces/config'
 
@@ -8,7 +7,7 @@ export const apiStart = <TConfig extends Config>(config: unknown) => {
     return Microservice.factory<TConfig>(config)
   }
 
-  throw validate(config, configSchema)
+  throw configSchema.validate(config, {allowUnknown: true})
 }
 
 export default apiStart

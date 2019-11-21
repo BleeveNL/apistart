@@ -31,7 +31,7 @@ export class Microservice<TConfig extends Config = Config> {
   }
 
   public static validateConfig<TConfig extends Config = Config>(config: unknown): config is TConfig {
-    const validate = joi.validate(config, configSchema, {allowUnknown: true})
+    const validate = configSchema.validate(config, {allowUnknown: true})
     return validate.error === null
   }
 

@@ -10,8 +10,8 @@ import DefaultExport, {DatabaseHandler} from '../../../services/database/databas
 import configMocked from '../../mocks/config.mock'
 import * as sequelizeMock from '../../mocks/nodeModules/sequelize.mock'
 import {Sequelize} from 'sequelize/types'
-import {Model} from '../../../services/database/interfaces/model'
 import * as ModelMocked from './mocks/model.mock'
+import {Model} from '../../../services/database/interfaces/model'
 
 suite('Test DatabaseHandler (./services/database/databaseHandler.ts)', () => {
   let correctConfig = _.cloneDeep(configMocked.correct)
@@ -171,11 +171,11 @@ suite('Test DatabaseHandler (./services/database/databaseHandler.ts)', () => {
 
     test('Given system models get correctly initialized + synced', async () => {
       const randomNumber = Math.round(1 + 10 * Math.random())
-      const systemModels: (typeof Model)[] = []
+      const systemModels: Model[] = []
       const mock = _.cloneDeep(ModelMocked)
 
       for (let i = 0; i < randomNumber; i++) {
-        systemModels.push((mock.Instance as any) as typeof Model)
+        systemModels.push((mock.Instance as any) as Model)
       }
 
       databaseHandler = new DatabaseHandler(
@@ -217,7 +217,7 @@ suite('Test DatabaseHandler (./services/database/databaseHandler.ts)', () => {
           Sequelize: (sequelizeMock.Instance as unknown) as typeof Sequelize,
           _,
           fs,
-          systemModels: [(ModelMocked.Instance as any) as typeof Model],
+          systemModels: [(ModelMocked.Instance as any) as Model],
         },
         configMocked.dbEnabled,
       )
@@ -248,13 +248,13 @@ suite('Test DatabaseHandler (./services/database/databaseHandler.ts)', () => {
 
     test('Given user defined models get correctly initialized + synced', async () => {
       const randomNumber = Math.round(1 + 10 * Math.random())
-      const models: (typeof Model)[] = []
+      const models: Model[] = []
 
       const mock = _.cloneDeep(ModelMocked)
       const DB = faker.random.alphaNumeric(64)
 
       for (let i = 0; i < randomNumber; i++) {
-        models.push((mock.Instance as any) as typeof Model)
+        models.push((mock.Instance as any) as Model)
       }
 
       const config = immer(configMocked.dbEnabled, draft => {

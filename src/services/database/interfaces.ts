@@ -13,7 +13,7 @@ export interface Dependencies {
   readonly Immer: typeof immer
   readonly Log: Log
   readonly Sequelize: typeof Sequelize
-  readonly systemModels: (typeof Model)[]
+  readonly systemModels: Model[]
 }
 
 export interface DatabaseConfig extends EnabledService, Options {
@@ -21,7 +21,7 @@ export interface DatabaseConfig extends EnabledService, Options {
     readonly migrations: string
     readonly seeds: string
   }
-  readonly models: (typeof Model)[]
+  readonly models: Model[]
 }
 
 export interface ServiceConfiguratorDBEnabled extends ServiceConfigurator {

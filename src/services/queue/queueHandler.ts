@@ -1,11 +1,17 @@
 import * as Amqp from 'amqplib'
 import LogHandler from 'loghandler'
 import * as Process from 'process'
-import {Dependencies, ServiceConfiguratorQueueEnabled, QueueEventListenerList, QueueConfig, QueueExchangeSettings} from './interfaces'
+import {
+  Dependencies,
+  ServiceConfiguratorQueueEnabled,
+  QueueEventListenerList,
+  QueueConfig,
+  QueueExchangeSettings,
+} from './interfaces'
 import {Config} from '../../systemInterfaces/config'
-import { InternalSystem } from '../../systemInterfaces/internalSystem';
-import { Models } from '../database/interfaces/model'
-import { ServiceConfigurator } from '../../systemInterfaces/serviceConfigurator'
+import {InternalSystem} from '../../systemInterfaces/internalSystem'
+import {Models} from '../database/interfaces/model'
+import {ServiceConfigurator} from '../../systemInterfaces/serviceConfigurator'
 
 export class QueueHandler {
   private deps: Dependencies
@@ -55,17 +61,23 @@ export class QueueHandler {
         >(
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
           sysDeps: InternalSystem<TConfig, TModels, TServiceConfigurator>,
-        ) => (
+        ) => async (
           listeners: QueueEventListenerList,
           callback?: (sysDeps: InternalSystem<TConfig, TModels, TServiceConfigurator>) => void,
         ) => {
-          if(this.verifyQueueEventListeners(listeners)){
-            this.startServer(this.deps, sysDeps, settings, connection, listeners, callback)
-            .then()
-            .catch(err => {
+          if (this.verifyQueueEventListeners(listeners)) {
+            try {
+              await this.startServer(this.deps, sysDeps, settings, connection, listeners)
+              if (callback) {
+                callback(sysDeps)
+              }
+              return true
+            } catch (err) {
               this.deps.Log.crit(err)
-            })
+            }
           }
+
+          return false
         },
       }
     }
@@ -82,20 +94,19 @@ export class QueueHandler {
   }
 
   private getExchangeOptions(exchange: QueueExchangeSettings<string>): Amqp.Options.AssertExchange {
-        if (exchange.options) {
-          return !('durable' in exchange.options)
-            ? {
-              ...exchange.options,
-              durable: true,
-            }
-            : exchange.options
-        } else {
-          return {durable: true}
-        }
-
+    if (exchange.options) {
+      return !('durable' in exchange.options)
+        ? {
+            ...exchange.options,
+            durable: true,
+          }
+        : exchange.options
+    } else {
+      return {durable: true}
+    }
   }
 
-  private getExchangeType(exchange: QueueExchangeSettings<string>){
+  private getExchangeType(exchange: QueueExchangeSettings<string>) {
     return exchange.type === 'default' ? '' : exchange.type
   }
 
@@ -104,8 +115,6 @@ export class QueueHandler {
       const connection = await this.deps.Amqp.connect(settings)
       const channel = await connection.createChannel()
       for (const exchangeSettings of settings.exchanges) {
-        
-
         await channel.assertExchange(
           exchangeSettings.name,
           this.getExchangeType(exchangeSettings),
@@ -113,8 +122,10 @@ export class QueueHandler {
         )
       }
       return channel
-    } else{
-      throw new Error("Couldn't establish connection with amqp service, because none exchanges are configurated in config file.")
+    } else {
+      throw new Error(
+        "Couldn't establish connection with amqp service, because none exchanges are configurated in config file.",
+      )
     }
   }
 
@@ -127,47 +138,41 @@ export class QueueHandler {
     data: {},
     options?: Amqp.Options.Publish,
   ) {
-    
     const exchange = settings.exchanges.reduce((acc, cur) =>
       cur.name === exchangeName && acc.name !== exchangeName ? cur : acc,
     )
 
-    if (exchange.name === exchangeName){
-      let exchangeOptions = this.getExchangeOptions(exchange)
-      
-        let msgOptions: Amqp.Options.Publish
-        if (options) {
-          msgOptions = !('persistent' in options)
-            ? {
+    if (exchange.name === exchangeName) {
+      const exchangeOptions = this.getExchangeOptions(exchange)
+
+      let msgOptions: Amqp.Options.Publish
+      if (options) {
+        msgOptions = !('persistent' in options)
+          ? {
               ...options,
               persistent: true,
             }
-            : options
-        } else {
-          msgOptions = {
-            persistent: true,
-          }
+          : options
+      } else {
+        msgOptions = {
+          persistent: true,
         }
+      }
 
-        await channel.assertExchange(
-          exchange.name,
-          this.getExchangeType(exchange),
-          exchangeOptions,
-        )
+      await channel.assertExchange(exchange.name, this.getExchangeType(exchange), exchangeOptions)
 
-        channel.publish(exchange.name, routingKey, Buffer.from(JSON.stringify(data), 'utf-8'), msgOptions)
-        deps.Log.info(`Added new event with routingkey "${routingKey}" to "${exchange.name}" exchange.`, {
-          data,
-          exchangeName,
-          options,
-          routingKey,
-        })
+      channel.publish(exchange.name, routingKey, Buffer.from(JSON.stringify(data), 'utf-8'), msgOptions)
+      deps.Log.info(`Added new event with routingkey "${routingKey}" to "${exchange.name}" exchange.`, {
+        data,
+        exchangeName,
+        options,
+        routingKey,
+      })
     } else {
       throw new Error(
         `Couldn't publish message, because exchange Name ${exchangeName} isn't configured in config file.`,
       )
     }
-  
   }
 
   private async startServer<
@@ -180,28 +185,62 @@ export class QueueHandler {
     settings: QueueConfig,
     connection: Amqp.Channel,
     eventListeners: QueueEventListenerList,
-    callback?: (sysDeps: InternalSystem<TConfig, TModels, TServiceConfigurator>) => void,
   ) {
-  
-  
+    for (const exchangeSettings of settings.exchanges) {
+      const listeners = eventListeners.filter(listener => listener.exchange === exchangeSettings.name)
+      for (const listener of listeners) {
+        const queue = await connection.assertQueue(listener.settings.queue.name || '', listener.settings.queue)
+        await connection.bindQueue(queue.queue, exchangeSettings.name, listener.routingKey)
+
+        let dependencies = {}
+        if (listener.dependencies) {
+          dependencies =
+            typeof listener.dependencies === 'function' ? listener.dependencies(sysDeps) : listener.dependencies
+        }
+
+        connection.consume(
+          queue.queue,
+          async msg => {
+            try {
+              if (msg !== null) {
+                const handler = await listener.handler(
+                  {
+                    ...sysDeps,
+                    Dependencies: dependencies,
+                  },
+                  msg,
+                )
+                if (handler) {
+                  connection.ack(msg)
+                } else {
+                  connection.nack(msg)
+                }
+              }
+            } catch (err) {
+              deps.Log.crit(err, {msg})
+              const message = msg as Amqp.ConsumeMessage
+              connection.nack(message)
+            }
+          },
+          listener.settings.consume,
+        )
+      }
+    }
   }
 
   private verifyQueueEventListeners(listeners: QueueEventListenerList) {
-    if(this.queueEnabled(this.config)){
-      const exchangesNames = this.config.services.queue.exchanges.filter(exchange => exchange.name)
-      
-      for(const listener of listeners){
-        if(!exchangesNames.includes(listener.exchange)){
-          throw new Error(`Queue server is stopped because it found an eventHandler that uses the "${listener.exchange}" exchange, while this exchange isn't configured.`)
-        }
+    const config: Config<ServiceConfiguratorQueueEnabled> = this.config
+    const exchangesNames = config.services.queue.exchanges.filter(exchange => exchange.name)
+
+    for (const listener of listeners) {
+      if (!exchangesNames.map(exchange => exchange.name).includes(listener.exchange)) {
+        throw new Error(
+          `Queue server is stopped because it found an eventHandler that uses the "${listener.exchange}" exchange, while this exchange isn't configured.`,
+        )
       }
+    }
 
-      return true
-
-    } 
-    
-    throw new Error('Queue server is started while service is disabled in configuration.')
-    
+    return true
   }
 }
 

@@ -88,7 +88,7 @@ export class DatabaseHandler {
     return connection
   }
 
-  private async SyncMigrationTable(DB: Sequelize, models: (typeof Model)[]) {
+  private async SyncMigrationTable(DB: Sequelize, models: Model[]) {
     for (const model of models) {
       model.init(model.structure, {sequelize: DB, ...model.settings})
       await model.sync()

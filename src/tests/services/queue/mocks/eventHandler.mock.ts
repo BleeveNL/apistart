@@ -1,20 +1,22 @@
-import { QueueEventListener } from "../../../../services/queue/interfaces"
+/* eslint-disable @typescript-eslint/no-explicit-any */
+
+import {QueueEventListener} from '../../../../services/queue/interfaces'
 import * as sinon from 'sinon'
 import * as faker from 'faker'
 
-const stubs  = {
-    dependencies: sinon.stub(),
-    handler: sinon.stub()
+const stubs = {
+  dependencies: sinon.stub(),
+  handler: sinon.stub(),
 }
 
 const reset = () => {
-    stubs.dependencies.reset()
-    stubs.handler.reset()
+  stubs.dependencies.reset()
+  stubs.handler.reset()
 }
 
- const Instance: QueueEventListener<any, any, any, any> = {
+const Instance: QueueEventListener<any, any, any, any> = {
   dependencies: (...args: any) => {
-      return stubs.dependencies(args)
+    return stubs.dependencies(args)
   },
   exchange: 'test',
   handler: async (...args: any) => {
@@ -23,8 +25,11 @@ const reset = () => {
   routingKey: faker.random.alphaNumeric(8),
   settings: {
     consume: {},
-    queue: {}
+    queue: {
+      name: faker.random.alphaNumeric(8),
+    },
   },
 }
 
 export {stubs, reset, Instance}
+/* eslint-enable @typescript-eslint/no-explicit-any */

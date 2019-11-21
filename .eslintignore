@@ -1,3 +1,5 @@
 node_modules
 lib/
 yarn.lock
+prettier.config.js
+wallaby.conf.js

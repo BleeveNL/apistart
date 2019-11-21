@@ -3,7 +3,8 @@ import {Models} from '../services/database/interfaces/model'
 import {ServiceConfigurator, QueueService} from './serviceConfigurator'
 import {Redis} from 'ioredis'
 import {Sequelize} from 'sequelize/types'
-import { QueueClient } from '../services/queue/interfaces'
+import {QueueClient} from '../services/queue/interfaces'
+import {Log} from 'loghandler'
 
 export interface InternalSystem<
   TConfig extends Config,
@@ -19,5 +20,3 @@ export interface InternalSystem<
     ? QueueClient<TServiceConfigurator['queue']['exchanges']>
     : undefined
 }
-
-

@@ -80,7 +80,7 @@ export const queueEnabled: Config<{
   db: false
   queue: {
     enabled: true
-    exchanges: 'test'
+    exchanges: 'test' | 'test2'
   }
 }> = {
   app: {

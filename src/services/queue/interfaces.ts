@@ -2,8 +2,8 @@ import {Log} from 'loghandler'
 import * as amqp from 'amqplib'
 import {EnabledService} from '../../systemInterfaces/services'
 import {ServiceConfigurator} from '../../systemInterfaces/serviceConfigurator'
-import { Config } from '../../systemInterfaces/config'
-import { Models } from '../database/interfaces/model'
+import {Config} from '../../systemInterfaces/config'
+import {Models} from '../database/interfaces/model'
 import {Dependencies as systemDependencies, CustomDependencies} from '../../systemInterfaces/dependencies'
 
 export interface Dependencies {
@@ -42,11 +42,11 @@ export type QueueEventListenerHandler<
 ) => Promise<boolean>
 
 export interface QueueEventListenerSettings {
-  readonly consume: amqp.Options.Consume,
-  readonly queue: QueueSettingsOptions,
+  readonly consume: amqp.Options.Consume
+  readonly queue: QueueSettingsOptions
 }
 export interface QueueSettingsOptions extends amqp.Options.AssertQueue {
-  readonly name?: string,
+  readonly name?: string
 }
 
 export interface QueueEventListener<
@@ -55,17 +55,16 @@ export interface QueueEventListener<
   TConfig extends Config,
   TModels extends Models
 > {
-  readonly dependencies?:
-    | systemDependencies<TDependencies, TServiceConfigurator, TConfig, TModels>
-    | TDependencies,
+  readonly dependencies?: systemDependencies<TDependencies, TServiceConfigurator, TConfig, TModels> | TDependencies
   readonly exchange: TServiceConfigurator['queue'] extends QueueService
     ? TServiceConfigurator['queue']['exchanges']
-    : string,
-  readonly handler: QueueEventListenerHandler<TServiceConfigurator, TDependencies, TConfig, TModels>,
-  readonly routingKey: string,
-  readonly settings: QueueEventListenerSettings,
+    : string
+  readonly handler: QueueEventListenerHandler<TServiceConfigurator, TDependencies, TConfig, TModels>
+  readonly routingKey: string
+  readonly settings: QueueEventListenerSettings
 }
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export type QueueEventListenerList = QueueEventListener<any, any, any, any>[]
 
 export interface QueueClient<TExchangeName extends string = string> {
@@ -75,5 +74,5 @@ export interface QueueClient<TExchangeName extends string = string> {
     // tslint:disable-next-line: no-any
     data: {},
     options?: amqp.Options.Publish,
-  ) => void,
+  ) => void
 }
