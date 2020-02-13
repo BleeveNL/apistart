@@ -4,21 +4,27 @@ import * as sinon from 'sinon'
 const stubs = {
   createServer: sinon.stub(),
   listen: sinon.stub(),
+  emit: sinon.stub(),
 }
 
 const reset = () => {
-  stubs.createServer.resetHistory()
-  stubs.listen.resetHistory()
+  stubs.createServer.reset()
+  stubs.listen.reset()
+  stubs.emit.reset()
 }
 
 const Instance = class {
   public createServer(...args: any[]) {
     stubs.createServer(...args)
     return {
-      listen: (port: number, callback: Function) => {
-        stubs.listen(port)
-        setTimeout(callback, 1)
-        return this
+      listen: (...args: any[]) => {
+        stubs.listen(...args)
+        args[1]()
+        return {
+          emit: (...args: any[]) => {
+            stubs.emit(...args)
+          },
+        }
       },
     }
   }

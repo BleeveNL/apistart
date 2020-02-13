@@ -5,7 +5,12 @@ import * as Koa from 'koa'
 import * as KoaBodyParser from 'koa-bodyparser'
 import * as KoaRouter from 'koa-router'
 import * as koaCors from '@koa/cors'
-import {WebserverHandlerDeps, ServiceConfiguratorWebserverEnabled} from './interfaces'
+import {
+  WebserverHandlerDeps,
+  ServiceConfiguratorWebserverEnabled,
+  WebserverCallbackFunction,
+  WebServerObject,
+} from './interfaces'
 import {Config} from '../../systemInterfaces/config'
 import {InternalSystem} from '../../systemInterfaces/internalSystem'
 import {Models} from '../database/interfaces/model'
@@ -34,8 +39,9 @@ export class WebserverHandler {
     system: InternalSystem<TServiceConfigurator, TConfig, TModels>,
   ) {
     if (this.webserverEnabled(this.config)) {
+      const configuration = this.MakeWebserviceInstance<TServiceConfigurator, TConfig, TModels>(system)
       // eslint-disable-next-line @typescript-eslint/no-empty-function
-      return (callback: () => void = () => {}) => this.start(system, {}, callback)
+      return (callback: () => void = () => {}) => this.start(system, configuration, callback)
     }
 
     return () => {
@@ -46,19 +52,62 @@ export class WebserverHandler {
   private start<TServiceConfigurator extends ServiceConfigurator, TConfig extends Config, TModels extends Models>(
     system: InternalSystem<TServiceConfigurator, TConfig, TModels>,
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    instance: any,
+    instance: Koa,
     // eslint-disable-next-line @typescript-eslint/no-empty-function
-    callback: () => void = () => {},
+    callback: WebserverCallbackFunction<TServiceConfigurator, TConfig, TModels> = () => {},
   ) {
-    this.deps.Immer({}, () => ({}))
-    console.log(system.Log.crit)
-    console.log(instance)
-    callback()
-    return true
+    const server: WebServerObject = {}
+    if (this.config.services.webserver.enabled && this.config.services.webserver.settings.connection.http.enabled) {
+      const httpWebserverSettings = this.config.services.webserver.settings.connection.http
+      server.http = this.deps.Http.createServer(instance.callback()).listen(
+        httpWebserverSettings.port ? httpWebserverSettings.port : 80,
+        () => {
+          system.Log.info(
+            `Http server started on port ${httpWebserverSettings.port ? httpWebserverSettings.port : 80}!`,
+          )
+          callback(system, 'http')
+        },
+      )
+    }
+
+    if (this.config.services.webserver.enabled && this.config.services.webserver.settings.connection.https.enabled) {
+      const httpsWebserverSettings = this.config.services.webserver.settings.connection.https
+      server.https = this.deps.Https.createServer(instance.callback()).listen(
+        httpsWebserverSettings.port ? httpsWebserverSettings.port : 443,
+        () => {
+          system.Log.info(
+            `Https server started on port ${httpsWebserverSettings.port ? httpsWebserverSettings.port : 443}!`,
+          )
+          callback(system, 'https')
+        },
+      )
+    }
+
+    return {
+      // eslint-disable-next-line @typescript-eslint/no-empty-function
+      close: (callback = () => {}) => {
+        if (server.http) {
+          server.http.emit('close')
+        }
+        if (server.https) {
+          server.https.emit('close')
+        }
+
+        callback()
+      },
+    }
   }
 
   private webserverEnabled(config: Config): config is Config<ServiceConfiguratorWebserverEnabled> {
     return config.services.webserver.enabled
+  }
+
+  private MakeWebserviceInstance<
+    TServiceConfigurator extends ServiceConfigurator,
+    TConfig extends Config,
+    TModels extends Models
+  >(system: InternalSystem<TServiceConfigurator, TConfig, TModels>) {
+    return new this.deps.Koa()
   }
 }
 

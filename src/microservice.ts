@@ -49,7 +49,7 @@ export class Microservice<
 
   public static validateConfig<TConfig extends Config = Config>(config: unknown): config is TConfig {
     const validate = configSchema.validate(config, {allowUnknown: true})
-    return validate.error === null
+    return validate.error === undefined
   }
 
   public async setup() {
@@ -89,7 +89,6 @@ export class Microservice<
   }
 
   private GetModels<TModels extends Models>(db: Sequelize | undefined) {
-    console.log(db)
     return ((this.config.services.database.enabled && db
       ? this.deps.services.database.getModels<TModels>(db)
       : undefined) as unknown) as TServiceConfigurator['db'] extends true ? TModels : undefined

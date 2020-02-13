@@ -96,8 +96,7 @@ export const everythingEnabled: Config<{
       settings: {
         connection: {
           http: {
-            enabled: true,
-            port: 80,
+            enabled: false,
           },
           https: {
             enabled: false,
@@ -105,7 +104,7 @@ export const everythingEnabled: Config<{
         },
         proxy: false,
         subdomainOffset: 0,
-        versionHandler: false,
+        versionHandler: 'url',
       },
     },
   },

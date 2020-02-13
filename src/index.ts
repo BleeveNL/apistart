@@ -15,7 +15,7 @@ export const apiStart = <
     return Microservice.factory<TServiceConfigurator, TConfig, TModels>(config)
   }
 
-  throw configSchema.validate(config, {allowUnknown: true})
+  throw configSchema.validate(config, {allowUnknown: true}).error
 }
 
 export default apiStart
