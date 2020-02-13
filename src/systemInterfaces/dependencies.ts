@@ -8,7 +8,7 @@ export interface Dependencies<
   TServiceConfigurator extends ServiceConfigurator,
   TConfig extends Config,
   TModels extends Models
-> extends InternalSystem<TConfig, TModels, TServiceConfigurator> {
+> extends InternalSystem<TServiceConfigurator, TConfig, TModels> {
   readonly Dependencies: TDependencies
 }
 

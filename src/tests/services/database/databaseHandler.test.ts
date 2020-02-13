@@ -14,10 +14,10 @@ import * as ModelMocked from './mocks/model.mock'
 import {Model} from '../../../services/database/interfaces/model'
 
 suite('Test DatabaseHandler (./services/database/databaseHandler.ts)', () => {
-  let correctConfig = _.cloneDeep(configMocked.correct)
+  let correctConfig = _.cloneDeep(configMocked.correct.everythingDisabled)
 
   setup(() => {
-    correctConfig = _.cloneDeep(configMocked.correct)
+    correctConfig = _.cloneDeep(configMocked.correct.everythingDisabled)
   })
 
   teardown(() => {
@@ -95,18 +95,18 @@ suite('Test DatabaseHandler (./services/database/databaseHandler.ts)', () => {
           fs,
           systemModels: [],
         },
-        configMocked.dbEnabled,
+        configMocked.correct.everythingEnabled,
       )
 
       await databaseHandler.setup()
 
       assert.isTrue(sequelizeMock.stubs.constructor.calledOnce)
       const constructorInput = sequelizeMock.stubs.constructor.args[0][0]
-      assert.equal(configMocked.dbEnabled.services.database.database, constructorInput.database)
-      assert.equal(configMocked.dbEnabled.services.database.dialect, constructorInput.dialect)
-      assert.equal(configMocked.dbEnabled.services.database.username, constructorInput.username)
-      assert.equal(configMocked.dbEnabled.services.database.password, constructorInput.password)
-      assert.equal(configMocked.dbEnabled.services.database.port, constructorInput.port)
+      assert.equal(configMocked.correct.everythingEnabled.services.database.database, constructorInput.database)
+      assert.equal(configMocked.correct.everythingEnabled.services.database.dialect, constructorInput.dialect)
+      assert.equal(configMocked.correct.everythingEnabled.services.database.username, constructorInput.username)
+      assert.equal(configMocked.correct.everythingEnabled.services.database.password, constructorInput.password)
+      assert.equal(configMocked.correct.everythingEnabled.services.database.port, constructorInput.port)
       assert.isTrue(sequelizeMock.stubs.authenticate.calledOnce)
       assert.equal(loghandlerMock.stubs.info.args[0][0], 'Database connection is made')
     })
@@ -123,7 +123,7 @@ suite('Test DatabaseHandler (./services/database/databaseHandler.ts)', () => {
           fs,
           systemModels: [],
         },
-        configMocked.dbEnabled,
+        configMocked.correct.everythingEnabled,
       )
 
       try {
@@ -144,7 +144,7 @@ suite('Test DatabaseHandler (./services/database/databaseHandler.ts)', () => {
           fs,
           systemModels: [],
         },
-        configMocked.dbEnabled,
+        configMocked.correct.everythingEnabled,
       )
 
       await databaseHandler.setup()
@@ -187,7 +187,7 @@ suite('Test DatabaseHandler (./services/database/databaseHandler.ts)', () => {
           fs,
           systemModels,
         },
-        configMocked.dbEnabled,
+        configMocked.correct.everythingEnabled,
       )
 
       ModelMocked.reset()
@@ -219,7 +219,7 @@ suite('Test DatabaseHandler (./services/database/databaseHandler.ts)', () => {
           fs,
           systemModels: [(ModelMocked.Instance as any) as Model],
         },
-        configMocked.dbEnabled,
+        configMocked.correct.everythingEnabled,
       )
 
       const error = new Error(faker.random.words(8))
@@ -257,7 +257,7 @@ suite('Test DatabaseHandler (./services/database/databaseHandler.ts)', () => {
         models.push((mock.Instance as any) as Model)
       }
 
-      const config = immer(configMocked.dbEnabled, draft => {
+      const config = immer(configMocked.correct.everythingEnabled, draft => {
         draft.services.database.models = models
       })
 
@@ -298,7 +298,7 @@ suite('Test DatabaseHandler (./services/database/databaseHandler.ts)', () => {
           fs,
           systemModels: [],
         },
-        configMocked.correct,
+        configMocked.correct.everythingDisabled,
       )
 
       try {

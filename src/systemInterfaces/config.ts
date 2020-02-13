@@ -4,6 +4,7 @@ import {CacheConfig} from '../services/cache/interfaces'
 import {ServiceConfigurator, QueueService} from './serviceConfigurator'
 import {DatabaseConfig} from '../services/database/interfaces'
 import {QueueConfig} from '../services/queue/interfaces'
+import {WebserverConfig} from '../services/webserver/config/webserverConfig'
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export interface Config<Services extends ServiceConfigurator = any> {
@@ -19,5 +20,6 @@ export interface Config<Services extends ServiceConfigurator = any> {
     readonly queue: Services['queue'] extends QueueService
       ? QueueConfig<Services['queue']['exchanges']>
       : DisabledService
+    readonly webserver: Services['webserver'] extends true ? WebserverConfig : DisabledService
   }
 }

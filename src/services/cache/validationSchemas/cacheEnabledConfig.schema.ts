@@ -1,50 +1,58 @@
-import {valid, object, string, number, boolean, func, array} from '@hapi/joi'
+import * as joi from '@hapi/joi'
 
-export default object({
-  autoResendUnfulfilledCommands: boolean().optional(),
-  autoResubscribe: boolean().optional(),
-  connectTimeout: number()
+export default joi.object({
+  autoResendUnfulfilledCommands: joi.boolean().optional(),
+  autoResubscribe: joi.boolean().optional(),
+  connectTimeout: joi
+    .number()
     .integer()
     .optional(),
-  connectionName: string().optional(),
-  db: number()
+  connectionName: joi.string().optional(),
+  db: joi
+    .number()
     .integer()
     .optional(),
-  dropBufferSupport: boolean().optional(),
-  enableOfflineQueue: boolean().optional(),
-  enableReadyCheck: boolean().optional(),
-  enabled: valid(true).required(),
-  family: valid([4, 6]).optional(),
-  host: string().optional(),
-  keepAlive: number()
+  dropBufferSupport: joi.boolean().optional(),
+  enableOfflineQueue: joi.boolean().optional(),
+  enableReadyCheck: joi.boolean().optional(),
+  enabled: joi.valid(true).required(),
+  family: joi.valid(4, 6).optional(),
+  host: joi.string().optional(),
+  keepAlive: joi
+    .number()
     .integer()
     .optional(),
-  keyPrefix: string().optional(),
-  lazyConnect: boolean().optional(),
-  name: string().optional(),
-  password: string().optional(),
-  path: string().optional(),
-  port: number()
+  keyPrefix: joi.string().optional(),
+  lazyConnect: joi.boolean().optional(),
+  name: joi.string().optional(),
+  password: joi.string().optional(),
+  path: joi.string().optional(),
+  port: joi
+    .number()
     .integer()
     .optional(),
-  readOnly: boolean().optional(),
-  reconnectOnError: func()
+  readOnly: joi.boolean().optional(),
+  reconnectOnError: joi
+    .func()
     .arity(1)
     .optional(),
-  retryStrategy: func()
+  retryStrategy: joi
+    .func()
     .arity(1)
     .optional(),
-  sentinels: array()
+  sentinels: joi
+    .array()
     .items(
-      object({
-        host: string().required(),
-        port: number()
+      joi.object({
+        host: joi.string().required(),
+        port: joi
+          .number()
           .integer()
           .required(),
       }),
     )
     .optional(),
-  showFriendlyErrorStack: boolean().optional(),
-  tls: object().optional(),
-  url: string().optional(),
+  showFriendlyErrorStack: joi.boolean().optional(),
+  tls: joi.object().optional(),
+  url: joi.string().optional(),
 })

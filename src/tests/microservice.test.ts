@@ -1,16 +1,19 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import {assert} from 'chai'
 import * as _ from 'lodash'
-import * as faker from 'faker'
 import DefaultExport, {Microservice} from '../microservice'
 import * as mockedLogHandler from './mocks/nodeModules/logHandler.mock'
 import * as joi from '@hapi/joi'
 import {Log} from 'loghandler'
 import mockedConfig from './mocks/config.mock'
 import * as CacheHandlerMock from './mocks/cacheHandler.mock'
-import * as databaseHandlerMock from './mocks/databaseHandler.mock'
+import * as DatabaseHandlerMock from './mocks/databaseHandler.mock'
+import * as QueueHandlerMock from './mocks/queueHandler.mock'
+import * as WebserverHandlerMock from './mocks/webserverHandler.mock'
 import CacheHandler from '../services/cache/cacheHandler'
 import DatabaseHandler from '../services/database/databaseHandler'
+import QueueHandler from '../services/queue/queueHandler'
+import WebserverHandler from '../services/webserver/webserverHandler'
 
 suite('Test plugin (microservice.ts).', () => {
   const MicroserviceClass: Microservice = new Microservice(
@@ -19,16 +22,20 @@ suite('Test plugin (microservice.ts).', () => {
       log: (new mockedLogHandler.Instance() as unknown) as Log,
       services: {
         cache: (new CacheHandlerMock.Instance() as any) as CacheHandler,
-        database: (new databaseHandlerMock.Instance() as any) as DatabaseHandler,
+        database: (new DatabaseHandlerMock.Instance() as any) as DatabaseHandler,
+        queue: (new QueueHandlerMock.Instance() as any) as QueueHandler,
+        webserver: (new WebserverHandlerMock.Instance() as any) as WebserverHandler,
       },
     },
-    _.cloneDeep(mockedConfig.correct),
+    _.cloneDeep(mockedConfig.correct.everythingDisabled),
   )
 
   teardown(() => {
     mockedLogHandler.reset()
     CacheHandlerMock.reset()
-    databaseHandlerMock.reset()
+    DatabaseHandlerMock.reset()
+    QueueHandlerMock.reset()
+    WebserverHandlerMock.reset()
   })
 
   test('Returns as default a instanceOf the Microservice Class', () => {
@@ -40,10 +47,12 @@ suite('Test plugin (microservice.ts).', () => {
           log: (new mockedLogHandler.Instance() as unknown) as Log,
           services: {
             cache: (new CacheHandlerMock.Instance() as any) as CacheHandler,
-            database: (new databaseHandlerMock.Instance() as any) as DatabaseHandler,
+            database: (new DatabaseHandlerMock.Instance() as any) as DatabaseHandler,
+            queue: (new QueueHandlerMock.Instance() as any) as QueueHandler,
+            webserver: (new WebserverHandlerMock.Instance() as any) as WebserverHandler,
           },
         },
-        mockedConfig.correct,
+        mockedConfig.correct.everythingDisabled,
       ),
       Microservice,
     )
@@ -60,7 +69,7 @@ suite('Test plugin (microservice.ts).', () => {
 
     test('factory() return instanceOf MicroService Class', () => {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      assert.instanceOf(Microservice.factory(mockedConfig.correct), Microservice)
+      assert.instanceOf(Microservice.factory(mockedConfig.correct.everythingDisabled), Microservice)
     })
   })
 
@@ -73,95 +82,92 @@ suite('Test plugin (microservice.ts).', () => {
       assert.equal(MicroserviceClass.setup.length, 0)
     })
 
-    test('Returns an object.', async () => {
-      assert.typeOf(await MicroserviceClass.setup(), 'object')
+    test('When all services are disabled. Setup() returns object according schema', async () => {
+      const microservice = await MicroserviceClass.setup()
+
+      assert.typeOf(microservice, 'object')
+
+      assert.isTrue('Cache' in microservice)
+      assert.isUndefined(microservice.Cache)
+
+      assert.isTrue('Config' in microservice)
+      assert.deepEqual(microservice.Config, mockedConfig.correct.everythingDisabled)
+
+      assert.isTrue('DB' in microservice)
+      assert.isUndefined(microservice.DB)
+
+      assert.isTrue('Events' in microservice)
+      assert.isUndefined(microservice.Events)
+
+      assert.isTrue('Log' in microservice)
+      assert.instanceOf(microservice.Log, mockedLogHandler.Instance)
+
+      assert.isTrue('Models' in microservice)
+      assert.isUndefined(microservice.Models)
+
+      assert.isTrue('EventListener' in microservice)
+      assert.isTrue(QueueHandlerMock.stubs.setup.calledOnce)
+
+      assert.isTrue('Webserver' in microservice)
+      assert.isTrue(WebserverHandlerMock.stubs.setup.calledOnce)
+
+      Object.keys(microservice).forEach(key => {
+        assert.isTrue(
+          ['Cache', 'Config', 'DB', 'Events', 'Log', 'Models', 'EventListener', 'Webserver'].includes(key),
+          `${key} isn't part of object schema`,
+        )
+      })
     })
 
-    suite('Test of Caching Service is working properly when caching is disabled', () => {
-      test('CacheHandler.setup() is called during microservice Setup Process', async () => {
-        await MicroserviceClass.setup()
-        assert.isFalse(CacheHandlerMock.stubs.setup.called)
-      })
+    test('When all services are enabled. Setup() returns object according schema', async () => {
+      DatabaseHandlerMock.stubs.setup.returns(true)
 
-      test('Microservice returns Null on Cache, when cache service is disabled', async () => {
-        const microservice = await MicroserviceClass.setup()
-        assert.isNull(microservice.Cache)
-      })
-    })
-
-    suite('Test of Caching Service is working properly when caching is enabled', () => {
-      const MicroserviceClass2: Microservice = new Microservice(
+      const MicroserviceClass: Microservice = new Microservice(
         {
           joi,
           log: (new mockedLogHandler.Instance() as unknown) as Log,
           services: {
             cache: (new CacheHandlerMock.Instance() as any) as CacheHandler,
-            database: (new databaseHandlerMock.Instance() as any) as DatabaseHandler,
+            database: (new DatabaseHandlerMock.Instance() as any) as DatabaseHandler,
+            queue: (new QueueHandlerMock.Instance() as any) as QueueHandler,
+            webserver: (new WebserverHandlerMock.Instance() as any) as WebserverHandler,
           },
         },
-        {
-          ...mockedConfig.correct,
-          services: {
-            ...mockedConfig.correct.services,
-            cache: {
-              enabled: true,
-            },
-          },
-        },
+        _.cloneDeep(mockedConfig.correct.everythingEnabled),
       )
-      test('CacheHandler.setup() is called once during microservice Setup Process', async () => {
-        await MicroserviceClass2.setup()
-        assert.isTrue(CacheHandlerMock.stubs.setup.called)
-        assert.equal(CacheHandlerMock.stubs.setup.callCount, 1)
-      })
+      const microservice = await MicroserviceClass.setup()
 
-      test('Microservice returns Null on Cache, when cache service is disabled', async () => {
-        const returnedValue: any = faker.random.objectElement()
-        CacheHandlerMock.stubs.setup.returns(returnedValue)
+      assert.typeOf(microservice, 'object')
 
-        const microservice = await MicroserviceClass2.setup()
-        assert.isNotNull(microservice.Cache)
-        assert.equal(microservice.Cache, returnedValue)
-      })
-    })
+      assert.isTrue('Cache' in microservice)
+      assert.isUndefined(microservice.Cache)
 
-    suite('Test of Database Service is working properly when database is disabled', () => {
-      test('CacheHandler.setup() is called during microservice Setup Process', async () => {
-        await MicroserviceClass.setup()
-        assert.isFalse(CacheHandlerMock.stubs.setup.called)
-      })
+      assert.isTrue('Config' in microservice)
+      assert.deepEqual(microservice.Config, mockedConfig.correct.everythingEnabled)
 
-      test('Microservice returns Null on Cache, when cache service is disabled', async () => {
-        const microservice = await MicroserviceClass.setup()
-        assert.isNull(microservice.Cache)
-      })
-    })
+      assert.isTrue('DB' in microservice)
+      assert.isTrue(DatabaseHandlerMock.stubs.setup.calledOnce)
 
-    suite('Test of Database Service is working properly when database is enabled', () => {
-      const MicroserviceClass2: Microservice = new Microservice(
-        {
-          joi,
-          log: (new mockedLogHandler.Instance() as unknown) as Log,
-          services: {
-            cache: (new CacheHandlerMock.Instance() as any) as CacheHandler,
-            database: (new databaseHandlerMock.Instance() as any) as DatabaseHandler,
-          },
-        },
-        mockedConfig.dbEnabled,
-      )
-      test('database.setup() is called once during microservice Setup Process', async () => {
-        await MicroserviceClass2.setup()
-        assert.isTrue(databaseHandlerMock.stubs.setup.called)
-        assert.equal(databaseHandlerMock.stubs.setup.callCount, 1)
-      })
+      assert.isTrue('Events' in microservice)
+      assert.isTrue(QueueHandlerMock.stubs.setup.calledOnce)
 
-      test('Microservice returns Null on DB, when database service is disabled', async () => {
-        const returnedValue: any = faker.random.objectElement()
-        databaseHandlerMock.stubs.setup.returns(returnedValue)
+      assert.isTrue('Log' in microservice)
+      assert.instanceOf(microservice.Log, mockedLogHandler.Instance)
 
-        const microservice = await MicroserviceClass2.setup()
-        assert.isNotNull(microservice.DB)
-        assert.equal(microservice.DB, returnedValue)
+      assert.isTrue('Models' in microservice)
+      assert.isTrue(DatabaseHandlerMock.stubs.getModels.calledOnce)
+
+      assert.isTrue('EventListener' in microservice)
+      assert.isTrue(QueueHandlerMock.stubs.setup.calledOnce)
+
+      assert.isTrue('Webserver' in microservice)
+      assert.isTrue(WebserverHandlerMock.stubs.setup.calledOnce)
+
+      Object.keys(microservice).forEach(key => {
+        assert.isTrue(
+          ['Cache', 'Config', 'DB', 'Events', 'Log', 'Models', 'EventListener', 'Webserver'].includes(key),
+          `${key} isn't part of object schema`,
+        )
       })
     })
   })

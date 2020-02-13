@@ -11,10 +11,10 @@ import {ServiceConfiguratorCacheEnabled} from '../../../services/cache/interface
 import {Instance as RedisInstance} from '../../mocks/nodeModules/redis.mock'
 
 suite('Test CacheHandler (./services/cache/cacheHandler.ts)', () => {
-  let correctConfig = _.cloneDeep(configMocked.correct)
+  let correctConfig = _.cloneDeep(configMocked.correct.everythingDisabled)
 
   setup(() => {
-    correctConfig = _.cloneDeep(configMocked.correct)
+    correctConfig = _.cloneDeep(configMocked.correct.everythingDisabled)
   })
 
   test('Returns as default a instanceOf the cacheHandler Class', () => {
@@ -62,57 +62,42 @@ suite('Test CacheHandler (./services/cache/cacheHandler.ts)', () => {
 
     suite('When Cache service is enabled, IORedis is correctly called to connect to redis DB', () => {
       test('When URL is given make connection over URL', async () => {
-        const url = faker.internet.url()
-
-        const config: Config<ServiceConfiguratorCacheEnabled> = {
-          ...correctConfig,
-          services: {
-            cache: {
-              enabled: true,
-              url,
-            },
-            database: {
-              enabled: false,
-            },
-            queue: {
-              enabled: false,
-            },
-          },
-        }
+        const config = immer(configMocked.correct.everythingEnabled, configDraft => {
+          configDraft.services.cache.url = faker.internet.url()
+        })
 
         const cacheHandler = new CacheHandler(DependencyMock.dependencies, config)
         await cacheHandler.setup()
 
         assert.isTrue(DependencyMock.stubs.redis.constructor.called)
         assert.equal(DependencyMock.stubs.redis.constructor.callCount, 1)
-        assert.equal(DependencyMock.stubs.redis.constructor.args[0][0], url)
+
+        assert.deepEqual(DependencyMock.stubs.redis.constructor.args[0][0], config.services.cache.url)
         assert.deepEqual(DependencyMock.stubs.redis.constructor.args[0][1], config.services.cache)
       })
 
       test('When URL is not given make connection by other settings', async () => {
-        const config: Config<ServiceConfiguratorCacheEnabled> = {
-          ...correctConfig,
-          services: {
-            cache: {
-              enabled: true,
-              host: 'example.com',
-              port: 1234,
-            },
-            database: {
-              enabled: false,
-            },
-            queue: {
-              enabled: false,
-            },
-          },
-        }
-
-        const cacheHandler = new CacheHandler(DependencyMock.dependencies, config)
+        const cacheHandler = new CacheHandler(DependencyMock.dependencies, configMocked.correct.everythingEnabled)
         await cacheHandler.setup()
 
         assert.isTrue(DependencyMock.stubs.redis.constructor.called)
         assert.equal(DependencyMock.stubs.redis.constructor.callCount, 1)
-        assert.deepEqual(DependencyMock.stubs.redis.constructor.args[0][0], config.services.cache)
+        assert.deepEqual(
+          DependencyMock.stubs.redis.constructor.args[0][0],
+          configMocked.correct.everythingEnabled.services.cache,
+        )
+      })
+
+      test('When URL is  given make connection by other settings', async () => {
+        const cacheHandler = new CacheHandler(DependencyMock.dependencies, configMocked.correct.everythingEnabled)
+        await cacheHandler.setup()
+
+        assert.isTrue(DependencyMock.stubs.redis.constructor.called)
+        assert.equal(DependencyMock.stubs.redis.constructor.callCount, 1)
+        assert.deepEqual(
+          DependencyMock.stubs.redis.constructor.args[0][0],
+          configMocked.correct.everythingEnabled.services.cache,
+        )
       })
 
       test('connect() is called after instanceOf ioredis is created.', async () => {
@@ -130,6 +115,9 @@ suite('Test CacheHandler (./services/cache/cacheHandler.ts)', () => {
             queue: {
               enabled: false,
             },
+            webserver: {
+              enabled: false,
+            },
           },
         }
 
@@ -141,24 +129,7 @@ suite('Test CacheHandler (./services/cache/cacheHandler.ts)', () => {
     })
 
     test('Listeners are created for redis and communicates to Loghandler', async () => {
-      const config: Config<ServiceConfiguratorCacheEnabled> = {
-        ...correctConfig,
-        services: {
-          cache: {
-            enabled: true,
-            host: 'example.com',
-            port: 1234,
-          },
-          database: {
-            enabled: false,
-          },
-          queue: {
-            enabled: false,
-          },
-        },
-      }
-
-      const cacheHandler = new CacheHandler(DependencyMock.dependencies, config)
+      const cacheHandler = new CacheHandler(DependencyMock.dependencies, configMocked.correct.everythingEnabled)
       await cacheHandler.setup()
 
       assert.isTrue(DependencyMock.stubs.redis.on.called)
@@ -178,6 +149,9 @@ suite('Test CacheHandler (./services/cache/cacheHandler.ts)', () => {
             enabled: false,
           },
           queue: {
+            enabled: false,
+          },
+          webserver: {
             enabled: false,
           },
         },

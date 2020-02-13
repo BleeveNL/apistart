@@ -1,6 +1,6 @@
-import {object, func} from '@hapi/joi'
+import {object as obj, func} from '@hapi/joi'
 
-export default object({
+export default obj({
   client: func()
     .arity(0)
     .required(),

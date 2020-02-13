@@ -16,7 +16,7 @@ export default joi.object({
             internal: joi.boolean().optional(),
           })
           .optional(),
-        type: joi.valid(['default', 'direct', 'fanout', 'header', 'topic']).required(),
+        type: joi.valid('default', 'direct', 'fanout', 'header', 'topic').required(),
       }),
     )
     .min(1)

@@ -16,7 +16,7 @@ suite('Test plugin (index.ts).', () => {
     assert.throw(() => apiStart(mockedConfig.error))
   })
 
-  test('Returns instanceOf Microservice when correct config is given', () => {
-    assert.instanceOf(apiStart(mockedConfig.correct), Microservice)
+  test('Returns instanceOf Microservice when correct config is given', async () => {
+    assert.instanceOf(await apiStart(mockedConfig.correct.everythingDisabled), Microservice)
   })
 })

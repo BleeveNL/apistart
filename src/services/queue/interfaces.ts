@@ -5,6 +5,7 @@ import {ServiceConfigurator} from '../../systemInterfaces/serviceConfigurator'
 import {Config} from '../../systemInterfaces/config'
 import {Models} from '../database/interfaces/model'
 import {Dependencies as systemDependencies, CustomDependencies} from '../../systemInterfaces/dependencies'
+import {InternalSystem} from '../../systemInterfaces/internalSystem'
 
 export interface Dependencies {
   readonly Amqp: typeof amqp
@@ -75,4 +76,31 @@ export interface QueueClient<TExchangeName extends string = string> {
     data: {},
     options?: amqp.Options.Publish,
   ) => void
+}
+
+export type QueueHandlerSetup<
+  TServiceConfigurator extends ServiceConfigurator = ServiceConfigurator,
+  TConfig extends Config = Config,
+  TModels extends Models = Models
+> = TServiceConfigurator['queue'] extends QueueService
+  ? QueueHandlerSetupEnabled<TServiceConfigurator, TConfig, TModels>
+  : QueueHandlerSetupDisabled
+
+export interface QueueHandlerSetupDisabled {
+  client: undefined
+  server: () => never
+}
+
+export interface QueueHandlerSetupEnabled<
+  TServiceConfigurator extends ServiceConfigurator = ServiceConfigurator,
+  TConfig extends Config = Config,
+  TModels extends Models = Models
+> {
+  client: () => QueueClient
+  server: (
+    sysDeps: InternalSystem<TServiceConfigurator, TConfig, TModels>,
+  ) => (
+    listeners: QueueEventListenerList,
+    callback?: (sysDeps: InternalSystem<TServiceConfigurator, TConfig, TModels>) => void,
+  ) => Promise<boolean>
 }

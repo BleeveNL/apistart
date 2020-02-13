@@ -60,14 +60,20 @@ export class QueueHandler {
           TServiceConfigurator extends ServiceConfigurator = ServiceConfigurator
         >(
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          sysDeps: InternalSystem<TConfig, TModels, TServiceConfigurator>,
+          sysDeps: InternalSystem<TServiceConfigurator, TConfig, TModels>,
         ) => async (
           listeners: QueueEventListenerList,
-          callback?: (sysDeps: InternalSystem<TConfig, TModels, TServiceConfigurator>) => void,
+          callback?: (sysDeps: InternalSystem<TServiceConfigurator, TConfig, TModels>) => void,
         ) => {
           if (this.verifyQueueEventListeners(listeners)) {
             try {
-              await this.startServer(this.deps, sysDeps, settings, connection, listeners)
+              await this.startServer<TConfig, TModels, TServiceConfigurator>(
+                this.deps,
+                sysDeps,
+                settings,
+                connection,
+                listeners,
+              )
               if (callback) {
                 callback(sysDeps)
               }
@@ -84,13 +90,15 @@ export class QueueHandler {
 
     return {
       server: () => {
-        throw new Error('Queue server listener is started while service is disabled in configuration.')
+        return async () => {
+          throw new Error('Queue server listener is started while service is disabled in configuration.')
+        }
       },
     }
   }
 
   private queueEnabled(config: Config): config is Config<ServiceConfiguratorQueueEnabled> {
-    return config.services.queue.enabled
+    return config.services.queue.enabled === true
   }
 
   private getExchangeOptions(exchange: QueueExchangeSettings<string>): Amqp.Options.AssertExchange {
@@ -181,7 +189,7 @@ export class QueueHandler {
     TServiceConfigurator extends ServiceConfigurator = ServiceConfigurator
   >(
     deps: Dependencies,
-    sysDeps: InternalSystem<TConfig, TModels, TServiceConfigurator>,
+    sysDeps: InternalSystem<TServiceConfigurator, TConfig, TModels>,
     settings: QueueConfig,
     connection: Amqp.Channel,
     eventListeners: QueueEventListenerList,

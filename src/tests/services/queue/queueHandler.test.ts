@@ -23,10 +23,10 @@ import * as EventHandlerMock from './mocks/eventHandler.mock'
 import * as sinon from 'sinon'
 
 suite('Test QueueHandler (./services/queue/queueHandler.ts)', () => {
-  let correctConfig = _.cloneDeep(configMocked.correct)
+  let correctConfig = _.cloneDeep(configMocked.correct.everythingDisabled)
 
   setup(() => {
-    correctConfig = _.cloneDeep(configMocked.correct)
+    correctConfig = _.cloneDeep(configMocked.correct.everythingDisabled)
   })
 
   test('Returns as default a instanceOf the queueHandler Class', () => {
@@ -71,16 +71,31 @@ suite('Test QueueHandler (./services/queue/queueHandler.ts)', () => {
       AmqpLibMock.reset()
     })
 
-    suite('test behavior when service is disabled', () => {
-      test('setup() returns only a server functionality', async () => {
+    suite('test behavior when service is disabled', async () => {
+      test('setup() returns only a function with a server functionality in it', async () => {
         const queue = await queueHandler.setup()
-
         joi.assert(queue, queueDisabledSchema)
+        assert.isFunction(queue.server)
+        const loaded = await queue.server(({} as unknown) as any)
+        assert.isFunction(loaded)
       })
 
-      test('by setup() returned server() throws correct error.', async () => {
+      test('server() throws correct error.', async () => {
         const queue = await queueHandler.setup()
-        assert.throws(queue.server, 'Queue server listener is started while service is disabled in configuration.')
+        const loaded = await queue.server(({} as unknown) as any)
+
+        try {
+          await loaded({} as any)
+          assert.fail("Shouldn't come here!")
+        } catch (err) {
+          assert.equal(err.message, 'Queue server listener is started while service is disabled in configuration.')
+        }
+      })
+
+      test('client is undefined when service is disabled', async () => {
+        const queue = await queueHandler.setup()
+
+        assert.equal(typeof queue.client, 'undefined')
       })
     })
 
@@ -92,7 +107,7 @@ suite('Test QueueHandler (./services/queue/queueHandler.ts)', () => {
             Log: (new loghandlerMock.Instance() as unknown) as Log,
             Process: process,
           },
-          _.cloneDeep(configMocked.queueEnabled),
+          _.cloneDeep(configMocked.correct.everythingEnabled),
         )
       })
 
@@ -124,13 +139,15 @@ suite('Test QueueHandler (./services/queue/queueHandler.ts)', () => {
         })
 
         test('Connect function of AMQPlib is only called once and correct', async () => {
-          let config: Config<{queue: {enabled: true; exchanges: any}; cache: false; db: false}> = immer(
-            _.cloneDeep(correctConfig),
-            (draft: any) => {
-              draft.services.queue.enabled = true
-              draft.services.queue.exchanges = []
-            },
-          )
+          let config: Config<{
+            queue: {enabled: true; exchanges: any}
+            cache: false
+            db: false
+            webserver: false
+          }> = immer(_.cloneDeep(correctConfig), (draft: any) => {
+            draft.services.queue.enabled = true
+            draft.services.queue.exchanges = []
+          })
 
           const MaximalEcxhanges = Math.round(Math.random() * 5) + 2
           for (let i = 0; i < MaximalEcxhanges; i++) {
@@ -167,13 +184,15 @@ suite('Test QueueHandler (./services/queue/queueHandler.ts)', () => {
         })
 
         test('CreateChannel function of AMQPlib is only called once and correct', async () => {
-          let config: Config<{queue: {enabled: true; exchanges: any}; cache: false; db: false}> = immer(
-            _.cloneDeep(correctConfig),
-            (draft: any) => {
-              draft.services.queue.enabled = true
-              draft.services.queue.exchanges = []
-            },
-          )
+          let config: Config<{
+            queue: {enabled: true; exchanges: any}
+            cache: false
+            db: false
+            webserver: false
+          }> = immer(_.cloneDeep(correctConfig), (draft: any) => {
+            draft.services.queue.enabled = true
+            draft.services.queue.exchanges = []
+          })
 
           const MaximalEcxhanges = Math.round(Math.random() * 5) + 2
           for (let i = 0; i < MaximalEcxhanges; i++) {
@@ -209,13 +228,15 @@ suite('Test QueueHandler (./services/queue/queueHandler.ts)', () => {
         })
 
         test('make sure that system assert exchanges correctly, to validate of settings are matching with server.', async () => {
-          let config: Config<{queue: {enabled: true; exchanges: any}; cache: false; db: false}> = immer(
-            _.cloneDeep(correctConfig),
-            (draft: any) => {
-              draft.services.queue.enabled = true
-              draft.services.queue.exchanges = []
-            },
-          )
+          let config: Config<{
+            queue: {enabled: true; exchanges: any}
+            cache: false
+            db: false
+            webserver: false
+          }> = immer(_.cloneDeep(correctConfig), (draft: any) => {
+            draft.services.queue.enabled = true
+            draft.services.queue.exchanges = []
+          })
 
           const MaximalEcxhanges = Math.round(Math.random() * 5) + 2
           for (let i = 0; i < MaximalEcxhanges; i++) {
@@ -264,35 +285,37 @@ suite('Test QueueHandler (./services/queue/queueHandler.ts)', () => {
         })
 
         test('Make sure that durability setting is true when no preference is given', async () => {
-          const config: Config<{queue: {enabled: true; exchanges: any}; cache: false; db: false}> = immer(
-            _.cloneDeep(correctConfig),
-            (draft: any) => {
-              draft.services.queue.enabled = true
-              draft.services.queue.exchanges = [
-                {
-                  name: faker.random.alphaNumeric(8),
+          const config: Config<{
+            queue: {enabled: true; exchanges: any}
+            cache: false
+            db: false
+            webserver: false
+          }> = immer(_.cloneDeep(correctConfig), (draft: any) => {
+            draft.services.queue.enabled = true
+            draft.services.queue.exchanges = [
+              {
+                name: faker.random.alphaNumeric(8),
+              },
+              {
+                name: faker.random.alphaNumeric(8),
+                options: {
+                  durable: false,
                 },
-                {
-                  name: faker.random.alphaNumeric(8),
-                  options: {
-                    durable: false,
-                  },
+              },
+              {
+                name: faker.random.alphaNumeric(8),
+                options: {
+                  durable: true,
                 },
-                {
-                  name: faker.random.alphaNumeric(8),
-                  options: {
-                    durable: true,
-                  },
+              },
+              {
+                name: faker.random.alphaNumeric(8),
+                options: {
+                  internal: Boolean(Math.round(Math.random())),
                 },
-                {
-                  name: faker.random.alphaNumeric(8),
-                  options: {
-                    internal: Boolean(Math.round(Math.random())),
-                  },
-                },
-              ]
-            },
-          )
+              },
+            ]
+          })
 
           queueHandler = new QueueHandler(
             {
@@ -333,7 +356,7 @@ suite('Test QueueHandler (./services/queue/queueHandler.ts)', () => {
         })
 
         suite('publish a message works as expected', () => {
-          let config: Config<{queue: {enabled: true; exchanges: any}; cache: false; db: false}>
+          let config: Config<{queue: {enabled: true; exchanges: any}; cache: false; db: false; webserver: false}>
           let queueHandler: QueueHandler
           let client: QueueClient<any>
 
@@ -467,7 +490,7 @@ suite('Test QueueHandler (./services/queue/queueHandler.ts)', () => {
       })
 
       suite('test server functionality', () => {
-        let config: Config<{queue: {enabled: true; exchanges: any}; cache: false; db: false}>
+        let config: Config<{queue: {enabled: true; exchanges: any}; cache: false; db: false; webserver: false}>
 
         setup(async () => {
           config = immer(_.cloneDeep(correctConfig), (draft: any) => {
@@ -505,7 +528,7 @@ suite('Test QueueHandler (./services/queue/queueHandler.ts)', () => {
 
         test('Server function returns a function that allows 2 argument', async () => {
           const queue = await queueHandler.setup()
-          const Deps = ({} as unknown) as InternalSystem<Config, Models, ServiceConfigurator>
+          const Deps = ({} as unknown) as InternalSystem<ServiceConfigurator, Config, Models>
 
           const server = queue.server(Deps)
           assert.isFunction(server)
@@ -514,7 +537,7 @@ suite('Test QueueHandler (./services/queue/queueHandler.ts)', () => {
 
         test('Server throws an error as EventListener uses an unknown exchange', async () => {
           const queue = await queueHandler.setup()
-          const Deps = ({} as unknown) as InternalSystem<Config, Models, ServiceConfigurator>
+          const Deps = ({} as unknown) as InternalSystem<ServiceConfigurator, Config, Models>
           const eventHandlerMock = _.cloneDeep(EventHandlerMock)
 
           const eventHandler = eventHandlerMock.Instance as any
@@ -535,7 +558,7 @@ suite('Test QueueHandler (./services/queue/queueHandler.ts)', () => {
 
         test('Server Calls Callback function when server is correctly booted', async () => {
           const queue = await queueHandler.setup()
-          const Deps = ({} as unknown) as InternalSystem<Config, Models, ServiceConfigurator>
+          const Deps = ({} as unknown) as InternalSystem<ServiceConfigurator, Config, Models>
 
           const eventHandlerMock1 = _.cloneDeep(EventHandlerMock)
           const eventHandler = eventHandlerMock1.Instance as any
@@ -550,7 +573,7 @@ suite('Test QueueHandler (./services/queue/queueHandler.ts)', () => {
 
         test('Callback functions has only System Dependencies as argument', async () => {
           const queue = await queueHandler.setup()
-          const Deps = ({} as unknown) as InternalSystem<Config, Models, ServiceConfigurator>
+          const Deps = ({} as unknown) as InternalSystem<ServiceConfigurator, Config, Models>
 
           const eventHandlerMock1 = _.cloneDeep(EventHandlerMock)
           const eventHandler = eventHandlerMock1.Instance as any
@@ -569,7 +592,7 @@ suite('Test QueueHandler (./services/queue/queueHandler.ts)', () => {
 
         test('Server makes correct Connection with AMQP server for each EventListener', async () => {
           const queue = await queueHandler.setup()
-          const Deps = ({} as unknown) as InternalSystem<Config, Models, ServiceConfigurator>
+          const Deps = ({} as unknown) as InternalSystem<ServiceConfigurator, Config, Models>
 
           const eventHandlerMock1 = _.cloneDeep(EventHandlerMock)
           const eventHandler1 = eventHandlerMock1.Instance as any
@@ -630,7 +653,7 @@ suite('Test QueueHandler (./services/queue/queueHandler.ts)', () => {
 
         test('server acknowledge message when EventHandler returns true', async () => {
           const queue = await queueHandler.setup()
-          const Deps = ({} as unknown) as InternalSystem<Config, Models, ServiceConfigurator>
+          const Deps = ({} as unknown) as InternalSystem<ServiceConfigurator, Config, Models>
 
           const eventHandlerMock1 = _.cloneDeep(EventHandlerMock)
           const eventHandler1 = eventHandlerMock1.Instance as any
@@ -655,7 +678,7 @@ suite('Test QueueHandler (./services/queue/queueHandler.ts)', () => {
 
         test('server does not acknowledge message when EventHandler returns false', async () => {
           const queue = await queueHandler.setup()
-          const Deps = ({} as unknown) as InternalSystem<Config, Models, ServiceConfigurator>
+          const Deps = ({} as unknown) as InternalSystem<ServiceConfigurator, Config, Models>
 
           const eventHandlerMock1 = _.cloneDeep(EventHandlerMock)
           const eventHandler1 = eventHandlerMock1.Instance as any
@@ -682,7 +705,7 @@ suite('Test QueueHandler (./services/queue/queueHandler.ts)', () => {
           const queue = await queueHandler.setup()
           const Deps = ({
             sysDeps: faker.random.alphaNumeric(16),
-          } as unknown) as InternalSystem<Config, Models, ServiceConfigurator>
+          } as unknown) as InternalSystem<ServiceConfigurator, Config, Models>
 
           const dependencies = {
             handlerDeps: faker.random.alphaNumeric(16),
@@ -713,7 +736,7 @@ suite('Test QueueHandler (./services/queue/queueHandler.ts)', () => {
 
         test('server does not acknowledge message when EventHandler throws Error (if msg is not null)', async () => {
           const queue = await queueHandler.setup()
-          const Deps = ({} as unknown) as InternalSystem<Config, Models, ServiceConfigurator>
+          const Deps = ({} as unknown) as InternalSystem<ServiceConfigurator, Config, Models>
 
           const eventHandlerMock1 = _.cloneDeep(EventHandlerMock)
           const eventHandler1 = eventHandlerMock1.Instance as any
@@ -739,7 +762,7 @@ suite('Test QueueHandler (./services/queue/queueHandler.ts)', () => {
           const queue = await queueHandler.setup()
           const Deps = ({
             Log: loghandlerMock.Instance,
-          } as unknown) as InternalSystem<Config, Models, ServiceConfigurator>
+          } as unknown) as InternalSystem<ServiceConfigurator, Config, Models>
 
           const eventHandlerMock1 = _.cloneDeep(EventHandlerMock)
           const eventHandler1 = eventHandlerMock1.Instance as any
@@ -778,7 +801,7 @@ suite('Test QueueHandler (./services/queue/queueHandler.ts)', () => {
           const queue = await queueHandler.setup()
           const Deps = ({
             test: faker.random.alphaNumeric(31),
-          } as unknown) as InternalSystem<Config, Models, ServiceConfigurator>
+          } as unknown) as InternalSystem<ServiceConfigurator, Config, Models>
 
           const eventHandlerMock1 = _.cloneDeep(EventHandlerMock)
           const eventHandler1 = eventHandlerMock1.Instance as any
@@ -811,7 +834,7 @@ suite('Test QueueHandler (./services/queue/queueHandler.ts)', () => {
           const queue = await queueHandler.setup()
           const Deps = ({
             test: faker.random.alphaNumeric(31),
-          } as unknown) as InternalSystem<Config, Models, ServiceConfigurator>
+          } as unknown) as InternalSystem<ServiceConfigurator, Config, Models>
 
           const eventHandlerMock1 = _.cloneDeep(EventHandlerMock)
           const eventHandler1 = eventHandlerMock1.Instance as any
@@ -832,7 +855,7 @@ suite('Test QueueHandler (./services/queue/queueHandler.ts)', () => {
 
         test('Server returns with True when Queue Server works correctly', async () => {
           const queue = await queueHandler.setup()
-          const Deps = ({} as unknown) as InternalSystem<Config, Models, ServiceConfigurator>
+          const Deps = ({} as unknown) as InternalSystem<ServiceConfigurator, Config, Models>
 
           const eventHandlerMock1 = _.cloneDeep(EventHandlerMock)
           const eventHandler = eventHandlerMock1.Instance as any
@@ -844,7 +867,7 @@ suite('Test QueueHandler (./services/queue/queueHandler.ts)', () => {
 
         test('Server returns with False and Logs Critical Error when Queue Server does not work correctly', async () => {
           const queue = await queueHandler.setup()
-          const Deps = ({} as unknown) as InternalSystem<Config, Models, ServiceConfigurator>
+          const Deps = ({} as unknown) as InternalSystem<ServiceConfigurator, Config, Models>
 
           const eventHandlerMock1 = _.cloneDeep(EventHandlerMock)
           const eventHandler = eventHandlerMock1.Instance as any

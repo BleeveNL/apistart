@@ -1,7 +1,7 @@
 import * as faker from 'faker'
 import {Config} from '../../systemInterfaces/config'
 
-export const correct: Config = {
+export const everythingDisabled: Config = {
   app: {
     env: faker.lorem.word(),
     name: faker.lorem.slug(),
@@ -21,6 +21,9 @@ export const correct: Config = {
       enabled: false,
     },
     queue: {
+      enabled: false,
+    },
+    webserver: {
       enabled: false,
     },
   },
@@ -36,10 +39,14 @@ export const error = ({
   },
 } as unknown) as Config
 
-export const dbEnabled: Config<{
-  cache: false
+export const everythingEnabled: Config<{
+  cache: true
   db: true
-  queue: false
+  queue: {
+    enabled: true
+    exchanges: 'test' | 'test2'
+  }
+  webserver: true
 }> = {
   app: {
     env: faker.lorem.word(),
@@ -54,7 +61,9 @@ export const dbEnabled: Config<{
   },
   services: {
     cache: {
-      enabled: false,
+      enabled: true,
+      host: faker.internet.domainName(),
+      port: 1234,
     },
     database: {
       database: faker.random.word(),
@@ -70,38 +79,6 @@ export const dbEnabled: Config<{
       username: faker.random.alphaNumeric(15),
     },
     queue: {
-      enabled: false,
-    },
-  },
-}
-
-export const queueEnabled: Config<{
-  cache: false
-  db: false
-  queue: {
-    enabled: true
-    exchanges: 'test' | 'test2'
-  }
-}> = {
-  app: {
-    env: faker.lorem.word(),
-    name: faker.lorem.slug(),
-    version: faker.system.semver(),
-  },
-  log: {
-    reporters: [],
-    reporting: {
-      silent: true,
-    },
-  },
-  services: {
-    cache: {
-      enabled: false,
-    },
-    database: {
-      enabled: false,
-    },
-    queue: {
       enabled: true,
       exchanges: [
         {
@@ -114,12 +91,30 @@ export const queueEnabled: Config<{
         },
       ],
     },
+    webserver: {
+      enabled: true,
+      settings: {
+        connection: {
+          http: {
+            enabled: true,
+            port: 80,
+          },
+          https: {
+            enabled: false,
+          },
+        },
+        proxy: false,
+        subdomainOffset: 0,
+        versionHandler: false,
+      },
+    },
   },
 }
 
 export default {
-  correct,
-  dbEnabled,
+  correct: {
+    everythingDisabled,
+    everythingEnabled,
+  },
   error,
-  queueEnabled,
 }
