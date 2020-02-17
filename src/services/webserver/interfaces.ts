@@ -28,7 +28,7 @@ export type WebserverCallbackFunction<
   TServiceConfigurator extends ServiceConfigurator,
   TConfig extends Config,
   TModels extends Models
-> = (system: InternalSystem<TServiceConfigurator, TConfig, TModels>, connection: 'http' | 'https') => void
+> = (system: InternalSystem<TServiceConfigurator, TConfig, TModels>) => void
 
 export interface WebserverStartResponse {
   close: (callback?: () => void) => void

@@ -1,7 +1,16 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import * as sinon from 'sinon'
 
-const stubs = {
+interface KoaStubs {
+  _vars: {[key: string]: any}
+  callback: sinon.SinonStub<any[], any>
+  constructor: sinon.SinonStub<any[], any>
+  on: sinon.SinonStub<any[], any>
+  use: sinon.SinonStub<any[], any>
+}
+
+const stubs: KoaStubs = {
+  _vars: {},
   callback: sinon.stub(),
   constructor: sinon.stub(),
   on: sinon.stub(),
@@ -13,6 +22,7 @@ const reset = () => {
   stubs.constructor.resetHistory()
   stubs.on.resetHistory()
   stubs.use.resetHistory()
+  stubs._vars = {}
 }
 
 const Instance = class {
@@ -30,6 +40,22 @@ const Instance = class {
 
   public callback(...args: any[]) {
     return stubs.callback(...args)
+  }
+
+  set env(value: any) {
+    stubs._vars.env = value
+  }
+
+  set proxy(value: any) {
+    stubs._vars.proxy = value
+  }
+
+  set subdomainOffset(value: any) {
+    stubs._vars.subdomainOffset = value
+  }
+
+  set silent(value: any) {
+    stubs._vars.silent = value
   }
 }
 

@@ -1,4 +1,5 @@
 import {EnabledService, DisabledService} from '../../../systemInterfaces/services'
+import * as koaBodyParser from 'koa-bodyparser'
 import * as koaCors from '@koa/cors'
 
 export interface HttpSettings extends EnabledService {
@@ -19,12 +20,14 @@ export interface WebserverConfig extends EnabledService {
     cors?: CorsSettingsEnabled | DisabledService
   }
   settings: {
-    connection: {
-      http: DisabledService | HttpSettings
-      https: DisabledService | HttpsSettings
-    }
-    proxy: boolean
-    subdomainOffset: number
+    bodyParser?: koaBodyParser.Options & EnabledService
+    proxy?: boolean
+    silent?: boolean
+    subdomainOffset?: number
     versionHandler: false | 'url' | 'header'
+  }
+  connection: {
+    http: DisabledService | HttpSettings
+    https: DisabledService | HttpsSettings
   }
 }

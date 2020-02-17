@@ -57,28 +57,32 @@ export class WebserverHandler {
     callback: WebserverCallbackFunction<TServiceConfigurator, TConfig, TModels> = () => {},
   ) {
     const server: WebServerObject = {}
-    if (this.config.services.webserver.enabled && this.config.services.webserver.settings.connection.http.enabled) {
-      const httpWebserverSettings = this.config.services.webserver.settings.connection.http
+    if (this.config.services.webserver.enabled && this.config.services.webserver.connection.http.enabled) {
+      const httpWebserverSettings = this.config.services.webserver.connection.http
       server.http = this.deps.Http.createServer(instance.callback()).listen(
         httpWebserverSettings.port ? httpWebserverSettings.port : 80,
         () => {
-          system.Log.info(
-            `Http server started on port ${httpWebserverSettings.port ? httpWebserverSettings.port : 80}!`,
-          )
-          callback(system, 'http')
+          system.Log.info(`Webserver is started!`, {
+            port: httpWebserverSettings.port ? httpWebserverSettings.port : 80,
+            protocol: 'http',
+            status: 'started',
+          })
+          callback(system)
         },
       )
     }
 
-    if (this.config.services.webserver.enabled && this.config.services.webserver.settings.connection.https.enabled) {
-      const httpsWebserverSettings = this.config.services.webserver.settings.connection.https
+    if (this.config.services.webserver.enabled && this.config.services.webserver.connection.https.enabled) {
+      const httpsWebserverSettings = this.config.services.webserver.connection.https
       server.https = this.deps.Https.createServer(instance.callback()).listen(
         httpsWebserverSettings.port ? httpsWebserverSettings.port : 443,
         () => {
-          system.Log.info(
-            `Https server started on port ${httpsWebserverSettings.port ? httpsWebserverSettings.port : 443}!`,
-          )
-          callback(system, 'https')
+          system.Log.info(`Webserver is started!`, {
+            port: httpsWebserverSettings.port ? httpsWebserverSettings.port : 443,
+            protocol: 'https',
+            status: 'started',
+          })
+          callback(system)
         },
       )
     }
@@ -107,7 +111,46 @@ export class WebserverHandler {
     TConfig extends Config,
     TModels extends Models
   >(system: InternalSystem<TServiceConfigurator, TConfig, TModels>) {
-    return new this.deps.Koa()
+    const app = new this.deps.Koa()
+    const config = this.getConfig()
+    // settings
+    app.env = config.app.env
+    app.proxy = config.services.webserver.settings.proxy ? config.services.webserver.settings.proxy : false
+    app.subdomainOffset = config.services.webserver.settings.subdomainOffset
+      ? config.services.webserver.settings.subdomainOffset
+      : 2
+
+    if (config.services.webserver.settings.silent !== undefined) {
+      app.silent = config.services.webserver.settings.silent
+    } else if (config.app.env === 'production') {
+      app.silent = true
+    }
+
+    app.on('error', (err: Error, ctx: Koa.Context) => {
+      system.Log.err(err, {ctx})
+    })
+
+    if (
+      config.services.webserver.security &&
+      config.services.webserver.security.cors &&
+      config.services.webserver.security.cors.enabled
+    ) {
+      app.use(this.deps.KoaCors(config.services.webserver.security.cors))
+    }
+
+    if (
+      config.services.webserver.settings &&
+      config.services.webserver.settings.bodyParser &&
+      config.services.webserver.settings.bodyParser.enabled
+    ) {
+      app.use(this.deps.KoaBodyParser(config.services.webserver.settings.bodyParser))
+    }
+
+    return app
+  }
+
+  private getConfig(): Config<ServiceConfiguratorWebserverEnabled> {
+    return this.config
   }
 }
 

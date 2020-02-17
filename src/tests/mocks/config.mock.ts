@@ -3,8 +3,8 @@ import {Config} from '../../systemInterfaces/config'
 
 export const everythingDisabled: Config = {
   app: {
-    env: faker.lorem.word(),
-    name: faker.lorem.slug(),
+    env: faker.random.alphaNumeric(8),
+    name: faker.random.alphaNumeric(8),
     version: faker.system.semver(),
   },
   log: {
@@ -49,8 +49,8 @@ export const everythingEnabled: Config<{
   webserver: true
 }> = {
   app: {
-    env: faker.lorem.word(),
-    name: faker.lorem.slug(),
+    env: faker.random.alphaNumeric(8),
+    name: faker.random.alphaNumeric(8),
     version: faker.system.semver(),
   },
   log: {
@@ -92,18 +92,19 @@ export const everythingEnabled: Config<{
       ],
     },
     webserver: {
+      connection: {
+        http: {
+          enabled: false,
+        },
+        https: {
+          enabled: false,
+        },
+      },
+
       enabled: true,
       settings: {
-        connection: {
-          http: {
-            enabled: false,
-          },
-          https: {
-            enabled: false,
-          },
-        },
         proxy: false,
-        subdomainOffset: 0,
+        subdomainOffset: faker.random.number(),
         versionHandler: 'url',
       },
     },

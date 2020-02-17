@@ -11,9 +11,7 @@ const reset = () => {
 
 class Instance {
   public fn(...args: any[]) {
-    stubs.fn(...args)
-
-    return new Instance() as any
+    return stubs.fn(...args)
   }
 }
 
