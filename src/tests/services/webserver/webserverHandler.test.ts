@@ -12,7 +12,6 @@ import * as QueueHandlerMock from '../../mocks/queueHandler.mock'
 import {WebserverHandlerDeps} from '../../../services/webserver/interfaces'
 import {InternalSystem} from '../../../systemInterfaces/internalSystem'
 import {Config} from '../../../systemInterfaces/config'
-import {Module} from 'module'
 import {EnabledService} from '../../../systemInterfaces/services'
 import bodyParser = require('koa-bodyparser')
 
@@ -46,6 +45,7 @@ suite('Test Webserver Handler (./services/webserver/webserverHandler.ts)', () =>
   })
 
   test('Returns as default a instanceOf the queueHandler Class', () => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     assert.instanceOf(new DefaultExport({} as any, correctConfig), WebserverHandler)
   })
 
@@ -70,6 +70,7 @@ suite('Test Webserver Handler (./services/webserver/webserverHandler.ts)', () =>
       Log: new ModulesMock.logHandler.Instance(),
       Models: {},
       Queue: QueueHandlerMock.Instance,
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } as unknown) as InternalSystem<any, Config, {}>
 
     setup(() => {
@@ -80,6 +81,7 @@ suite('Test Webserver Handler (./services/webserver/webserverHandler.ts)', () =>
         Log: new ModulesMock.logHandler.Instance(),
         Models: {},
         Queue: QueueHandlerMock.Instance,
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
       } as unknown) as InternalSystem<any, Config, {}>
 
       webserverHandler = new WebserverHandler(dependenciesMock, correctConfig)
@@ -123,7 +125,7 @@ suite('Test Webserver Handler (./services/webserver/webserverHandler.ts)', () =>
       })
 
       test('Instance of Koa is called once.', () => {
-        const webserver = webserverHandler.setup(internalSystem)
+        webserverHandler.setup(internalSystem)
         assert.isTrue(ModulesMock.koa.stubs.constructor.calledOnce)
       })
 
@@ -277,9 +279,9 @@ suite('Test Webserver Handler (./services/webserver/webserverHandler.ts)', () =>
       suite('Test HTTPS Server connection is enabled', () => {
         let config = immer(_.cloneDeep(configMocked.correct.everythingEnabled), config => {
           config.services.webserver.connection.https = {
+            cert: {cert: faker.random.alphaNumeric(), key: faker.random.alphaNumeric()},
             enabled: true,
             port: faker.random.number(),
-            cert: {cert: faker.random.alphaNumeric(), key: faker.random.alphaNumeric()},
           }
         })
         let webserverHandler = new WebserverHandler(dependenciesMock, config)
@@ -423,14 +425,14 @@ suite('Test Webserver Handler (./services/webserver/webserverHandler.ts)', () =>
           config.services.webserver.connection.http = {enabled: true, port: faker.random.number()}
         })
         let webserverHandler = new WebserverHandler(dependenciesMock, config)
-        let webserver = webserverHandler.setup(internalSystem)
+        webserverHandler.setup(internalSystem)
 
         setup(() => {
           config = immer(_.cloneDeep(configMocked.correct.everythingEnabled), config => {
             config.services.webserver.connection.http = {enabled: true, port: faker.random.number()}
           })
           webserverHandler = new WebserverHandler(dependenciesMock, config)
-          webserver = webserverHandler.setup(internalSystem)
+          webserverHandler.setup(internalSystem)
         })
 
         afterEach(() => {
