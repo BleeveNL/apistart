@@ -1,9 +1,5 @@
 {
   "compilerOptions": {
-    "composite": true,
-    "declarationDir": "./lib/@types",
-    "incremental": true,
-    "inlineSourceMap": true,
     "module": "commonjs",
     "moduleResolution": "node",
     "noImplicitAny": true,
@@ -12,10 +8,12 @@
     "noUnusedLocals": true,
     "noUnusedParameters": true,
     "removeComments": true,
-    "skipLibCheck": true,
+    "skipLibCheck": false,
+    "sourceMap": true,
     "strictNullChecks": true,
     "target": "ES2017",
-    "outDir": "./lib",
+    "outDir": "lib",
+    "declaration": true,
     "diagnostics": true,
     "alwaysStrict": true,
     "allowJs": false,
@@ -25,8 +23,7 @@
     "preserveConstEnums": true,
     "typeRoots": ["node_modules/@types"]
   },
-  "exclude": [
-    "node_modules/**/*",
-  ],
-  "include": [ "src/**/*"]
+  "exclude": ["node_modules", "lib"],
+  "include": [ "src",],
+  "types": ["node", "mocha", "chai", "@hapi/joi"]
 }

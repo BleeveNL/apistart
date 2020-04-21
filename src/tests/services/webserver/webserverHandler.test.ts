@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import {assert} from 'chai'
 import * as _ from 'lodash'
 import * as faker from 'faker'
@@ -9,44 +10,32 @@ import * as DatabaseHandlerMock from '../../mocks/databaseHandler.mock'
 import * as sinon from 'sinon'
 import * as ModulesMock from '../../mocks/nodeModules'
 import * as QueueHandlerMock from '../../mocks/queueHandler.mock'
-import {WebserverHandlerDeps} from '../../../services/webserver/interfaces'
+import * as MiddlewareMock from '../../mocks/webserver/middleware.mock'
 import {InternalSystem} from '../../../systemInterfaces/internalSystem'
 import {Config} from '../../../systemInterfaces/config'
 import {EnabledService} from '../../../systemInterfaces/services'
+import {WebserverHandlerDeps, WebserverEnabledServiceConfigurator} from '../../../services/webserver/interfaces'
+import {
+  WebserverServiceHttpEnabled,
+  WebserverServiceHttpsEnabled,
+} from '../../../services/webserver/interfaces/webserverServiceEnabled'
+import {ServiceConfigurator} from '../../../systemInterfaces/serviceConfigurator'
+import {Models} from '../../../services/database/interfaces/model'
+import {MiddlewareObject} from '../../../services/webserver/interfaces/middleware'
 import bodyParser = require('koa-bodyparser')
 
+let dependenciesMock: WebserverHandlerDeps
+let config: Config<WebserverEnabledServiceConfigurator>
+let webserverHandler: DefaultExport<WebserverEnabledServiceConfigurator>
+let internalSystem: InternalSystem<WebserverEnabledServiceConfigurator, Config, Models>
+let webserver: (callback?: () => void) => {close: (callback?: () => void) => void}
+
 suite('Test Webserver Handler (./services/webserver/webserverHandler.ts)', () => {
-  let correctConfig = _.cloneDeep(configMocked.correct.everythingDisabled)
-  let dependenciesMock = ({
-    Http: new ModulesMock.http.Instance(),
-    Https: new ModulesMock.https.Instance(),
-    Immer: immer,
-    Koa: ModulesMock.koa.Instance,
-    KoaBodyParser: ModulesMock.koaBodyParser.Instance,
-    KoaCors: ModulesMock.koaCors.Instance,
-    Koarouter: ModulesMock.koaRouter.Instance,
-  } as unknown) as WebserverHandlerDeps
-
-  afterEach(() => {
-    ModulesMock.reset()
-  })
-
-  setup(() => {
-    correctConfig = configMocked.correct.everythingDisabled
-    dependenciesMock = ({
-      Http: new ModulesMock.http.Instance(),
-      Https: new ModulesMock.https.Instance(),
-      Immer: immer,
-      Koa: ModulesMock.koa.Instance,
-      KoaBodyParser: ModulesMock.koaBodyParser.fn,
-      KoaCors: ModulesMock.koaCors.fn,
-      Koarouter: ModulesMock.koaRouter.Instance,
-    } as unknown) as WebserverHandlerDeps
-  })
-
   test('Returns as default a instanceOf the queueHandler Class', () => {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    assert.instanceOf(new DefaultExport({} as any, correctConfig), WebserverHandler)
+    assert.instanceOf(
+      new DefaultExport({} as WebserverHandlerDeps, _.cloneDeep(configMocked.correct.everythingDisabled)),
+      WebserverHandler,
+    )
   })
 
   test('Object has an static Factory function', () => {
@@ -58,40 +47,30 @@ suite('Test Webserver Handler (./services/webserver/webserverHandler.ts)', () =>
   })
 
   test('factory() returns instance of WebserverHandler', () => {
-    assert.instanceOf(WebserverHandler.factory(correctConfig), WebserverHandler)
+    assert.instanceOf(WebserverHandler.factory(_.cloneDeep(configMocked.correct.everythingDisabled)), WebserverHandler)
   })
 
   suite('setup() works as expected!', () => {
-    let webserverHandler = WebserverHandler.factory(correctConfig)
-    let internalSystem = ({
-      Cache: CacheHandlerMock.Instance,
-      Config: correctConfig,
-      DB: DatabaseHandlerMock.Instance,
-      Log: new ModulesMock.logHandler.Instance(),
-      Models: {},
-      Queue: QueueHandlerMock.Instance,
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    } as unknown) as InternalSystem<any, Config, {}>
-
     setup(() => {
+      config = _.cloneDeep(configMocked.correct.everythingDisabled)
       internalSystem = ({
         Cache: CacheHandlerMock.Instance,
-        Config: correctConfig,
+        Config: configMocked.correct.everythingDisabled,
         DB: DatabaseHandlerMock.Instance,
         Log: new ModulesMock.logHandler.Instance(),
         Models: {},
         Queue: QueueHandlerMock.Instance,
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
       } as unknown) as InternalSystem<any, Config, {}>
 
-      webserverHandler = new WebserverHandler(dependenciesMock, correctConfig)
+      webserverHandler = new WebserverHandler(dependenciesMock, config)
     })
 
-    afterEach(() => {
+    teardown(() => {
       CacheHandlerMock.reset()
       DatabaseHandlerMock.reset()
       QueueHandlerMock.reset()
       ModulesMock.reset()
+      MiddlewareMock.reset()
     })
 
     test('setup() required 1 attribute', () => {
@@ -111,12 +90,35 @@ suite('Test Webserver Handler (./services/webserver/webserverHandler.ts)', () =>
     })
 
     suite('when webserver service is enabled', () => {
-      let config = _.cloneDeep(configMocked.correct.everythingEnabled)
-      let webserverHandler = new WebserverHandler(dependenciesMock, config)
-
       setup(() => {
         config = _.cloneDeep(configMocked.correct.everythingEnabled)
-        webserverHandler = new WebserverHandler(dependenciesMock, config)
+        dependenciesMock = ({
+          Http: new ModulesMock.http.Instance(),
+          Https: new ModulesMock.https.Instance(),
+          Immer: immer,
+          Koa: ModulesMock.koa.Instance,
+          KoaBodyParser: new ModulesMock.koaBodyParser.Instance().fn,
+          KoaCors: new ModulesMock.koaCors.Instance().fn,
+          KoaRouter: ModulesMock.koaRouter.Instance,
+        } as unknown) as WebserverHandlerDeps
+
+        internalSystem = ({
+          Cache: CacheHandlerMock.Instance,
+          Config: configMocked.correct.everythingEnabled,
+          DB: DatabaseHandlerMock.Instance,
+          Log: new ModulesMock.logHandler.Instance(),
+          Models: {},
+          Queue: QueueHandlerMock.Instance,
+        } as unknown) as InternalSystem<any, Config, {}>
+
+        webserverHandler = new WebserverHandler(dependenciesMock, _.cloneDeep(configMocked.correct.everythingEnabled))
+      })
+
+      teardown(() => {
+        CacheHandlerMock.reset()
+        DatabaseHandlerMock.reset()
+        QueueHandlerMock.reset()
+        ModulesMock.reset()
       })
 
       test('returns function after called', () => {
@@ -139,23 +141,33 @@ suite('Test Webserver Handler (./services/webserver/webserverHandler.ts)', () =>
         })
       })
 
-      suite('Test HTTP Server connection is enabled', () => {
-        let config = immer(_.cloneDeep(configMocked.correct.everythingEnabled), config => {
-          config.services.webserver.connection.http = {enabled: true, port: faker.random.number()}
-        })
-        let webserverHandler = new WebserverHandler(dependenciesMock, config)
-        let webserver = webserverHandler.setup(internalSystem)
-
+      suite('Test Http Server connection is enabled', () => {
         setup(() => {
-          config = immer(_.cloneDeep(configMocked.correct.everythingEnabled), config => {
-            config.services.webserver.connection.http = {enabled: true, port: faker.random.number()}
-          })
-          webserverHandler = new WebserverHandler(dependenciesMock, config)
+          config = immer(
+            internalSystem.Config as Config<WebserverEnabledServiceConfigurator<WebserverServiceHttpEnabled>>,
+            Config => {
+              Config.services.webserver.connection.https = {enabled: false}
+            },
+          )
+          internalSystem = {
+            ...internalSystem,
+            Config: config,
+          }
           webserver = webserverHandler.setup(internalSystem)
         })
 
-        test('HTTP Server is Created an stared with listening to correct port', () => {
-          if (config.services.webserver.connection.http.enabled) {
+        teardown(() => {
+          CacheHandlerMock.reset()
+          DatabaseHandlerMock.reset()
+          QueueHandlerMock.reset()
+          ModulesMock.reset()
+        })
+
+        test('Http Server is Created an stared with listening to correct port', () => {
+          const settings = (config as unknown) as Config<
+            WebserverEnabledServiceConfigurator<WebserverServiceHttpEnabled>
+          >
+          if (settings.services.webserver.connection.http.enabled) {
             assert.isTrue(ModulesMock.koa.stubs.callback.callCount === 0)
 
             const koaCallBackReturnValue = faker.random.alphaNumeric(24)
@@ -168,14 +180,17 @@ suite('Test Webserver Handler (./services/webserver/webserverHandler.ts)', () =>
             assert.isTrue(ModulesMock.koa.stubs.callback.calledOnce)
             assert.isTrue(ModulesMock.http.stubs.listen.calledOnce)
             assert.isTrue(ModulesMock.http.stubs.listen.args[0].length === 2)
-            assert.isTrue(ModulesMock.http.stubs.listen.args[0][0] === config.services.webserver.connection.http.port)
+            assert.isTrue(ModulesMock.http.stubs.listen.args[0][0] === settings.services.webserver.connection.http.port)
           } else {
-            assert.fail('Somthing weird happened')
+            assert.fail('Something weird happened')
           }
         })
 
         test('Http Server calls given callback function when system started listening', () => {
-          if (config.services.webserver.connection.http.enabled) {
+          const settings = (config as unknown) as Config<
+            WebserverEnabledServiceConfigurator<WebserverServiceHttpEnabled>
+          >
+          if (settings.services.webserver.connection.http.enabled) {
             const callbackstub = sinon.stub()
 
             webserver(callbackstub)
@@ -185,12 +200,15 @@ suite('Test Webserver Handler (./services/webserver/webserverHandler.ts)', () =>
             assert.isTrue(callbackstub.args[0].length === 1)
             assert.deepEqual(callbackstub.args[0][0], internalSystem)
           } else {
-            assert.fail('Somthing weird happened')
+            assert.fail('Something weird happened')
           }
         })
 
         test('Http Server Logs on info level that server is started and on which port', () => {
           if (config.services.webserver.connection.http.enabled) {
+            const settings = (config as unknown) as Config<
+              WebserverEnabledServiceConfigurator<WebserverServiceHttpEnabled>
+            >
             webserver()
 
             let found = false
@@ -198,8 +216,8 @@ suite('Test Webserver Handler (./services/webserver/webserverHandler.ts)', () =>
             for (const infoLog of ModulesMock.logHandler.stubs.info.args) {
               if (infoLog.length === 2 && infoLog[0] === 'Webserver is started!') {
                 assert.deepEqual(infoLog[1], {
-                  port: config.services.webserver.connection.http.port
-                    ? config.services.webserver.connection.http.port
+                  port: settings.services.webserver.connection.http.port
+                    ? settings.services.webserver.connection.http.port
                     : 80,
                   protocol: 'http',
                   status: 'started',
@@ -212,16 +230,24 @@ suite('Test Webserver Handler (./services/webserver/webserverHandler.ts)', () =>
               assert.fail("Couldn't find right logged item!")
             }
           } else {
-            assert.fail('Somthing weird happened')
+            assert.fail('Something weird happened')
           }
         })
 
-        test('HTTP Server is Created an stared with listening to correct port when port is not configured', () => {
-          const config = immer(_.cloneDeep(configMocked.correct.everythingEnabled), config => {
-            config.services.webserver.connection.http = {enabled: true}
-          })
-          const webserverHandler = new WebserverHandler(dependenciesMock, config)
-          const webserver = webserverHandler.setup(internalSystem)
+        test('Http Server is Created an stared with listening to correct port when port is not configured', () => {
+          config = immer(
+            internalSystem.Config as Config<WebserverEnabledServiceConfigurator<WebserverServiceHttpEnabled>>,
+            Config => {
+              Config.services.webserver.connection.https = {enabled: false}
+              Config.services.webserver.connection.http = {enabled: true}
+            },
+          )
+          internalSystem = {
+            ...internalSystem,
+            Config: config,
+          }
+          webserver = webserverHandler.setup(internalSystem as any)
+
           assert.isTrue(ModulesMock.koa.stubs.callback.callCount === 0)
 
           const koaCallBackReturnValue = faker.random.alphaNumeric(24)
@@ -238,11 +264,18 @@ suite('Test Webserver Handler (./services/webserver/webserverHandler.ts)', () =>
         })
 
         test('Http Server Logs on info level that server is started and on which port when port is not configured', () => {
-          const config = immer(_.cloneDeep(configMocked.correct.everythingEnabled), config => {
-            config.services.webserver.connection.http = {enabled: true}
-          })
-          const webserverHandler = new WebserverHandler(dependenciesMock, config)
-          const webserver = webserverHandler.setup(internalSystem)
+          config = immer(
+            internalSystem.Config as Config<WebserverEnabledServiceConfigurator<WebserverServiceHttpEnabled>>,
+            Config => {
+              Config.services.webserver.connection.https = {enabled: false}
+              Config.services.webserver.connection.http = {enabled: true}
+            },
+          )
+          internalSystem = {
+            ...internalSystem,
+            Config: config,
+          }
+          webserver = webserverHandler.setup(internalSystem as any)
           webserver()
 
           let found = false
@@ -276,31 +309,33 @@ suite('Test Webserver Handler (./services/webserver/webserverHandler.ts)', () =>
         })
       })
 
-      suite('Test HTTPS Server connection is enabled', () => {
-        let config = immer(_.cloneDeep(configMocked.correct.everythingEnabled), config => {
-          config.services.webserver.connection.https = {
-            cert: {cert: faker.random.alphaNumeric(), key: faker.random.alphaNumeric()},
-            enabled: true,
-            port: faker.random.number(),
-          }
-        })
-        let webserverHandler = new WebserverHandler(dependenciesMock, config)
-        let webserver = webserverHandler.setup(internalSystem)
-
+      suite('Test Https Server connection is enabled', () => {
         setup(() => {
-          config = immer(_.cloneDeep(configMocked.correct.everythingEnabled), config => {
-            config.services.webserver.connection.https = {
-              cert: {cert: faker.random.alphaNumeric(), key: faker.random.alphaNumeric()},
-              enabled: true,
-              port: faker.random.number(),
-            }
-          })
-          webserverHandler = new WebserverHandler(dependenciesMock, config)
-          webserver = webserverHandler.setup(internalSystem)
+          config = immer(
+            internalSystem.Config as Config<WebserverEnabledServiceConfigurator<WebserverServiceHttpsEnabled>>,
+            Config => {
+              Config.services.webserver.connection.http = {enabled: false}
+            },
+          )
+          internalSystem = {
+            ...internalSystem,
+            Config: config,
+          }
+          webserver = webserverHandler.setup(internalSystem as any)
+        })
+
+        teardown(() => {
+          CacheHandlerMock.reset()
+          DatabaseHandlerMock.reset()
+          QueueHandlerMock.reset()
+          ModulesMock.reset()
         })
 
         test('Https Server is Created an stared with listening to correct port', () => {
-          if (config.services.webserver.connection.https.enabled) {
+          const settings = (config as unknown) as Config<
+            WebserverEnabledServiceConfigurator<WebserverServiceHttpsEnabled>
+          >
+          if (settings.services.webserver.connection.https.enabled) {
             assert.isTrue(ModulesMock.koa.stubs.callback.callCount === 0)
 
             const koaCallBackReturnValue = faker.random.alphaNumeric(24)
@@ -313,28 +348,37 @@ suite('Test Webserver Handler (./services/webserver/webserverHandler.ts)', () =>
             assert.isTrue(ModulesMock.koa.stubs.callback.calledOnce)
             assert.isTrue(ModulesMock.https.stubs.listen.calledOnce)
             assert.isTrue(ModulesMock.https.stubs.listen.args[0].length === 2)
-            assert.isTrue(ModulesMock.https.stubs.listen.args[0][0] === config.services.webserver.connection.https.port)
+            assert.isTrue(
+              ModulesMock.https.stubs.listen.args[0][0] === settings.services.webserver.connection.https.port,
+            )
           } else {
-            assert.fail('Somthing weird happened')
+            assert.fail('Something weird happened')
           }
         })
 
         test('Https Server calls given callback function when system started listening', () => {
-          if (config.services.webserver.connection.https.enabled) {
+          const settings = (config as unknown) as Config<
+            WebserverEnabledServiceConfigurator<WebserverServiceHttpEnabled>
+          >
+          if (settings.services.webserver.connection.https.enabled) {
             const callbackstub = sinon.stub()
 
             webserver(callbackstub)
 
             assert.isTrue(callbackstub.calledOnce)
+
             assert.isTrue(callbackstub.args[0].length === 1)
             assert.deepEqual(callbackstub.args[0][0], internalSystem)
           } else {
-            assert.fail('Somthing weird happened')
+            assert.fail('Something weird happened')
           }
         })
 
         test('Https Server Logs on info level that server is started and on which port', () => {
-          if (config.services.webserver.connection.https.enabled) {
+          const settings = (config as unknown) as Config<
+            WebserverEnabledServiceConfigurator<WebserverServiceHttpsEnabled>
+          >
+          if (settings.services.webserver.connection.https.enabled) {
             webserver()
 
             let found = false
@@ -342,7 +386,9 @@ suite('Test Webserver Handler (./services/webserver/webserverHandler.ts)', () =>
             for (const infoLog of ModulesMock.logHandler.stubs.info.args) {
               if (infoLog.length === 2 && infoLog[0] === 'Webserver is started!') {
                 assert.deepEqual(infoLog[1], {
-                  port: config.services.webserver.connection.https.port,
+                  port: settings.services.webserver.connection.https.port
+                    ? settings.services.webserver.connection.https.port
+                    : 80,
                   protocol: 'https',
                   status: 'started',
                 })
@@ -354,19 +400,30 @@ suite('Test Webserver Handler (./services/webserver/webserverHandler.ts)', () =>
               assert.fail("Couldn't find right logged item!")
             }
           } else {
-            assert.fail('Somthing weird happened')
+            assert.fail('Something weird happened')
           }
         })
 
         test('Https Server is Created an stared with listening to correct port when port is not configured', () => {
-          const config = immer(_.cloneDeep(configMocked.correct.everythingEnabled), config => {
-            config.services.webserver.connection.https = {
-              cert: {cert: faker.random.alphaNumeric(), key: faker.random.alphaNumeric()},
-              enabled: true,
-            }
-          })
-          const webserverHandler = new WebserverHandler(dependenciesMock, config)
-          const webserver = webserverHandler.setup(internalSystem)
+          config = immer(
+            internalSystem.Config as Config<WebserverEnabledServiceConfigurator<WebserverServiceHttpsEnabled>>,
+            Config => {
+              Config.services.webserver.connection.http = {enabled: false}
+              Config.services.webserver.connection.https = {
+                cert: {
+                  cert: faker.random.alphaNumeric(48),
+                  key: faker.random.alphaNumeric(48),
+                },
+                enabled: true,
+              }
+            },
+          )
+          internalSystem = {
+            ...internalSystem,
+            Config: config,
+          }
+          webserver = webserverHandler.setup(internalSystem as any)
+
           assert.isTrue(ModulesMock.koa.stubs.callback.callCount === 0)
 
           const koaCallBackReturnValue = faker.random.alphaNumeric(24)
@@ -382,22 +439,36 @@ suite('Test Webserver Handler (./services/webserver/webserverHandler.ts)', () =>
           assert.isTrue(ModulesMock.https.stubs.listen.args[0][0] === 443)
         })
 
-        test('Https Server Logs on info level that server is started and on which port when port is not configured', () => {
-          const config = immer(_.cloneDeep(configMocked.correct.everythingEnabled), config => {
-            config.services.webserver.connection.https = {
-              cert: {cert: faker.random.alphaNumeric(), key: faker.random.alphaNumeric()},
-              enabled: true,
-            }
-          })
-          const webserverHandler = new WebserverHandler(dependenciesMock, config)
-          const webserver = webserverHandler.setup(internalSystem)
+        test('Http Server Logs on info level that server is started and on which port when port is not configured', () => {
+          config = immer(
+            internalSystem.Config as Config<WebserverEnabledServiceConfigurator<WebserverServiceHttpsEnabled>>,
+            Config => {
+              Config.services.webserver.connection.http = {enabled: false}
+              Config.services.webserver.connection.https = {
+                cert: {
+                  cert: faker.random.alphaNumeric(48),
+                  key: faker.random.alphaNumeric(48),
+                },
+                enabled: true,
+              }
+            },
+          )
+          internalSystem = {
+            ...internalSystem,
+            Config: config,
+          }
+          webserver = webserverHandler.setup(internalSystem as any)
           webserver()
 
           let found = false
 
           for (const infoLog of ModulesMock.logHandler.stubs.info.args) {
             if (infoLog.length === 2 && infoLog[0] === 'Webserver is started!') {
-              assert.deepEqual(infoLog[1], {port: 443, protocol: 'https', status: 'started'})
+              assert.deepEqual(infoLog[1], {
+                port: 443,
+                protocol: 'https',
+                status: 'started',
+              })
               found = true
             }
           }
@@ -407,7 +478,7 @@ suite('Test Webserver Handler (./services/webserver/webserverHandler.ts)', () =>
           }
         })
 
-        test('Https server get successfully closed after calling returned close command', () => {
+        test('Https server get succesfully closed after calling returned close command', () => {
           const server = webserver()
 
           assert.isFalse(ModulesMock.https.stubs.emit.calledOnce)
@@ -421,12 +492,6 @@ suite('Test Webserver Handler (./services/webserver/webserverHandler.ts)', () =>
       })
 
       suite('Webserver (KOA) is correctly configured.', () => {
-        let config = immer(_.cloneDeep(configMocked.correct.everythingEnabled), config => {
-          config.services.webserver.connection.http = {enabled: true, port: faker.random.number()}
-        })
-        let webserverHandler = new WebserverHandler(dependenciesMock, config)
-        webserverHandler.setup(internalSystem)
-
         setup(() => {
           config = immer(_.cloneDeep(configMocked.correct.everythingEnabled), config => {
             config.services.webserver.connection.http = {enabled: true, port: faker.random.number()}
@@ -435,7 +500,7 @@ suite('Test Webserver Handler (./services/webserver/webserverHandler.ts)', () =>
           webserverHandler.setup(internalSystem)
         })
 
-        afterEach(() => {
+        teardown(() => {
           ModulesMock.reset()
         })
 
@@ -457,7 +522,10 @@ suite('Test Webserver Handler (./services/webserver/webserverHandler.ts)', () =>
           })
 
           const webserverHandler = new WebserverHandler(dependenciesMock, config)
-          webserverHandler.setup(internalSystem)()
+          webserverHandler.setup({
+            ...internalSystem,
+            Config: config,
+          } as any)()
 
           assert.exists(ModulesMock.koa.stubs._vars.subdomainOffset)
           assert.equal(ModulesMock.koa.stubs._vars.subdomainOffset, 2)
@@ -477,7 +545,10 @@ suite('Test Webserver Handler (./services/webserver/webserverHandler.ts)', () =>
           })
 
           const webserverHandler = new WebserverHandler(dependenciesMock, config)
-          webserverHandler.setup(internalSystem)()
+          webserverHandler.setup({
+            ...internalSystem,
+            Config: config,
+          } as any)()
 
           assert.exists(ModulesMock.koa.stubs._vars.proxy)
           assert.isTrue(ModulesMock.koa.stubs._vars.proxy)
@@ -489,7 +560,10 @@ suite('Test Webserver Handler (./services/webserver/webserverHandler.ts)', () =>
           })
 
           const webserverHandler = new WebserverHandler(dependenciesMock, config)
-          webserverHandler.setup(internalSystem)()
+          webserverHandler.setup({
+            ...internalSystem,
+            Config: config,
+          } as any)()
 
           assert.exists(ModulesMock.koa.stubs._vars.silent)
           assert.equal(config.services.webserver.settings.silent, ModulesMock.koa.stubs._vars.silent)
@@ -502,7 +576,10 @@ suite('Test Webserver Handler (./services/webserver/webserverHandler.ts)', () =>
           })
 
           const webserverHandler = new WebserverHandler(dependenciesMock, config)
-          webserverHandler.setup(internalSystem)()
+          webserverHandler.setup({
+            ...internalSystem,
+            Config: config,
+          } as any)()
 
           assert.exists(ModulesMock.koa.stubs._vars.silent)
           assert.isTrue(ModulesMock.koa.stubs._vars.silent)
@@ -524,41 +601,9 @@ suite('Test Webserver Handler (./services/webserver/webserverHandler.ts)', () =>
               call[1](testError, testObject)
               assert.equal(ModulesMock.logHandler.stubs.err.callCount, errorCount + 1)
               assert.deepEqual(testError, ModulesMock.logHandler.stubs.err.args[errorCount][0])
-              assert.deepEqual({ctx: testObject}, ModulesMock.logHandler.stubs.err.args[errorCount][1])
+              assert.deepEqual(testObject, ModulesMock.logHandler.stubs.err.args[errorCount][1])
             }
           })
-        })
-
-        test("Koa Cors isn't configured when it isn't setup", () => {
-          assert.equal(ModulesMock.koaCors.stubs.fn.callCount, 0)
-        })
-
-        test('Koa Cors is configured when it is setup', () => {
-          ModulesMock.reset()
-          const corsSettings = {
-            allowMethods: faker.random.alphaNumeric(12),
-            enabled: true,
-          }
-
-          const config = immer(_.cloneDeep(configMocked.correct.everythingEnabled), config => {
-            config.services.webserver.security = {
-              cors: corsSettings,
-            }
-          })
-
-          const returnedData = faker.random.alphaNumeric(8)
-          ModulesMock.koaCors.stubs.fn.returns(returnedData)
-
-          const webserverHandler = new WebserverHandler(dependenciesMock, config)
-          webserverHandler.setup(internalSystem)()
-
-          assert.equal(ModulesMock.koaCors.stubs.fn.callCount, 1)
-          assert.equal(ModulesMock.koaCors.stubs.fn.args[0].length, 1)
-          assert.deepEqual(ModulesMock.koaCors.stubs.fn.args[0][0], corsSettings)
-
-          assert.equal(ModulesMock.koa.stubs.use.callCount, 1)
-          assert.equal(ModulesMock.koa.stubs.use.args[0].length, 1)
-          assert.equal(ModulesMock.koa.stubs.use.args[0][0], returnedData)
         })
 
         test("Koa BodyParser isn't configured when it isn't setup", () => {
@@ -580,15 +625,216 @@ suite('Test Webserver Handler (./services/webserver/webserverHandler.ts)', () =>
           ModulesMock.koaBodyParser.stubs.fn.returns(returnedData)
 
           const webserverHandler = new WebserverHandler(dependenciesMock, config)
-          webserverHandler.setup(internalSystem)()
+          webserverHandler.setup({
+            ...internalSystem,
+            Config: config,
+          } as any)()
 
           assert.equal(ModulesMock.koaBodyParser.stubs.fn.callCount, 1)
           assert.equal(ModulesMock.koaBodyParser.stubs.fn.args[0].length, 1)
           assert.deepEqual(ModulesMock.koaBodyParser.stubs.fn.args[0][0], bodyParserSettings)
 
-          assert.equal(ModulesMock.koa.stubs.use.callCount, 1)
+          assert.equal(ModulesMock.koa.stubs.use.callCount, 2)
           assert.equal(ModulesMock.koa.stubs.use.args[0].length, 1)
           assert.equal(ModulesMock.koa.stubs.use.args[0][0], returnedData)
+        })
+
+        // eslint-disable-next-line @typescript-eslint/no-empty-function
+        suite('System Middleware is loaded correctly', () => {
+          const numberOfMiddleware = faker.random.number(8) + 2
+          const returnValues = faker.random.alphaNumeric(24)
+
+          teardown(() => {
+            ModulesMock.reset()
+            MiddlewareMock.reset()
+          })
+
+          suite('when middleware is added as a function', () => {
+            setup(() => {
+              config = immer(_.cloneDeep(configMocked.correct.everythingEnabled), config => {
+                const middlewareList = []
+                for (let i = 0; i < numberOfMiddleware; i++) {
+                  middlewareList.push(MiddlewareMock.Instance)
+                }
+
+                config.services.webserver.middleware = middlewareList
+              })
+
+              MiddlewareMock.stubs.middleware.returns(returnValues)
+              webserverHandler = new WebserverHandler(dependenciesMock, config)
+              webserverHandler.setup({
+                ...internalSystem,
+                Config: config,
+              } as InternalSystem<ServiceConfigurator, Config, Models>)
+            })
+
+            teardown(() => {
+              ModulesMock.reset()
+              MiddlewareMock.reset()
+            })
+
+            test('Middleware is correctly loaded when it is added as a function', () => {
+              assert.equal(MiddlewareMock.stubs.setup.callCount, numberOfMiddleware)
+              assert.equal(MiddlewareMock.stubs.setup.args[0].length, 1)
+              assert.deepEqual(MiddlewareMock.stubs.setup.args[0][0], {
+                ...internalSystem,
+                Config: config,
+                Dependencies: {},
+              })
+              assert.equal(MiddlewareMock.stubs.middleware.callCount, 0)
+
+              let match = 0
+              for (const args of ModulesMock.koa.stubs.use.args) {
+                if (args.length === 1 && typeof args[0] === 'function') {
+                  const result = args[0]()
+                  match += result === returnValues ? 1 : 0
+                }
+              }
+
+              assert.equal(numberOfMiddleware, match)
+            })
+          })
+
+          suite('when middleware is added as a object', () => {
+            let dependencyObj: {}
+            const dependencyfnc = () => ({
+              uuid1: 'f1fe7480-6776-437d-b844-c387f449a9b7',
+              uuid2: 'fe191870-6432-11ea-bc55-0242ac130003',
+              uuid3: 'fe191a82-6432-11ea-bc55-0242ac130003',
+              uuid4: 'fe191b7c-6432-11ea-bc55-0242ac130003',
+            })
+
+            setup(() => {
+              dependencyObj = {
+                test: faker.random.alphaNumeric(24),
+                test2: faker.random.words(5),
+                id: faker.random.uuid,
+              }
+
+              config = immer(_.cloneDeep(configMocked.correct.everythingEnabled), config => {
+                const middlewareList = []
+                for (let i = 0; i < numberOfMiddleware; i++) {
+                  const middleware: MiddlewareObject<typeof dependencyObj> = {
+                    fnc: MiddlewareMock.Instance,
+                    dependencies: dependencyObj,
+                  }
+
+                  middlewareList.push(middleware)
+                }
+
+                config.services.webserver.middleware = middlewareList
+              })
+
+              MiddlewareMock.stubs.middleware.returns(returnValues)
+              webserverHandler = new WebserverHandler(dependenciesMock, config)
+              webserverHandler.setup({
+                ...internalSystem,
+                Config: config,
+              } as InternalSystem<ServiceConfigurator, Config, Models>)
+            })
+
+            teardown(() => {
+              ModulesMock.reset()
+              MiddlewareMock.reset()
+            })
+
+            test('Middleware is correctly loaded when it is added as a object with dependencies as an object', () => {
+              assert.equal(MiddlewareMock.stubs.setup.callCount, numberOfMiddleware)
+              assert.equal(MiddlewareMock.stubs.setup.args[0].length, 1)
+              assert.deepEqual(MiddlewareMock.stubs.setup.args[0][0], {
+                ...internalSystem,
+                Config: config,
+                Dependencies: dependencyObj,
+              })
+              assert.equal(MiddlewareMock.stubs.middleware.callCount, 0)
+
+              let match = 0
+              for (const args of ModulesMock.koa.stubs.use.args) {
+                if (args.length === 1 && typeof args[0] === 'function') {
+                  const result = args[0]()
+                  match += result === returnValues ? 1 : 0
+                }
+              }
+
+              assert.equal(numberOfMiddleware, match)
+            })
+
+            test('Middleware is correctly loaded when it is added as a object with dependencies as an function', () => {
+              ModulesMock.reset()
+              MiddlewareMock.reset()
+
+              config = immer(_.cloneDeep(configMocked.correct.everythingEnabled), config => {
+                const middlewareList = []
+                for (let i = 0; i < numberOfMiddleware; i++) {
+                  const middleware: MiddlewareObject<typeof dependencyObj> = {
+                    fnc: MiddlewareMock.Instance,
+                    dependencies: dependencyfnc,
+                  }
+
+                  middlewareList.push(middleware)
+                }
+
+                config.services.webserver.middleware = middlewareList
+              })
+
+              MiddlewareMock.stubs.middleware.returns(returnValues)
+              webserverHandler = new WebserverHandler(dependenciesMock, config)
+              webserverHandler.setup({
+                ...internalSystem,
+                Config: config,
+              } as InternalSystem<ServiceConfigurator, Config, Models>)
+
+              assert.equal(MiddlewareMock.stubs.setup.callCount, numberOfMiddleware)
+              assert.equal(MiddlewareMock.stubs.setup.args[0].length, 1)
+              assert.deepEqual(MiddlewareMock.stubs.setup.args[0][0], {
+                ...internalSystem,
+                Config: config,
+                Dependencies: dependencyfnc(),
+              })
+              assert.equal(MiddlewareMock.stubs.middleware.callCount, 0)
+
+              let match = 0
+              for (const args of ModulesMock.koa.stubs.use.args) {
+                if (args.length === 1 && typeof args[0] === 'function') {
+                  const result = args[0]()
+                  match += result === returnValues ? 1 : 0
+                }
+              }
+
+              assert.equal(numberOfMiddleware, match)
+            })
+
+            test('Middleware Dependency function gets InternalSystem as argument', () => {
+              ModulesMock.reset()
+              MiddlewareMock.reset()
+
+              const middlewareDepedencyStub = sinon.stub().returns(dependencyObj)
+
+              config = immer(_.cloneDeep(configMocked.correct.everythingEnabled), config => {
+                config.services.webserver.middleware = [
+                  {
+                    fnc: MiddlewareMock.Instance,
+                    dependencies: middlewareDepedencyStub,
+                  },
+                ]
+              })
+
+              MiddlewareMock.stubs.middleware.returns(returnValues)
+              webserverHandler = new WebserverHandler(dependenciesMock, config)
+              webserverHandler.setup({
+                ...internalSystem,
+                Config: config,
+              } as InternalSystem<ServiceConfigurator, Config, Models>)
+
+              assert.equal(middlewareDepedencyStub.callCount, 1)
+              assert.equal(middlewareDepedencyStub.args[0].length, 1)
+              assert.deepEqual(middlewareDepedencyStub.args[0][0], {
+                ...internalSystem,
+                Config: config,
+                Dependencies: {},
+              })
+            })
+          })
         })
       })
     })

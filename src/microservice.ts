@@ -15,7 +15,7 @@ import WebserverHandler from './services/webserver/webserverHandler'
 
 export class Microservice<
   TServiceConfigurator extends ServiceConfigurator = ServiceConfigurator,
-  TConfig extends Config = Config,
+  TConfig extends Config<TServiceConfigurator> = Config,
   TModels extends Models = Models
 > {
   private readonly deps: Dependencies
@@ -29,7 +29,7 @@ export class Microservice<
 
   public static factory<
     TServiceConfigurator extends ServiceConfigurator = ServiceConfigurator,
-    TConfig extends Config = Config,
+    TConfig extends Config<TServiceConfigurator> = Config,
     TModels extends Models = Models
   >(config: TConfig) {
     return new this<TServiceConfigurator, TConfig, TModels>(
@@ -40,7 +40,7 @@ export class Microservice<
           cache: CacheHandler.factory(config),
           database: DatabaseHandler.factory(config),
           queue: QueueHandler.factory(config),
-          webserver: WebserverHandler.factory(config),
+          webserver: WebserverHandler.factory<TServiceConfigurator, TConfig, TModels>(config),
         },
       },
       config,

@@ -14,7 +14,8 @@ module.exports = {
   },
   parserOptions: {
     sourceType: 'module',
-    project: './tsconfig.json',
+    project: ['./tsconfig.json'],
+    projectFolderIgnoreList: ['/node_modules/'],
   },
   rules: {
     'prettier/prettier': 2,

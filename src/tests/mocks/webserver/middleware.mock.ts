@@ -2,19 +2,19 @@
 import * as sinon from 'sinon'
 
 const stubs = {
+  middleware: sinon.stub(),
   setup: sinon.stub(),
 }
 
 const reset = () => {
   stubs.setup.reset()
+  stubs.middleware.reset()
 }
 
-const Instance = class {
-  public setup(...args: any[]) {
-    return {
-      ...this,
-      ...stubs.setup(args),
-    }
+const Instance = (...args: any[]) => {
+  stubs.setup(...args)
+  return (...args: any[]) => {
+    return stubs.middleware(...args)
   }
 }
 

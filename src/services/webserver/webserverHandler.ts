@@ -3,45 +3,66 @@ import * as https from 'https'
 import immer from 'immer'
 import * as Koa from 'koa'
 import * as KoaBodyParser from 'koa-bodyparser'
-import * as KoaRouter from 'koa-router'
-import * as koaCors from '@koa/cors'
-import {
-  WebserverHandlerDeps,
-  ServiceConfiguratorWebserverEnabled,
-  WebserverCallbackFunction,
-  WebServerObject,
-} from './interfaces'
+import KoaRouter, {Params, RouterOptions} from 'koa-advanced-router'
+import {WebserverHandlerDeps, WebServerObject, WebserverEnabledServiceConfigurator} from './interfaces'
 import {Config} from '../../systemInterfaces/config'
 import {InternalSystem} from '../../systemInterfaces/internalSystem'
 import {Models} from '../database/interfaces/model'
 import {ServiceConfigurator} from '../../systemInterfaces/serviceConfigurator'
+import {
+  WebserverServiceHttpEnabled,
+  WebserverServiceHttpsEnabled,
+  WebserverServiceHVersionHandlingEnabled,
+  WebserverServiceHVersionHandlingDisabled,
+} from './interfaces/webserverServiceEnabled'
+import {WebserverCallbackFunction} from './interfaces/webserverCallbackFunction'
+import {Dependencies, CustomDependencies} from './interfaces/dependencies'
+import {IMiddleware} from './interfaces/middleware'
+import {IRoute} from './interfaces/route'
+import {IParam} from './interfaces/param'
+import {Version} from './interfaces/version'
+import Router from 'koa-advanced-router/lib/router/router'
 
-export class WebserverHandler {
+export class WebserverHandler<
+  TServiceConfigurator extends ServiceConfigurator = ServiceConfigurator,
+  TConfig extends Config<TServiceConfigurator> = Config,
+  TModels extends Models = Models
+> {
+  private webserverEnabled: boolean
+
   // eslint-disable-next-line no-useless-constructor
-  public constructor(private deps: WebserverHandlerDeps, private config: Config) {}
+  public constructor(private deps: WebserverHandlerDeps, config: Config) {
+    this.webserverEnabled = this.WebserverIsEnabled(config)
+  }
 
-  public static factory(config: Config) {
-    return new this(
+  public static factory<
+    TServiceConfigurator extends ServiceConfigurator = ServiceConfigurator,
+    TConfig extends Config = Config,
+    TModels extends Models = Models
+  >(config: Config) {
+    return new this<TServiceConfigurator, TConfig, TModels>(
       {
         Http: http,
         Https: https,
         Immer: immer,
         Koa: Koa,
         KoaBodyParser: KoaBodyParser,
-        KoaCors: koaCors,
         KoaRouter: KoaRouter,
       },
       config,
     )
   }
 
-  public setup<TServiceConfigurator extends ServiceConfigurator, TConfig extends Config, TModels extends Models>(
-    system: InternalSystem<TServiceConfigurator, TConfig, TModels>,
-  ) {
-    if (this.webserverEnabled(this.config)) {
-      const configuration = this.MakeWebserviceInstance<TServiceConfigurator, TConfig, TModels>(system)
+  public setup(system: InternalSystem<TServiceConfigurator, TConfig, TModels>) {
+    if (this.webserverEnabled && this.WebserverIsEnabled(system.Config)) {
+      const internalSystem = (system as unknown) as InternalSystem<
+        WebserverEnabledServiceConfigurator,
+        Config<WebserverEnabledServiceConfigurator>,
+        TModels
+      >
+      const configuration = this.MakeWebserviceInstance(internalSystem)
       // eslint-disable-next-line @typescript-eslint/no-empty-function
-      return (callback: () => void = () => {}) => this.start(system, configuration, callback)
+      return (callback: () => void = () => {}) => this.start(internalSystem, configuration, callback)
     }
 
     return () => {
@@ -49,16 +70,17 @@ export class WebserverHandler {
     }
   }
 
-  private start<TServiceConfigurator extends ServiceConfigurator, TConfig extends Config, TModels extends Models>(
-    system: InternalSystem<TServiceConfigurator, TConfig, TModels>,
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  private start(
+    system: InternalSystem<WebserverEnabledServiceConfigurator, Config<WebserverEnabledServiceConfigurator>, TModels>,
     instance: Koa,
     // eslint-disable-next-line @typescript-eslint/no-empty-function
     callback: WebserverCallbackFunction<TServiceConfigurator, TConfig, TModels> = () => {},
   ) {
     const server: WebServerObject = {}
-    if (this.config.services.webserver.enabled && this.config.services.webserver.connection.http.enabled) {
-      const httpWebserverSettings = this.config.services.webserver.connection.http
+    if (system.Config.services.webserver.connection.http.enabled) {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const config = system.Config as Config<ServiceConfigurator<any, any, any, WebserverServiceHttpEnabled>>
+      const httpWebserverSettings = config.services.webserver.connection.http
       server.http = this.deps.Http.createServer(instance.callback()).listen(
         httpWebserverSettings.port ? httpWebserverSettings.port : 80,
         () => {
@@ -67,13 +89,18 @@ export class WebserverHandler {
             protocol: 'http',
             status: 'started',
           })
-          callback(system)
+
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          const internalSystem: any = system
+          callback(internalSystem)
         },
       )
     }
 
-    if (this.config.services.webserver.enabled && this.config.services.webserver.connection.https.enabled) {
-      const httpsWebserverSettings = this.config.services.webserver.connection.https
+    if (system.Config.services.webserver.connection.https.enabled) {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const config = system.Config as Config<ServiceConfigurator<any, any, any, WebserverServiceHttpsEnabled>>
+      const httpsWebserverSettings = config.services.webserver.connection.https
       server.https = this.deps.Https.createServer(instance.callback()).listen(
         httpsWebserverSettings.port ? httpsWebserverSettings.port : 443,
         () => {
@@ -82,7 +109,10 @@ export class WebserverHandler {
             protocol: 'https',
             status: 'started',
           })
-          callback(system)
+
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          const internalSystem: any = system
+          callback(internalSystem)
         },
       )
     }
@@ -102,55 +132,200 @@ export class WebserverHandler {
     }
   }
 
-  private webserverEnabled(config: Config): config is Config<ServiceConfiguratorWebserverEnabled> {
-    return config.services.webserver.enabled
-  }
-
-  private MakeWebserviceInstance<
-    TServiceConfigurator extends ServiceConfigurator,
-    TConfig extends Config,
-    TModels extends Models
-  >(system: InternalSystem<TServiceConfigurator, TConfig, TModels>) {
+  private MakeWebserviceInstance(
+    system: InternalSystem<WebserverEnabledServiceConfigurator, Config<WebserverEnabledServiceConfigurator>, TModels>,
+  ) {
     const app = new this.deps.Koa()
-    const config = this.getConfig()
     // settings
-    app.env = config.app.env
-    app.proxy = config.services.webserver.settings.proxy ? config.services.webserver.settings.proxy : false
-    app.subdomainOffset = config.services.webserver.settings.subdomainOffset
-      ? config.services.webserver.settings.subdomainOffset
+    app.env = system.Config.app.env
+    app.proxy = system.Config.services.webserver.settings.proxy
+      ? system.Config.services.webserver.settings.proxy
+      : false
+    app.subdomainOffset = system.Config.services.webserver.settings.subdomainOffset
+      ? system.Config.services.webserver.settings.subdomainOffset
       : 2
 
-    if (config.services.webserver.settings.silent !== undefined) {
-      app.silent = config.services.webserver.settings.silent
-    } else if (config.app.env === 'production') {
+    if (system.Config.services.webserver.settings.silent !== undefined) {
+      app.silent = system.Config.services.webserver.settings.silent
+    } else if (system.Config.app.env === 'production') {
       app.silent = true
     }
 
     app.on('error', (err: Error, ctx: Koa.Context) => {
-      system.Log.err(err, {ctx})
+      system.Log.err(err, ctx)
     })
 
     if (
-      config.services.webserver.security &&
-      config.services.webserver.security.cors &&
-      config.services.webserver.security.cors.enabled
+      system.Config.services.webserver.settings &&
+      system.Config.services.webserver.settings.bodyParser &&
+      system.Config.services.webserver.settings.bodyParser.enabled
     ) {
-      app.use(this.deps.KoaCors(config.services.webserver.security.cors))
+      app.use(this.deps.KoaBodyParser(system.Config.services.webserver.settings.bodyParser))
     }
 
-    if (
-      config.services.webserver.settings &&
-      config.services.webserver.settings.bodyParser &&
-      config.services.webserver.settings.bodyParser.enabled
-    ) {
-      app.use(this.deps.KoaBodyParser(config.services.webserver.settings.bodyParser))
+    if (system.Config.services.webserver.middleware.length > 0) {
+      for (const middleware of this.HandleMiddleware(system, system.Config.services.webserver.middleware)) {
+        app.use(middleware)
+      }
+    }
+
+    if (system.Config.services.webserver.settings.versionHandler) {
+      const config = system.Config as Config<
+        WebserverEnabledServiceConfigurator<WebserverServiceHVersionHandlingEnabled>
+      >
+      app.use(
+        this.HandleVersions(
+          {
+            ...system,
+            Config: config,
+          },
+          config.services.webserver.versions,
+        ),
+      )
+    } else {
+      const config = system.Config as Config<
+        WebserverEnabledServiceConfigurator<WebserverServiceHVersionHandlingDisabled>
+      >
+      app.use(this.HandleRoutes(system, config.services.webserver.router))
     }
 
     return app
   }
 
-  private getConfig(): Config<ServiceConfiguratorWebserverEnabled> {
-    return this.config
+  private HandleMiddleware(
+    system: InternalSystem<WebserverEnabledServiceConfigurator, Config<WebserverEnabledServiceConfigurator>, TModels>,
+    middlewareList2Handle: IMiddleware[],
+  ) {
+    const middlewareList: Koa.Middleware[] = []
+    for (const middleware of middlewareList2Handle) {
+      if (typeof middleware === 'function') {
+        middlewareList.push(middleware(this.HandleDependencies(system, {})))
+      } else {
+        middlewareList.push(
+          middleware.fnc(this.HandleDependencies<typeof middleware.dependencies>(system, middleware.dependencies)),
+        )
+      }
+    }
+
+    return middlewareList
+  }
+
+  private HandleDependencies<TDeps extends CustomDependencies = CustomDependencies>(
+    system: InternalSystem<WebserverEnabledServiceConfigurator, Config<WebserverEnabledServiceConfigurator>, TModels>,
+    dependencies: TDeps,
+  ): Dependencies<TDeps, TServiceConfigurator, TConfig, TModels> {
+    const internalSystem = system as InternalSystem<TServiceConfigurator, TConfig, TModels>
+
+    return {
+      ...internalSystem,
+      Dependencies:
+        typeof dependencies === 'function' ? dependencies(this.HandleDependencies(system, {})) : dependencies,
+    }
+  }
+
+  private HandleVersions(
+    system: InternalSystem<
+      WebserverEnabledServiceConfigurator,
+      Config<WebserverEnabledServiceConfigurator<WebserverServiceHVersionHandlingEnabled>>,
+      TModels
+    >,
+    versions: Version[],
+  ) {
+    const routerOptions: RouterOptions = {
+      expose: system.Config.services.webserver.settings.expose,
+    }
+
+    const router = this.deps.KoaRouter(routerOptions)
+    for (const version of versions) {
+      if (version.enabled) {
+        router.use(this.HandleSingleVersion(system, version))
+      }
+    }
+
+    return router.routes
+  }
+
+  private HandleSingleVersion(
+    system: InternalSystem<
+      WebserverEnabledServiceConfigurator,
+      Config<WebserverEnabledServiceConfigurator<WebserverServiceHVersionHandlingEnabled>>,
+      TModels
+    >,
+    version: Version,
+  ) {
+    const routerOptions: RouterOptions = {
+      allowedMethods: system.Config.services.webserver.settings.allowedMethods,
+      cors: system.Config.services.webserver.settings.cors,
+      expose: system.Config.services.webserver.settings.expose,
+      ignoreCaptures: system.Config.services.webserver.settings.ignoreCaptures,
+      sensitive: system.Config.services.webserver.settings.sensitive,
+      strict: system.Config.services.webserver.settings.strict,
+      version: {
+        identifier: version.identifier,
+        type: system.Config.services.webserver.settings.versionHandler,
+      },
+    }
+
+    const router = this.deps.KoaRouter(routerOptions)
+
+    if (version.middleware && version.middleware.length > 0) {
+      router.use(this.HandleMiddleware(system, version.middleware))
+    }
+
+    return this.HandleRoutes(system, version.router, router)
+  }
+
+  private HandleRoutes(
+    system: InternalSystem<WebserverEnabledServiceConfigurator, Config<WebserverEnabledServiceConfigurator>, TModels>,
+    routes: IRoute[],
+    router: Router = this.deps.KoaRouter({prefixes: '/'}),
+  ) {
+    for (const route of routes) {
+      const path = typeof route.path === 'string' ? route.path.replace(/^\/|\/$/g, '') : route.path
+      const methods = typeof route.method === 'string' ? [route.method] : route.method
+
+      let middlewareList: Koa.Middleware[] = []
+      const params: Params = {}
+
+      if (route.middleware && route.middleware.length > 0) {
+        middlewareList = middlewareList.concat(this.HandleMiddleware(system, route.middleware))
+      }
+
+      middlewareList.push(route.controller(this.HandleDependencies(system, route.dependencies || {})))
+
+      if (route.params) {
+        for (const paramKey in route.params) {
+          params[paramKey] = this.handleParam(system, route.params[paramKey])
+        }
+      }
+
+      router.route({
+        methods,
+        middleware: middlewareList,
+        params,
+        path,
+      })
+    }
+
+    return router.routes
+  }
+
+  private handleParam(
+    system: InternalSystem<WebserverEnabledServiceConfigurator, Config<WebserverEnabledServiceConfigurator>, TModels>,
+    param: IParam,
+  ) {
+    if (typeof param === 'function') {
+      return param(this.HandleDependencies(system, {}))
+    } else {
+      return param.fnc(this.HandleDependencies<typeof param.dependencies>(system, param.dependencies))
+    }
+  }
+
+  private WebserverIsEnabled(
+    config: Config,
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  ): config is Config<WebserverEnabledServiceConfigurator> {
+    return config.services.webserver.enabled
   }
 }
 

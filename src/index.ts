@@ -6,7 +6,7 @@ import {Models} from './services/database/interfaces/model'
 
 export const apiStart = <
   TServiceConfigurator extends ServiceConfigurator = ServiceConfigurator,
-  TConfig extends Config = Config,
+  TConfig extends Config<TServiceConfigurator> = Config,
   TModels extends Models = Models
 >(
   config: unknown,

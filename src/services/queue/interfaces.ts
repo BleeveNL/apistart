@@ -4,7 +4,7 @@ import {EnabledService} from '../../systemInterfaces/services'
 import {ServiceConfigurator} from '../../systemInterfaces/serviceConfigurator'
 import {Config} from '../../systemInterfaces/config'
 import {Models} from '../database/interfaces/model'
-import {Dependencies as systemDependencies, CustomDependencies} from '../../systemInterfaces/dependencies'
+import {Dependencies as systemDependencies, CustomDependencies} from '../webserver/interfaces/dependencies'
 import {InternalSystem} from '../../systemInterfaces/internalSystem'
 
 export interface Dependencies {

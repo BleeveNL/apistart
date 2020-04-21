@@ -1,8 +1,15 @@
-export interface ServiceConfigurator {
-  readonly cache: boolean
-  readonly db: boolean
-  readonly queue: false | QueueService
-  readonly webserver: boolean
+import {WebserverServiceEnabled} from '../services/webserver/interfaces/webserverServiceEnabled'
+
+export interface ServiceConfigurator<
+  TCache = boolean,
+  TDb = boolean,
+  TQueue = false | QueueService,
+  TWebserver = false | WebserverServiceEnabled
+> {
+  readonly cache: TCache
+  readonly db: TDb
+  readonly queue: TQueue
+  readonly webserver: TWebserver
 }
 
 export interface QueueService {
