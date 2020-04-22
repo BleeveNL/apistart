@@ -4314,12 +4314,14 @@ log-symbols@^2.0.0:
   dependencies:
     chalk "^2.0.1"
 
-loghandler@1.1.7:
-  version "1.1.7"
-  resolved "https://registry.yarnpkg.com/loghandler/-/loghandler-1.1.7.tgz#21a6de7bd265107767019b1fb4b7ccbbe1a38d28"
-  integrity sha512-fFf9oUL2N4P5rWFZLb9rWXQRP9+FAus7Koqqo0UTuWzOdLRqpFm5dyJHsc2hYh2WonVz6Q9wwV0vpzMaPkGVTg==
+loghandler@1.1.8:
+  version "1.1.8"
+  resolved "https://registry.yarnpkg.com/loghandler/-/loghandler-1.1.8.tgz#23fd9e997a0b789eb30a2f8c32b2dfc5a73ff037"
+  integrity sha512-3VEiIwsrvwPIBHuWen0XGoT5U07Ff8CKGgi2G2m5yWcYbhz0tmYqSGxDs6adcU+RdpOGABM+lBdCD7nv2CPpeg==
   dependencies:
     "@hapi/joi" "17.1.1"
+    "@types/hapi__joi" "16.0.12"
+    "@types/lodash" "4.14.150"
     colors "1.4.0"
     lodash "4.17.15"
 

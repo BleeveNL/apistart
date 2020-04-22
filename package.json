@@ -41,20 +41,13 @@
   },
   "homepage": "https://github.com/BleeveNL/apistart#readme",
   "devDependencies": {
-    "@types/amqplib": "0.5.13",
     "@types/bluebird": "3.5.30",
     "@types/chai": "4.2.11",
     "@types/faker": "4.1.11",
-    "@types/hapi__joi": "16.0.12",
-    "@types/ioredis": "4.14.9",
-    "@types/koa-bodyparser": "4.3.0",
-    "@types/koa-router": "7.4.0",
-    "@types/koa__cors": "3.0.1",
     "@types/lodash": "4.14.150",
     "@types/mocha": "7.0.2",
     "@types/node": "13.13.2",
     "@types/sinon": "9.0.0",
-    "@types/validator": "13.0.0",
     "@typescript-eslint/eslint-plugin": "2.29.0",
     "@typescript-eslint/parser": "2.29.0",
     "chai": "4.2.0",
@@ -93,6 +86,13 @@
     "node": ">=10.0.0"
   },
   "dependencies": {
+    "@types/amqplib": "0.5.13",
+    "@types/hapi__joi": "16.0.12",
+    "@types/ioredis": "4.14.9",
+    "@types/koa-bodyparser": "4.3.0",
+    "@types/koa-router": "7.4.0",
+    "@types/koa__cors": "3.0.1",
+    "@types/validator": "13.0.0",
     "@hapi/joi": "17.1.1",
     "@istanbuljs/nyc-config-typescript": "^1.0.1",
     "@koa/cors": "3.0.0",
@@ -104,7 +104,7 @@
     "koa-bodyparser": "4.3.0",
     "koa-router": "8.0.8",
     "lodash": "4.17.15",
-    "loghandler": "1.1.7",
+    "loghandler": "1.1.8",
     "sequelize": "5.21.6"
   }
 }
