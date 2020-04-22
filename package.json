@@ -7,7 +7,6 @@
   ],
   "main": "lib/index.js",
   "types": "lib/index.d.ts",
-  "typings": "./node_modules/@types",
   "typescript": {
     "definition": "lib/index.d.ts"
   },
