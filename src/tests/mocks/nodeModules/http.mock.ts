@@ -3,8 +3,8 @@ import * as sinon from 'sinon'
 
 const stubs = {
   createServer: sinon.stub(),
-  listen: sinon.stub(),
   emit: sinon.stub(),
+  listen: sinon.stub(),
 }
 
 const reset = () => {

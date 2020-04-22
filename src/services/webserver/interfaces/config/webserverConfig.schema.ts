@@ -28,18 +28,18 @@ const routerSchema = joi.array().items({
   controller: joi.function().maxArity(1).required(),
   dependencies: dependenciesSchema.optional(),
   method: joi.alternatives().try(joi.array().items(joi.string()), joi.string()).required(),
-  params: joi.object().optional(),
-  path: joi
-    .alternatives()
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    .try((joi.object() as any).regex(), joi.string())
-    .required(),
   options: joi
     .object({
       allowedMethods: joi.boolean().optional(),
       cors: CorsOptions.optional(),
     })
     .optional(),
+  params: joi.object().optional(),
+  path: joi
+    .alternatives()
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    .try((joi.object() as any).regex(), joi.string())
+    .required(),
 })
 
 const versions = {
@@ -99,12 +99,12 @@ const versions = {
         .optional(),
       cors: joi.alternatives().try(CorsOptions, joi.array().items(CorsOptions)).optional(),
       expose: joi.boolean().optional(),
-      proxy: joi.boolean().optional(),
-      silent: joi.boolean().optional(),
-      subdomainOffset: joi.number().optional(),
       ignoreCaptures: joi.boolean().optional(),
+      proxy: joi.boolean().optional(),
       sensitive: joi.boolean().optional(),
+      silent: joi.boolean().optional(),
       strict: joi.boolean().optional(),
+      subdomainOffset: joi.number().optional(),
       versionHandler: joi.alternatives().try(joi.valid('url', 'header'), joi.function().arity(1)).required(),
     })
     .required(),

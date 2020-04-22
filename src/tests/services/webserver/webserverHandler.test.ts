@@ -706,17 +706,17 @@ suite('Test Webserver Handler (./services/webserver/webserverHandler.ts)', () =>
 
             setup(() => {
               dependencyObj = {
+                id: faker.random.uuid,
                 test: faker.random.alphaNumeric(24),
                 test2: faker.random.words(5),
-                id: faker.random.uuid,
               }
 
               config = immer(_.cloneDeep(configMocked.correct.everythingEnabled), config => {
                 const middlewareList = []
                 for (let i = 0; i < numberOfMiddleware; i++) {
                   const middleware: MiddlewareObject<typeof dependencyObj> = {
-                    fnc: MiddlewareMock.Instance,
                     dependencies: dependencyObj,
+                    fnc: MiddlewareMock.Instance,
                   }
 
                   middlewareList.push(middleware)
@@ -767,8 +767,8 @@ suite('Test Webserver Handler (./services/webserver/webserverHandler.ts)', () =>
                 const middlewareList = []
                 for (let i = 0; i < numberOfMiddleware; i++) {
                   const middleware: MiddlewareObject<typeof dependencyObj> = {
-                    fnc: MiddlewareMock.Instance,
                     dependencies: dependencyfnc,
+                    fnc: MiddlewareMock.Instance,
                   }
 
                   middlewareList.push(middleware)
@@ -813,8 +813,8 @@ suite('Test Webserver Handler (./services/webserver/webserverHandler.ts)', () =>
               config = immer(_.cloneDeep(configMocked.correct.everythingEnabled), config => {
                 config.services.webserver.middleware = [
                   {
-                    fnc: MiddlewareMock.Instance,
                     dependencies: middlewareDepedencyStub,
+                    fnc: MiddlewareMock.Instance,
                   },
                 ]
               })

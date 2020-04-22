@@ -33,10 +33,7 @@ const schema = joi.object({
             .string()
             .valid('emerg', 'alert', 'crit', 'err', 'warning', 'notice', 'info', 'debug')
             .optional(),
-          silent: joi
-            .boolean()
-            .optional()
-            .default(false),
+          silent: joi.boolean().optional().default(false),
         })
         .optional(),
     }),

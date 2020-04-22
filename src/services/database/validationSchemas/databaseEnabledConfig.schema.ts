@@ -22,10 +22,7 @@ export default joi.object({
   operatorsAliases: joi.object().optional(),
   password: joi.string().optional(),
   pool: joi.object().optional(),
-  port: joi
-    .number()
-    .integer()
-    .optional(),
+  port: joi.number().integer().optional(),
   protocol: joi.string().optional(),
   query: joi.object().optional(),
   quoteIdentifiers: joi.boolean().optional(),
