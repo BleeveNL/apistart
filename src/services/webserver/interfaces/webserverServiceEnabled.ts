@@ -1,5 +1,4 @@
 export interface WebserverServiceEnabled {
-  readonly enabled: true
   readonly http: boolean
   readonly https: boolean
   readonly versionHandling: boolean

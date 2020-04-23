@@ -35,7 +35,6 @@ export class CacheHandler {
         ? new this.deps.Redis(cacheConfig.url, cacheConfig)
         : new this.deps.Redis(cacheConfig)
 
-      await client.connect()
       this.setListeners(client)
       return client
     }

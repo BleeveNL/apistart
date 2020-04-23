@@ -50,7 +50,7 @@ const versions = {
         .try(
           joi.object({enabled: joi.valid(false).required()}),
           joi.object({
-            enabled: joi.valid(false).required(),
+            enabled: joi.valid(true).required(),
             port: joi.number().integer().optional(),
           }),
         )
@@ -66,7 +66,7 @@ const versions = {
                 key: joi.alternatives().try(joi.string(), joi.binary()),
               })
               .required(),
-            enabled: joi.valid(false).required(),
+            enabled: joi.valid(true).required(),
             port: joi.number().integer().optional(),
           }),
         )
@@ -129,7 +129,7 @@ const normal = {
         .try(
           joi.object({enabled: joi.valid(false).required()}),
           joi.object({
-            enabled: joi.valid(false).required(),
+            enabled: joi.valid(true).required(),
             port: joi.number().integer().optional(),
           }),
         )
@@ -145,7 +145,7 @@ const normal = {
                 key: joi.alternatives().try(joi.string(), joi.binary()),
               })
               .required(),
-            enabled: joi.valid(false).required(),
+            enabled: joi.valid(true).required(),
             port: joi.number().integer().optional(),
           }),
         )

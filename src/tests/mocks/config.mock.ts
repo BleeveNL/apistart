@@ -49,7 +49,6 @@ export const everythingEnabled: Config<{
     exchanges: 'test' | 'test2'
   }
   webserver: {
-    enabled: true
     http: true
     https: true
     versionHandling: true
@@ -156,7 +155,6 @@ export const everythingEnabledWithoudVersioning: Config<{
     exchanges: 'test' | 'test2'
   }
   webserver: {
-    enabled: true
     http: true
     https: true
     versionHandling: false
