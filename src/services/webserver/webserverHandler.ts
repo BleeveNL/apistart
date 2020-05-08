@@ -99,20 +99,23 @@ export class WebserverHandler<
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const config = system.Config as Config<ServiceConfigurator<any, any, any, WebserverServiceHttpsEnabled>>
       const httpsWebserverSettings = config.services.webserver.connection.https
-      server.https = this.deps.Https.createServer(instance.callback()).listen(
-        httpsWebserverSettings.port ? httpsWebserverSettings.port : 443,
-        () => {
-          system.Log.info(`Webserver is started!`, {
-            port: httpsWebserverSettings.port ? httpsWebserverSettings.port : 443,
-            protocol: 'https',
-            status: 'started',
-          })
-
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          const internalSystem: any = system
-          callback(internalSystem)
+      server.https = this.deps.Https.createServer(
+        {
+          cert: config.services.webserver.connection.https.cert.cert,
+          key: config.services.webserver.connection.https.cert.key,
         },
-      )
+        instance.callback(),
+      ).listen(httpsWebserverSettings.port ? httpsWebserverSettings.port : 443, () => {
+        system.Log.info(`Webserver is started!`, {
+          port: httpsWebserverSettings.port ? httpsWebserverSettings.port : 443,
+          protocol: 'https',
+          status: 'started',
+        })
+
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const internalSystem: any = system
+        callback(internalSystem)
+      })
     }
 
     return {
@@ -171,6 +174,7 @@ export class WebserverHandler<
       allowedMethods: system.Config.services.webserver.settings.allowedMethods,
       cors: system.Config.services.webserver.settings.cors,
       expose: system.Config.services.webserver.settings.expose,
+      prefix: system.Config.services.webserver.settings.prefix,
       sensitive: system.Config.services.webserver.settings.sensitive,
       versionHandler: system.Config.services.webserver.settings.versionHandler,
     })
@@ -258,7 +262,6 @@ export class WebserverHandler<
     router: Router,
   ) {
     for (const route of routes) {
-      const path = typeof route.path === 'string' ? route.path.replace(/^\/|\/$/g, '') : route.path
       const methods = typeof route.method === 'string' ? [route.method] : route.method
 
       let middlewareList: Koa.Middleware[] = []
@@ -279,9 +282,9 @@ export class WebserverHandler<
       router.route({
         methods,
         middleware: middlewareList,
-        params,
-        path,
         options: route.options,
+        params,
+        path: route.path,
       })
     }
   }

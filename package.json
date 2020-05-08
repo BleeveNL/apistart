@@ -98,7 +98,7 @@
     "immer": "6.0.5",
     "ioredis": "4.16.3",
     "koa": "2.11.0",
-    "koa-advanced-router": "0.3.0",
+    "koa-advanced-router": "0.3.2",
     "koa-bodyparser": "4.3.0",
     "loghandler": "1.1.10",
     "sequelize": "5.21.7"

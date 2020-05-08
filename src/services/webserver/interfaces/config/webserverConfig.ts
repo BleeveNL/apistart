@@ -29,6 +29,7 @@ export interface WebserverConfigDefault<TWebserverService extends WebserverServi
     readonly bodyParser?: koaBodyParser.Options & EnabledService
     readonly cors?: RouterOptions['cors']
     readonly expose?: boolean
+    readonly prefix?: string
     readonly proxy?: boolean
     readonly silent?: boolean
     readonly subdomainOffset?: number

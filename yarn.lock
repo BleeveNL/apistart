@@ -4139,10 +4139,10 @@ known-css-properties@^0.5.0:
   resolved "https://registry.yarnpkg.com/known-css-properties/-/known-css-properties-0.5.0.tgz#6ff66943ed4a5b55657ee095779a91f4536f8084"
   integrity sha512-LOS0CoS8zcZnB1EjLw4LLqDXw8nvt3AGH5dXLQP3D9O1nLLA+9GC5GnPl5mmF+JiQAtSX4VyZC7KvEtcA4kUtA==
 
-koa-advanced-router@0.3.0:
-  version "0.3.0"
-  resolved "https://registry.yarnpkg.com/koa-advanced-router/-/koa-advanced-router-0.3.0.tgz#30f0a92632fd52ce770c3c8f2410dcadc23e0564"
-  integrity sha512-Jn+fbp0HIPonrJZDM9GVseJdbGGA+cKiDZOJ3nYdNDXd+Po+d9bJsYDuswN0Dms4WCKRfKi+ucRed/zpsu8kiw==
+koa-advanced-router@^0.3.2:
+  version "0.3.2"
+  resolved "https://registry.yarnpkg.com/koa-advanced-router/-/koa-advanced-router-0.3.2.tgz#64a162a462c3c289da04edb87f5b5923a1bb877f"
+  integrity sha512-xqgNKXrFEB/R54oCftkK695ge91n3QaFy/Ttp+9f9UU/q9SnEQRTYih9NqAPFwt1ZCgE8hbb55E+EbyM7tiNQw==
   dependencies:
     "@types/http-errors" "1.6.3"
     "@types/koa" "2.11.3"
