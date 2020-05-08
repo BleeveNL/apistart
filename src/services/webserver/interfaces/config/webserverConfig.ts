@@ -4,7 +4,7 @@ import {IMiddleware} from '../middleware'
 import {IRoute} from '../route'
 import {Version} from '../version'
 import {WebserverServiceEnabled} from '../webserverServiceEnabled'
-import {RouterOptions} from 'koa-advanced-router'
+import {RouterOptions, VersionMatchingFunction} from 'koa-advanced-router'
 
 export interface HttpSettings extends EnabledService {
   readonly port?: number
@@ -21,7 +21,7 @@ export type WebserverConfig<
   TWebserverService extends WebserverServiceEnabled
 > = TWebserverService['versionHandling'] extends true
   ? WebserverConfigDefaultWithVersioning<TWebserverService>
-  : WebserverConfigDefaultWithoutVersioning<TWebserverService>
+  : WebserverConfigDefault<TWebserverService>
 
 export interface WebserverConfigDefault<TWebserverService extends WebserverServiceEnabled> extends EnabledService {
   readonly settings: {
@@ -32,11 +32,9 @@ export interface WebserverConfigDefault<TWebserverService extends WebserverServi
     readonly proxy?: boolean
     readonly silent?: boolean
     readonly subdomainOffset?: number
-    readonly ignoreCaptures?: boolean
     readonly sensitive?: boolean
-    readonly strict?: boolean
     readonly versionHandler: TWebserverService['versionHandling'] extends true
-      ? 'url' | 'header' | (() => string)
+      ? 'url' | 'header' | VersionMatchingFunction
       : false
   }
   readonly connection: {
@@ -45,14 +43,10 @@ export interface WebserverConfigDefault<TWebserverService extends WebserverServi
   }
 
   readonly middleware: IMiddleware[]
+  readonly router: IRoute[]
 }
 
 export interface WebserverConfigDefaultWithVersioning<TWebserverService extends WebserverServiceEnabled>
   extends WebserverConfigDefault<TWebserverService> {
   readonly versions: Version[]
-}
-
-export interface WebserverConfigDefaultWithoutVersioning<TWebserverService extends WebserverServiceEnabled>
-  extends WebserverConfigDefault<TWebserverService> {
-  readonly router: IRoute[]
 }

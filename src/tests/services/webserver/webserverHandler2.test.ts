@@ -10,7 +10,6 @@ import * as ControllerMock from '../../mocks/webserver/controller.mock'
 import * as CacheHandlerMock from '../../mocks/cacheHandler.mock'
 import * as DatabaseHandlerMock from '../../mocks/databaseHandler.mock'
 import * as QueueHandlerMock from '../../mocks/queueHandler.mock'
-import * as _ from 'lodash'
 import * as faker from 'faker'
 import * as ModulesMock from '../../mocks/nodeModules'
 import {Methods} from 'koa-advanced-router/lib/layer/layer.interfaces'
@@ -20,8 +19,8 @@ import WebserverHandler from '../../../services/webserver/webserverHandler'
 import {Models} from '../../../services/database/interfaces/model'
 import {Version} from '../../../services/webserver/interfaces/version'
 
-let config: Config<WebserverEnabledServiceConfigurator<WebserverServiceHVersionHandlingEnabled>> = _.cloneDeep(
-  configMocked.correct.everythingEnabled,
+let config: Config<WebserverEnabledServiceConfigurator<WebserverServiceHVersionHandlingEnabled>> = JSON.parse(
+  JSON.stringify(configMocked.correct.everythingEnabled),
 )
 let dependenciesMock: WebserverHandlerDeps
 let webserverHandler: WebserverHandler<WebserverEnabledServiceConfigurator>
@@ -83,7 +82,12 @@ suite('Test Webserver Handler (./services/webserver/webserverHandler.ts)', () =>
         Queue: QueueHandlerMock.Instance,
       } as unknown) as InternalSystem<any, Config, {}>
 
-      webserverHandler = new WebserverHandler(dependenciesMock, _.cloneDeep(configMocked.correct.everythingEnabled))
+      webserverHandler = new WebserverHandler(
+        dependenciesMock,
+        JSON.parse(
+          JSON.stringify(configMocked.correct.everythingEnabled),
+        ) as typeof configMocked['correct']['everythingEnabled'],
+      )
 
       webserver = webserverHandler.setup(internalSystem)
     })
@@ -95,11 +99,11 @@ suite('Test Webserver Handler (./services/webserver/webserverHandler.ts)', () =>
     })
 
     test('Make sure versions do not get handled when version is disabled', () => {
-      assert.equal(ModulesMock.koaRouter.stubs.constructor.callCount, 2)
+      assert.equal(ModulesMock.koaRouter.stubs.constructor.callCount, 1)
       assert.equal(ModulesMock.koaRouter.stubs.route.callCount, 1)
       assert.equal(ControllerMock.stubs.setup.callCount, 1)
       assert.equal(MiddlewareMock.stubs.setup.callCount, 1)
-      assert.equal(ModulesMock.koaRouter.stubs.use.callCount, 2)
+      assert.equal(ModulesMock.koaRouter.stubs.use.callCount, 1)
     })
 
     test('Make sure versions get correct handled when version is enabled', () => {
@@ -119,11 +123,11 @@ suite('Test Webserver Handler (./services/webserver/webserverHandler.ts)', () =>
         Config: config,
       })
 
-      assert.equal(ModulesMock.koaRouter.stubs.constructor.callCount, 3)
+      assert.equal(ModulesMock.koaRouter.stubs.constructor.callCount, 1)
       assert.equal(ModulesMock.koaRouter.stubs.route.callCount, 2)
       assert.equal(ControllerMock.stubs.setup.callCount, 2)
       assert.equal(MiddlewareMock.stubs.setup.callCount, 2)
-      assert.equal(ModulesMock.koaRouter.stubs.use.callCount, 4)
+      assert.equal(ModulesMock.koaRouter.stubs.use.callCount, 2)
     })
 
     test('Make sure versions middleware is handled corrected', () => {
@@ -144,34 +148,29 @@ suite('Test Webserver Handler (./services/webserver/webserverHandler.ts)', () =>
         Config: config,
       })
 
-      assert.equal(ModulesMock.koaRouter.stubs.constructor.callCount, 3)
+      assert.equal(ModulesMock.koaRouter.stubs.constructor.callCount, 1)
       assert.equal(ModulesMock.koaRouter.stubs.route.callCount, 2)
       assert.equal(ControllerMock.stubs.setup.callCount, 2)
       assert.equal(MiddlewareMock.stubs.setup.callCount, 1)
-      assert.equal(ModulesMock.koaRouter.stubs.use.callCount, 3)
+      assert.equal(ModulesMock.koaRouter.stubs.use.callCount, 1)
     })
 
     test('Version Router is correctly Configured', () => {
-      assert.equal(ModulesMock.koaRouter.stubs.constructor.callCount, 2)
+      assert.equal(ModulesMock.koaRouter.stubs.constructor.callCount, 1)
+      assert.equal(ModulesMock.koaRouter.stubs.version.callCount, 1)
 
-      assert.deepEqual(ModulesMock.koaRouter.stubs.constructor.args[1][0], {
-        allowedMethods: config.services.webserver.settings.allowedMethods,
-        cors: config.services.webserver.settings.cors,
-        expose: config.services.webserver.settings.expose,
-        ignoreCaptures: config.services.webserver.settings.ignoreCaptures,
-        sensitive: config.services.webserver.settings.sensitive,
-        strict: config.services.webserver.settings.strict,
-        version: {
-          identifier: config.services.webserver.versions[0].identifier,
-          type: config.services.webserver.settings.versionHandler,
-        },
-      })
+      assert.deepEqual(ModulesMock.koaRouter.stubs.version.args[0][0], config.services.webserver.versions[0].identifier)
+      assert.deepEqual(ModulesMock.koaRouter.stubs.version.args[0][1], config.services.webserver.versions[0].options)
     })
 
     test('Main Router is correctly Configured', () => {
-      assert.equal(ModulesMock.koaRouter.stubs.constructor.callCount, 2)
+      assert.equal(ModulesMock.koaRouter.stubs.constructor.callCount, 1)
       assert.deepEqual(ModulesMock.koaRouter.stubs.constructor.args[0][0], {
+        allowedMethods: config.services.webserver.settings.allowedMethods,
+        cors: config.services.webserver.settings.cors,
         expose: config.services.webserver.settings.expose,
+        sensitive: config.services.webserver.settings.sensitive,
+        versionHandler: config.services.webserver.settings.versionHandler,
       })
     })
 
@@ -435,7 +434,10 @@ suite('Test Webserver Handler (./services/webserver/webserverHandler.ts)', () =>
             Queue: QueueHandlerMock.Instance,
           } as unknown) as InternalSystem<any, Config, {}>
 
-          webserverHandler = new WebserverHandler(dependenciesMock, _.cloneDeep(configMocked.correct.everythingEnabled))
+          webserverHandler = new WebserverHandler(
+            dependenciesMock,
+            JSON.parse(JSON.stringify(configMocked.correct.everythingEnabled)),
+          )
         })
 
         teardown(() => {

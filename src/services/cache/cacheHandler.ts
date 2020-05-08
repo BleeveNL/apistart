@@ -1,6 +1,5 @@
 import {Dependencies, ServiceConfiguratorCacheEnabled} from './interfaces'
 import {Config} from '../../systemInterfaces/config'
-import * as _ from 'lodash'
 import Immer from 'immer'
 import Loghandler from 'loghandler'
 import * as redis from 'ioredis'
@@ -21,7 +20,6 @@ export class CacheHandler {
         Immer,
         Log: Loghandler(config.log),
         Redis: redis,
-        _,
       },
       config,
     )

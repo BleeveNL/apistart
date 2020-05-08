@@ -6,8 +6,7 @@ import {IController} from './controller'
 import {IMiddleware} from './middleware'
 import {IParam} from './param'
 import {ServiceConfigurator} from '../../../systemInterfaces/serviceConfigurator'
-import {Methods} from 'koa-advanced-router'
-import {CorsSettings} from 'koa-advanced-router/lib/corsHandler/corsHandler.interfaces'
+import {Methods, RouterOptions} from 'koa-advanced-router'
 
 // eslint-disable-next-line @typescript-eslint/interface-name-prefix
 export interface IRoute<
@@ -31,8 +30,5 @@ export interface IRoute<
     readonly [key: string]: IParam<any, TServiceConfigurator, TConfig, TModels>
   }
   readonly path: RegExp | string
-  readonly options?: {
-    allowedMethods?: boolean
-    cors?: CorsSettings | CorsSettings[]
-  }
+  readonly options?: RouterOptions
 }

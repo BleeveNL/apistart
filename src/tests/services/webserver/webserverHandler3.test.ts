@@ -10,17 +10,17 @@ import * as ControllerMock from '../../mocks/webserver/controller.mock'
 import * as CacheHandlerMock from '../../mocks/cacheHandler.mock'
 import * as DatabaseHandlerMock from '../../mocks/databaseHandler.mock'
 import * as QueueHandlerMock from '../../mocks/queueHandler.mock'
-import * as _ from 'lodash'
+
 import * as faker from 'faker'
 import * as ModulesMock from '../../mocks/nodeModules'
-import {Methods} from 'koa-advanced-router/lib/layer/layer.interfaces'
+import {Methods} from 'koa-advanced-router'
 import {assert} from 'chai'
 import {InternalSystem} from '../../../systemInterfaces/internalSystem'
 import WebserverHandler from '../../../services/webserver/webserverHandler'
 import {Models} from '../../../services/database/interfaces/model'
 
-let config: Config<WebserverEnabledServiceConfigurator<WebserverServiceHVersionHandlingDisabled>> = _.cloneDeep(
-  configMocked.correct.everythingEnabledWithoudVersioning,
+let config: Config<WebserverEnabledServiceConfigurator<WebserverServiceHVersionHandlingDisabled>> = JSON.parse(
+  JSON.stringify(configMocked.correct.everythingEnabledWithoudVersioning),
 )
 let dependenciesMock: WebserverHandlerDeps
 let webserverHandler: WebserverHandler<WebserverEnabledServiceConfigurator>
@@ -62,7 +62,10 @@ suite('Test Webserver Handler (./services/webserver/webserverHandler.ts)', () =>
         Queue: QueueHandlerMock.Instance,
       } as unknown) as InternalSystem<any, Config, {}>
 
-      webserverHandler = new WebserverHandler(dependenciesMock, _.cloneDeep(configMocked.correct.everythingEnabled))
+      webserverHandler = new WebserverHandler(
+        dependenciesMock,
+        JSON.parse(JSON.stringify(configMocked.correct.everythingEnabled)),
+      )
 
       webserver = webserverHandler.setup(internalSystem)
     })

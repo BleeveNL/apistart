@@ -3,7 +3,7 @@ import * as https from 'https'
 import immer from 'immer'
 import * as Koa from 'koa'
 import * as KoaBodyParser from 'koa-bodyparser'
-import KoaRouter from 'koa-advanced-router'
+import Router from 'koa-advanced-router'
 import {ServiceConfigurator, QueueService} from '../../systemInterfaces/serviceConfigurator'
 import {WebserverServiceEnabled} from './interfaces/webserverServiceEnabled'
 
@@ -13,7 +13,7 @@ export interface WebserverHandlerDeps {
   readonly Immer: typeof immer
   readonly Koa: typeof Koa
   readonly KoaBodyParser: typeof KoaBodyParser
-  readonly KoaRouter: typeof KoaRouter
+  readonly KoaRouter: typeof Router
 }
 
 export type WebserverEnabledServiceConfigurator<

@@ -1,5 +1,4 @@
 import * as fs from 'fs'
-import * as _ from 'lodash'
 import {Log} from 'loghandler'
 import {Options, Sequelize} from 'sequelize'
 import immer from 'immer'
@@ -8,7 +7,6 @@ import {EnabledService} from '../../systemInterfaces/services'
 import {ServiceConfigurator} from '../../systemInterfaces/serviceConfigurator'
 
 export interface Dependencies {
-  readonly _: typeof _
   readonly fs: typeof fs
   readonly Immer: typeof immer
   readonly Log: Log

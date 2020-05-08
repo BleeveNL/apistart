@@ -1,6 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import {assert} from 'chai'
-import * as _ from 'lodash'
 import DefaultExport, {Microservice} from '../microservice'
 import * as mockedLogHandler from './mocks/nodeModules/logHandler.mock'
 import * as joi from '@hapi/joi'
@@ -27,7 +26,7 @@ suite('Test plugin (microservice.ts).', () => {
         webserver: (new WebserverHandlerMock.Instance() as any) as WebserverHandler,
       },
     },
-    _.cloneDeep(mockedConfig.correct.everythingDisabled),
+    JSON.parse(JSON.stringify(mockedConfig.correct.everythingDisabled)),
   )
 
   teardown(() => {
@@ -133,7 +132,7 @@ suite('Test plugin (microservice.ts).', () => {
             webserver: (new WebserverHandlerMock.Instance() as any) as WebserverHandler,
           },
         },
-        _.cloneDeep(mockedConfig.correct.everythingEnabled),
+        JSON.parse(JSON.stringify(mockedConfig.correct.everythingEnabled)),
       )
       const microservice = await MicroserviceClass.setup()
 

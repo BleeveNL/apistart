@@ -1,6 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import {assert} from 'chai'
-import * as _ from 'lodash'
 import * as faker from 'faker'
 import immer from 'immer'
 import DefaultExport, {CacheHandler} from '../../../services/cache/cacheHandler'
@@ -11,10 +10,10 @@ import {ServiceConfiguratorCacheEnabled} from '../../../services/cache/interface
 import {Instance as RedisInstance} from '../../mocks/nodeModules/redis.mock'
 
 suite('Test CacheHandler (./services/cache/cacheHandler.ts)', () => {
-  let correctConfig = _.cloneDeep(configMocked.correct.everythingDisabled)
+  let correctConfig: Config<any> = JSON.parse(JSON.stringify(configMocked.correct.everythingDisabled))
 
   setup(() => {
-    correctConfig = _.cloneDeep(configMocked.correct.everythingDisabled)
+    correctConfig = JSON.parse(JSON.stringify(configMocked.correct.everythingDisabled))
   })
 
   test('Returns as default a instanceOf the cacheHandler Class', () => {

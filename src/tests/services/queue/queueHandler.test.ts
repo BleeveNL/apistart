@@ -1,7 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any, sort-keys */
 import {assert} from 'chai'
 import * as faker from 'faker'
-import * as _ from 'lodash'
 import {Log} from 'loghandler'
 import * as process from 'process'
 import * as amqp from 'amqplib'
@@ -23,10 +22,10 @@ import * as EventHandlerMock from './mocks/eventHandler.mock'
 import * as sinon from 'sinon'
 
 suite('Test QueueHandler (./services/queue/queueHandler.ts)', () => {
-  let correctConfig = _.cloneDeep(configMocked.correct.everythingDisabled)
+  let correctConfig: Config<any> = JSON.parse(JSON.stringify(configMocked.correct.everythingDisabled))
 
   setup(() => {
-    correctConfig = _.cloneDeep(configMocked.correct.everythingDisabled)
+    correctConfig = JSON.parse(JSON.stringify(configMocked.correct.everythingDisabled))
   })
 
   test('Returns as default a instanceOf the queueHandler Class', () => {
@@ -107,13 +106,13 @@ suite('Test QueueHandler (./services/queue/queueHandler.ts)', () => {
             Log: (new loghandlerMock.Instance() as unknown) as Log,
             Process: process,
           },
-          _.cloneDeep(configMocked.correct.everythingEnabled),
+          JSON.parse(JSON.stringify(configMocked.correct.everythingEnabled)),
         )
       })
 
       suite('test of connection with rabbitMQ is made correctly', () => {
         test('system throws error when no exchanges are setted up.', async () => {
-          const config = immer(_.cloneDeep(correctConfig), (draft: any) => {
+          const config = immer(JSON.parse(JSON.stringify(correctConfig)) as Config<any>, (draft: any) => {
             draft.services.queue.enabled = true
             draft.services.queue.exchanges = []
           })
@@ -144,7 +143,7 @@ suite('Test QueueHandler (./services/queue/queueHandler.ts)', () => {
             cache: false
             db: false
             webserver: false
-          }> = immer(_.cloneDeep(correctConfig), (draft: any) => {
+          }> = immer(JSON.parse(JSON.stringify(correctConfig)) as Config<any>, (draft: any) => {
             draft.services.queue.enabled = true
             draft.services.queue.exchanges = []
           })
@@ -189,7 +188,7 @@ suite('Test QueueHandler (./services/queue/queueHandler.ts)', () => {
             cache: false
             db: false
             webserver: false
-          }> = immer(_.cloneDeep(correctConfig), (draft: any) => {
+          }> = immer(JSON.parse(JSON.stringify(correctConfig)) as Config<any>, (draft: any) => {
             draft.services.queue.enabled = true
             draft.services.queue.exchanges = []
           })
@@ -233,7 +232,7 @@ suite('Test QueueHandler (./services/queue/queueHandler.ts)', () => {
             cache: false
             db: false
             webserver: false
-          }> = immer(_.cloneDeep(correctConfig), (draft: any) => {
+          }> = immer(JSON.parse(JSON.stringify(correctConfig)) as Config<any>, (draft: any) => {
             draft.services.queue.enabled = true
             draft.services.queue.exchanges = []
           })
@@ -290,7 +289,7 @@ suite('Test QueueHandler (./services/queue/queueHandler.ts)', () => {
             cache: false
             db: false
             webserver: false
-          }> = immer(_.cloneDeep(correctConfig), (draft: any) => {
+          }> = immer(JSON.parse(JSON.stringify(correctConfig)) as Config<any>, (draft: any) => {
             draft.services.queue.enabled = true
             draft.services.queue.exchanges = [
               {
@@ -361,7 +360,7 @@ suite('Test QueueHandler (./services/queue/queueHandler.ts)', () => {
           let client: QueueClient<any>
 
           setup(async () => {
-            config = immer(_.cloneDeep(correctConfig), (draft: any) => {
+            config = immer(JSON.parse(JSON.stringify(correctConfig)) as Config<any>, (draft: any) => {
               draft.services.queue.enabled = true
               draft.services.queue.exchanges = [
                 {
@@ -493,7 +492,7 @@ suite('Test QueueHandler (./services/queue/queueHandler.ts)', () => {
         let config: Config<{queue: {enabled: true; exchanges: any}; cache: false; db: false; webserver: false}>
 
         setup(async () => {
-          config = immer(_.cloneDeep(correctConfig), (draft: any) => {
+          config = immer(JSON.parse(JSON.stringify(correctConfig)) as Config<any>, (draft: any) => {
             draft.services.queue.enabled = true
             draft.services.queue.exchanges = [
               {
@@ -538,7 +537,7 @@ suite('Test QueueHandler (./services/queue/queueHandler.ts)', () => {
         test('Server throws an error as EventListener uses an unknown exchange', async () => {
           const queue = await queueHandler.setup()
           const Deps = ({} as unknown) as InternalSystem<ServiceConfigurator, Config, Models>
-          const eventHandlerMock = _.cloneDeep(EventHandlerMock)
+          const eventHandlerMock = EventHandlerMock
 
           const eventHandler = eventHandlerMock.Instance as any
           const exchangeName = faker.random.alphaNumeric(8)
@@ -560,7 +559,7 @@ suite('Test QueueHandler (./services/queue/queueHandler.ts)', () => {
           const queue = await queueHandler.setup()
           const Deps = ({} as unknown) as InternalSystem<ServiceConfigurator, Config, Models>
 
-          const eventHandlerMock1 = _.cloneDeep(EventHandlerMock)
+          const eventHandlerMock1 = EventHandlerMock
           const eventHandler = eventHandlerMock1.Instance as any
           eventHandler.exchange = config.services.queue.exchanges[0].name
 
@@ -575,7 +574,7 @@ suite('Test QueueHandler (./services/queue/queueHandler.ts)', () => {
           const queue = await queueHandler.setup()
           const Deps = ({} as unknown) as InternalSystem<ServiceConfigurator, Config, Models>
 
-          const eventHandlerMock1 = _.cloneDeep(EventHandlerMock)
+          const eventHandlerMock1 = EventHandlerMock
           const eventHandler = eventHandlerMock1.Instance as any
           eventHandler.exchange = config.services.queue.exchanges[0].name
 
@@ -594,14 +593,14 @@ suite('Test QueueHandler (./services/queue/queueHandler.ts)', () => {
           const queue = await queueHandler.setup()
           const Deps = ({} as unknown) as InternalSystem<ServiceConfigurator, Config, Models>
 
-          const eventHandlerMock1 = _.cloneDeep(EventHandlerMock)
+          const eventHandlerMock1 = EventHandlerMock
           const eventHandler1 = eventHandlerMock1.Instance as any
           eventHandler1.exchange = config.services.queue.exchanges[0].name
           eventHandler1.settings.consume = {
             test: faker.random.alphaNumeric(14),
           }
 
-          const eventHandlerMock2 = _.cloneDeep(EventHandlerMock)
+          const eventHandlerMock2 = EventHandlerMock
           const eventHandler2 = eventHandlerMock2.Instance as any
           eventHandler2.exchange = config.services.queue.exchanges[1].name
           eventHandler2.settings.consume = {
@@ -655,7 +654,7 @@ suite('Test QueueHandler (./services/queue/queueHandler.ts)', () => {
           const queue = await queueHandler.setup()
           const Deps = ({} as unknown) as InternalSystem<ServiceConfigurator, Config, Models>
 
-          const eventHandlerMock1 = _.cloneDeep(EventHandlerMock)
+          const eventHandlerMock1 = EventHandlerMock
           const eventHandler1 = eventHandlerMock1.Instance as any
           eventHandler1.exchange = config.services.queue.exchanges[0].name
           eventHandlerMock1.stubs.handler.returns(true)
@@ -680,7 +679,7 @@ suite('Test QueueHandler (./services/queue/queueHandler.ts)', () => {
           const queue = await queueHandler.setup()
           const Deps = ({} as unknown) as InternalSystem<ServiceConfigurator, Config, Models>
 
-          const eventHandlerMock1 = _.cloneDeep(EventHandlerMock)
+          const eventHandlerMock1 = EventHandlerMock
           const eventHandler1 = eventHandlerMock1.Instance as any
           eventHandler1.exchange = config.services.queue.exchanges[0].name
           eventHandlerMock1.stubs.handler.returns(false)
@@ -711,7 +710,7 @@ suite('Test QueueHandler (./services/queue/queueHandler.ts)', () => {
             handlerDeps: faker.random.alphaNumeric(16),
           }
 
-          const eventHandlerMock1 = _.cloneDeep(EventHandlerMock)
+          const eventHandlerMock1 = EventHandlerMock
           const eventHandler1 = eventHandlerMock1.Instance as any
           eventHandler1.exchange = config.services.queue.exchanges[0].name
           eventHandlerMock1.stubs.handler.returns(false)
@@ -738,7 +737,7 @@ suite('Test QueueHandler (./services/queue/queueHandler.ts)', () => {
           const queue = await queueHandler.setup()
           const Deps = ({} as unknown) as InternalSystem<ServiceConfigurator, Config, Models>
 
-          const eventHandlerMock1 = _.cloneDeep(EventHandlerMock)
+          const eventHandlerMock1 = EventHandlerMock
           const eventHandler1 = eventHandlerMock1.Instance as any
           eventHandler1.exchange = config.services.queue.exchanges[0].name
 
@@ -764,7 +763,7 @@ suite('Test QueueHandler (./services/queue/queueHandler.ts)', () => {
             Log: loghandlerMock.Instance,
           } as unknown) as InternalSystem<ServiceConfigurator, Config, Models>
 
-          const eventHandlerMock1 = _.cloneDeep(EventHandlerMock)
+          const eventHandlerMock1 = EventHandlerMock
           const eventHandler1 = eventHandlerMock1.Instance as any
           eventHandler1.exchange = config.services.queue.exchanges[0].name
           const error = new Error(faker.random.words(10))
@@ -803,7 +802,7 @@ suite('Test QueueHandler (./services/queue/queueHandler.ts)', () => {
             test: faker.random.alphaNumeric(31),
           } as unknown) as InternalSystem<ServiceConfigurator, Config, Models>
 
-          const eventHandlerMock1 = _.cloneDeep(EventHandlerMock)
+          const eventHandlerMock1 = EventHandlerMock
           const eventHandler1 = eventHandlerMock1.Instance as any
           eventHandler1.exchange = config.services.queue.exchanges[0].name
           eventHandler1.dependencies = {
@@ -836,12 +835,12 @@ suite('Test QueueHandler (./services/queue/queueHandler.ts)', () => {
             test: faker.random.alphaNumeric(31),
           } as unknown) as InternalSystem<ServiceConfigurator, Config, Models>
 
-          const eventHandlerMock1 = _.cloneDeep(EventHandlerMock)
+          const eventHandlerMock1 = EventHandlerMock
           const eventHandler1 = eventHandlerMock1.Instance as any
           eventHandler1.exchange = config.services.queue.exchanges[0].name
           delete eventHandler1.settings.queue.name
 
-          const eventHandlerMock2 = _.cloneDeep(EventHandlerMock)
+          const eventHandlerMock2 = EventHandlerMock
           const eventHandler2 = eventHandlerMock2.Instance as any
           eventHandler2.exchange = config.services.queue.exchanges[0].name
           eventHandler2.settings.queue.name = faker.random.alphaNumeric(8)
@@ -849,7 +848,7 @@ suite('Test QueueHandler (./services/queue/queueHandler.ts)', () => {
           const server = queue.server(Deps)
           await server([eventHandler1, eventHandler2])
 
-          assert.equal(AmqpLibMock.stubs.assertQueue.args[0][0], '')
+          assert.equal(AmqpLibMock.stubs.assertQueue.args[0][0], eventHandler1.settings.queue.name)
           assert.equal(AmqpLibMock.stubs.assertQueue.args[1][0], eventHandler2.settings.queue.name)
         })
 
@@ -857,7 +856,7 @@ suite('Test QueueHandler (./services/queue/queueHandler.ts)', () => {
           const queue = await queueHandler.setup()
           const Deps = ({} as unknown) as InternalSystem<ServiceConfigurator, Config, Models>
 
-          const eventHandlerMock1 = _.cloneDeep(EventHandlerMock)
+          const eventHandlerMock1 = EventHandlerMock
           const eventHandler = eventHandlerMock1.Instance as any
           eventHandler.exchange = config.services.queue.exchanges[0].name
 
@@ -869,7 +868,7 @@ suite('Test QueueHandler (./services/queue/queueHandler.ts)', () => {
           const queue = await queueHandler.setup()
           const Deps = ({} as unknown) as InternalSystem<ServiceConfigurator, Config, Models>
 
-          const eventHandlerMock1 = _.cloneDeep(EventHandlerMock)
+          const eventHandlerMock1 = EventHandlerMock
           const eventHandler = eventHandlerMock1.Instance as any
           eventHandler.exchange = config.services.queue.exchanges[0].name
 

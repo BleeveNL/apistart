@@ -1,6 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import {assert} from 'chai'
-import * as _ from 'lodash'
 import * as faker from 'faker'
 import immer from 'immer'
 import DefaultExport, {WebserverHandler} from '../../../services/webserver/webserverHandler'
@@ -33,7 +32,10 @@ let webserver: (callback?: () => void) => {close: (callback?: () => void) => voi
 suite('Test Webserver Handler (./services/webserver/webserverHandler.ts)', () => {
   test('Returns as default a instanceOf the queueHandler Class', () => {
     assert.instanceOf(
-      new DefaultExport({} as WebserverHandlerDeps, _.cloneDeep(configMocked.correct.everythingDisabled)),
+      new DefaultExport(
+        {} as WebserverHandlerDeps,
+        JSON.parse(JSON.stringify(configMocked.correct.everythingDisabled)),
+      ),
       WebserverHandler,
     )
   })
@@ -47,12 +49,15 @@ suite('Test Webserver Handler (./services/webserver/webserverHandler.ts)', () =>
   })
 
   test('factory() returns instance of WebserverHandler', () => {
-    assert.instanceOf(WebserverHandler.factory(_.cloneDeep(configMocked.correct.everythingDisabled)), WebserverHandler)
+    assert.instanceOf(
+      WebserverHandler.factory(JSON.parse(JSON.stringify(configMocked.correct.everythingDisabled))),
+      WebserverHandler,
+    )
   })
 
   suite('setup() works as expected!', () => {
     setup(() => {
-      config = _.cloneDeep(configMocked.correct.everythingDisabled)
+      config = JSON.parse(JSON.stringify(configMocked.correct.everythingDisabled))
       internalSystem = ({
         Cache: CacheHandlerMock.Instance,
         Config: configMocked.correct.everythingDisabled,
@@ -91,7 +96,7 @@ suite('Test Webserver Handler (./services/webserver/webserverHandler.ts)', () =>
 
     suite('when webserver service is enabled', () => {
       setup(() => {
-        config = _.cloneDeep(configMocked.correct.everythingEnabled)
+        config = JSON.parse(JSON.stringify(configMocked.correct.everythingEnabled))
         dependenciesMock = ({
           Http: new ModulesMock.http.Instance(),
           Https: new ModulesMock.https.Instance(),
@@ -111,7 +116,10 @@ suite('Test Webserver Handler (./services/webserver/webserverHandler.ts)', () =>
           Queue: QueueHandlerMock.Instance,
         } as unknown) as InternalSystem<any, Config, {}>
 
-        webserverHandler = new WebserverHandler(dependenciesMock, _.cloneDeep(configMocked.correct.everythingEnabled))
+        webserverHandler = new WebserverHandler(
+          dependenciesMock,
+          JSON.parse(JSON.stringify(configMocked.correct.everythingEnabled)),
+        )
       })
 
       teardown(() => {
@@ -493,9 +501,14 @@ suite('Test Webserver Handler (./services/webserver/webserverHandler.ts)', () =>
 
       suite('Webserver (KOA) is correctly configured.', () => {
         setup(() => {
-          config = immer(_.cloneDeep(configMocked.correct.everythingEnabled), config => {
-            config.services.webserver.connection.http = {enabled: true, port: faker.random.number()}
-          })
+          config = immer(
+            JSON.parse(
+              JSON.stringify(configMocked.correct.everythingEnabled),
+            ) as typeof configMocked['correct']['everythingEnabled'],
+            config => {
+              config.services.webserver.connection.http = {enabled: true, port: faker.random.number()}
+            },
+          )
           webserverHandler = new WebserverHandler(dependenciesMock, config)
           webserverHandler.setup(internalSystem)
         })
@@ -517,9 +530,14 @@ suite('Test Webserver Handler (./services/webserver/webserverHandler.ts)', () =>
         })
 
         test("Koa subDomainOffset is correctly set when it isn't given", () => {
-          const config = immer(_.cloneDeep(configMocked.correct.everythingEnabled), config => {
-            config.services.webserver.settings.subdomainOffset = undefined
-          })
+          const config = immer(
+            JSON.parse(
+              JSON.stringify(configMocked.correct.everythingEnabled),
+            ) as typeof configMocked['correct']['everythingEnabled'],
+            config => {
+              config.services.webserver.settings.subdomainOffset = undefined
+            },
+          )
 
           const webserverHandler = new WebserverHandler(dependenciesMock, config)
           webserverHandler.setup({
@@ -540,9 +558,14 @@ suite('Test Webserver Handler (./services/webserver/webserverHandler.ts)', () =>
         })
 
         test('Koa proxy is correctly set when it is given', () => {
-          const config = immer(_.cloneDeep(configMocked.correct.everythingEnabled), config => {
-            config.services.webserver.settings.proxy = true
-          })
+          const config = immer(
+            JSON.parse(
+              JSON.stringify(configMocked.correct.everythingEnabled),
+            ) as typeof configMocked['correct']['everythingEnabled'],
+            config => {
+              config.services.webserver.settings.proxy = true
+            },
+          )
 
           const webserverHandler = new WebserverHandler(dependenciesMock, config)
           webserverHandler.setup({
@@ -555,9 +578,14 @@ suite('Test Webserver Handler (./services/webserver/webserverHandler.ts)', () =>
         })
 
         test('Koa silent is correctly set when it is given', () => {
-          const config = immer(_.cloneDeep(configMocked.correct.everythingEnabled), config => {
-            config.services.webserver.settings.silent = faker.random.boolean()
-          })
+          const config = immer(
+            JSON.parse(
+              JSON.stringify(configMocked.correct.everythingEnabled),
+            ) as typeof configMocked['correct']['everythingEnabled'],
+            config => {
+              config.services.webserver.settings.silent = faker.random.boolean()
+            },
+          )
 
           const webserverHandler = new WebserverHandler(dependenciesMock, config)
           webserverHandler.setup({
@@ -570,10 +598,15 @@ suite('Test Webserver Handler (./services/webserver/webserverHandler.ts)', () =>
         })
 
         test('Koa silent is correctly set when it is not given given, but env is production', () => {
-          const config = immer(_.cloneDeep(configMocked.correct.everythingEnabled), config => {
-            config.app.env = 'production'
-            config.services.webserver.settings.silent = undefined
-          })
+          const config = immer(
+            JSON.parse(
+              JSON.stringify(configMocked.correct.everythingEnabled),
+            ) as typeof configMocked['correct']['everythingEnabled'],
+            config => {
+              config.app.env = 'production'
+              config.services.webserver.settings.silent = undefined
+            },
+          )
 
           const webserverHandler = new WebserverHandler(dependenciesMock, config)
           webserverHandler.setup({
@@ -617,9 +650,14 @@ suite('Test Webserver Handler (./services/webserver/webserverHandler.ts)', () =>
             encode: faker.random.alphaNumeric(12),
           }
 
-          const config = immer(_.cloneDeep(configMocked.correct.everythingEnabled), config => {
-            config.services.webserver.settings.bodyParser = bodyParserSettings
-          })
+          const config = immer(
+            JSON.parse(
+              JSON.stringify(configMocked.correct.everythingEnabled),
+            ) as typeof configMocked['correct']['everythingEnabled'],
+            config => {
+              config.services.webserver.settings.bodyParser = bodyParserSettings
+            },
+          )
 
           const returnedData = faker.random.alphaNumeric(8)
           ModulesMock.koaBodyParser.stubs.fn.returns(returnedData)
@@ -651,14 +689,19 @@ suite('Test Webserver Handler (./services/webserver/webserverHandler.ts)', () =>
 
           suite('when middleware is added as a function', () => {
             setup(() => {
-              config = immer(_.cloneDeep(configMocked.correct.everythingEnabled), config => {
-                const middlewareList = []
-                for (let i = 0; i < numberOfMiddleware; i++) {
-                  middlewareList.push(MiddlewareMock.Instance)
-                }
+              config = immer(
+                JSON.parse(
+                  JSON.stringify(configMocked.correct.everythingEnabled),
+                ) as typeof configMocked['correct']['everythingEnabled'],
+                config => {
+                  const middlewareList = []
+                  for (let i = 0; i < numberOfMiddleware; i++) {
+                    middlewareList.push(MiddlewareMock.Instance)
+                  }
 
-                config.services.webserver.middleware = middlewareList
-              })
+                  config.services.webserver.middleware = middlewareList
+                },
+              )
 
               MiddlewareMock.stubs.middleware.returns(returnValues)
               webserverHandler = new WebserverHandler(dependenciesMock, config)
@@ -711,19 +754,24 @@ suite('Test Webserver Handler (./services/webserver/webserverHandler.ts)', () =>
                 test2: faker.random.words(5),
               }
 
-              config = immer(_.cloneDeep(configMocked.correct.everythingEnabled), config => {
-                const middlewareList = []
-                for (let i = 0; i < numberOfMiddleware; i++) {
-                  const middleware: MiddlewareObject<typeof dependencyObj> = {
-                    dependencies: dependencyObj,
-                    fnc: MiddlewareMock.Instance,
+              config = immer(
+                JSON.parse(
+                  JSON.stringify(configMocked.correct.everythingEnabled),
+                ) as typeof configMocked['correct']['everythingEnabled'],
+                config => {
+                  const middlewareList = []
+                  for (let i = 0; i < numberOfMiddleware; i++) {
+                    const middleware: MiddlewareObject<typeof dependencyObj> = {
+                      dependencies: dependencyObj,
+                      fnc: MiddlewareMock.Instance,
+                    }
+
+                    middlewareList.push(middleware)
                   }
 
-                  middlewareList.push(middleware)
-                }
-
-                config.services.webserver.middleware = middlewareList
-              })
+                  config.services.webserver.middleware = middlewareList
+                },
+              )
 
               MiddlewareMock.stubs.middleware.returns(returnValues)
               webserverHandler = new WebserverHandler(dependenciesMock, config)
@@ -763,19 +811,24 @@ suite('Test Webserver Handler (./services/webserver/webserverHandler.ts)', () =>
               ModulesMock.reset()
               MiddlewareMock.reset()
 
-              config = immer(_.cloneDeep(configMocked.correct.everythingEnabled), config => {
-                const middlewareList = []
-                for (let i = 0; i < numberOfMiddleware; i++) {
-                  const middleware: MiddlewareObject<typeof dependencyObj> = {
-                    dependencies: dependencyfnc,
-                    fnc: MiddlewareMock.Instance,
+              config = immer(
+                JSON.parse(
+                  JSON.stringify(configMocked.correct.everythingEnabled),
+                ) as typeof configMocked['correct']['everythingEnabled'],
+                config => {
+                  const middlewareList = []
+                  for (let i = 0; i < numberOfMiddleware; i++) {
+                    const middleware: MiddlewareObject<typeof dependencyObj> = {
+                      dependencies: dependencyfnc,
+                      fnc: MiddlewareMock.Instance,
+                    }
+
+                    middlewareList.push(middleware)
                   }
 
-                  middlewareList.push(middleware)
-                }
-
-                config.services.webserver.middleware = middlewareList
-              })
+                  config.services.webserver.middleware = middlewareList
+                },
+              )
 
               MiddlewareMock.stubs.middleware.returns(returnValues)
               webserverHandler = new WebserverHandler(dependenciesMock, config)
@@ -810,14 +863,19 @@ suite('Test Webserver Handler (./services/webserver/webserverHandler.ts)', () =>
 
               const middlewareDepedencyStub = sinon.stub().returns(dependencyObj)
 
-              config = immer(_.cloneDeep(configMocked.correct.everythingEnabled), config => {
-                config.services.webserver.middleware = [
-                  {
-                    dependencies: middlewareDepedencyStub,
-                    fnc: MiddlewareMock.Instance,
-                  },
-                ]
-              })
+              config = immer(
+                JSON.parse(
+                  JSON.stringify(configMocked.correct.everythingEnabled),
+                ) as typeof configMocked['correct']['everythingEnabled'],
+                config => {
+                  config.services.webserver.middleware = [
+                    {
+                      dependencies: middlewareDepedencyStub,
+                      fnc: MiddlewareMock.Instance,
+                    },
+                  ]
+                },
+              )
 
               MiddlewareMock.stubs.middleware.returns(returnValues)
               webserverHandler = new WebserverHandler(dependenciesMock, config)

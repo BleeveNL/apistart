@@ -1,6 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import {assert} from 'chai'
-import * as _ from 'lodash'
 import immer from 'immer'
 import * as faker from 'faker'
 import {Log} from 'loghandler'
@@ -12,12 +11,13 @@ import * as sequelizeMock from '../../mocks/nodeModules/sequelize.mock'
 import {Sequelize} from 'sequelize/types'
 import * as ModelMocked from './mocks/model.mock'
 import {Model} from '../../../services/database/interfaces/model'
+import {Config} from '../../../systemInterfaces/config'
 
 suite('Test DatabaseHandler (./services/database/databaseHandler.ts)', () => {
-  let correctConfig = _.cloneDeep(configMocked.correct.everythingDisabled)
+  let correctConfig: Config<any> = JSON.parse(JSON.stringify(configMocked.correct.everythingDisabled))
 
   setup(() => {
-    correctConfig = _.cloneDeep(configMocked.correct.everythingDisabled)
+    correctConfig = JSON.parse(JSON.stringify(configMocked.correct.everythingDisabled))
   })
 
   teardown(() => {
@@ -47,7 +47,6 @@ suite('Test DatabaseHandler (./services/database/databaseHandler.ts)', () => {
         Immer: immer,
         Log: (new loghandlerMock.Instance() as unknown) as Log,
         Sequelize: (sequelizeMock.Instance as unknown) as typeof Sequelize,
-        _,
         fs,
         systemModels: [],
       },
@@ -60,7 +59,6 @@ suite('Test DatabaseHandler (./services/database/databaseHandler.ts)', () => {
           Immer: immer,
           Log: (new loghandlerMock.Instance() as unknown) as Log,
           Sequelize: (sequelizeMock.Instance as unknown) as typeof Sequelize,
-          _,
           fs,
           systemModels: [],
         },
@@ -91,7 +89,6 @@ suite('Test DatabaseHandler (./services/database/databaseHandler.ts)', () => {
           Immer: immer,
           Log: (new loghandlerMock.Instance() as unknown) as Log,
           Sequelize: (sequelizeMock.Instance as unknown) as typeof Sequelize,
-          _,
           fs,
           systemModels: [],
         },
@@ -119,7 +116,6 @@ suite('Test DatabaseHandler (./services/database/databaseHandler.ts)', () => {
           Immer: immer,
           Log: (new loghandlerMock.Instance() as unknown) as Log,
           Sequelize: (sequelizeMock.Instance as unknown) as typeof Sequelize,
-          _,
           fs,
           systemModels: [],
         },
@@ -140,7 +136,6 @@ suite('Test DatabaseHandler (./services/database/databaseHandler.ts)', () => {
           Immer: immer,
           Log: (new loghandlerMock.Instance() as unknown) as Log,
           Sequelize: (sequelizeMock.Instance as unknown) as typeof Sequelize,
-          _,
           fs,
           systemModels: [],
         },
@@ -172,7 +167,7 @@ suite('Test DatabaseHandler (./services/database/databaseHandler.ts)', () => {
     test('Given system models get correctly initialized + synced', async () => {
       const randomNumber = Math.round(1 + 10 * Math.random())
       const systemModels: Model[] = []
-      const mock = _.cloneDeep(ModelMocked)
+      const mock = ModelMocked
 
       for (let i = 0; i < randomNumber; i++) {
         systemModels.push((mock.Instance as any) as Model)
@@ -183,7 +178,6 @@ suite('Test DatabaseHandler (./services/database/databaseHandler.ts)', () => {
           Immer: immer,
           Log: (new loghandlerMock.Instance() as unknown) as Log,
           Sequelize: (sequelizeMock.Instance as unknown) as typeof Sequelize,
-          _,
           fs,
           systemModels,
         },
@@ -215,7 +209,6 @@ suite('Test DatabaseHandler (./services/database/databaseHandler.ts)', () => {
           Immer: immer,
           Log: (new loghandlerMock.Instance() as unknown) as Log,
           Sequelize: (sequelizeMock.Instance as unknown) as typeof Sequelize,
-          _,
           fs,
           systemModels: [(ModelMocked.Instance as any) as Model],
         },
@@ -250,7 +243,7 @@ suite('Test DatabaseHandler (./services/database/databaseHandler.ts)', () => {
       const randomNumber = Math.round(1 + 10 * Math.random())
       const models: Model[] = []
 
-      const mock = _.cloneDeep(ModelMocked)
+      const mock = ModelMocked
       const DB = faker.random.alphaNumeric(64)
 
       for (let i = 0; i < randomNumber; i++) {
@@ -266,7 +259,6 @@ suite('Test DatabaseHandler (./services/database/databaseHandler.ts)', () => {
           Immer: immer,
           Log: (new loghandlerMock.Instance() as unknown) as Log,
           Sequelize: (sequelizeMock.Instance as unknown) as typeof Sequelize,
-          _,
           fs,
           systemModels: [],
         },
@@ -294,7 +286,6 @@ suite('Test DatabaseHandler (./services/database/databaseHandler.ts)', () => {
           Immer: immer,
           Log: (new loghandlerMock.Instance() as unknown) as Log,
           Sequelize: (sequelizeMock.Instance as unknown) as typeof Sequelize,
-          _,
           fs,
           systemModels: [],
         },

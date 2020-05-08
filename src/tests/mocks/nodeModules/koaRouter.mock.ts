@@ -18,6 +18,7 @@ const stubs = {
   routesMiddleware: sinon.stub(),
   trace: sinon.stub(),
   use: sinon.stub(),
+  version: sinon.stub(),
 }
 
 const reset = () => {
@@ -37,6 +38,7 @@ const reset = () => {
   stubs.param.resetHistory()
   stubs.routes.resetHistory()
   stubs.routesMiddleware.resetHistory()
+  stubs.version.resetHistory()
 }
 
 class Router {
@@ -106,6 +108,11 @@ class Router {
 
   public param(...args: any[]) {
     stubs.param(...args)
+    return this
+  }
+
+  public version(...args: any[]) {
+    stubs.version(...args)
     return this
   }
 

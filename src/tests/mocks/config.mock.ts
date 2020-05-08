@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import * as faker from 'faker'
 import {Config} from '../../systemInterfaces/config'
-import {Methods} from 'koa-advanced-router/lib/layer/layer.interfaces'
+import {Methods} from 'koa-advanced-router'
 
 export const everythingDisabled: Config = {
   app: {
@@ -115,6 +115,7 @@ export const everythingEnabled: Config<{
 
       enabled: true,
       middleware: [],
+      router: [],
       settings: {
         allowedMethods: faker.random.alphaNumeric(8) as any,
         bodyParser: faker.random.alphaNumeric(8) as any,
@@ -127,11 +128,9 @@ export const everythingEnabled: Config<{
           maxAge: faker.random.number(),
         },
         expose: faker.random.alphaNumeric(8) as any,
-        ignoreCaptures: faker.random.alphaNumeric(8) as any,
         proxy: false,
         sensitive: faker.random.alphaNumeric(8) as any,
         silent: faker.random.alphaNumeric(8) as any,
-        strict: faker.random.alphaNumeric(8) as any,
         subdomainOffset: faker.random.number(),
         versionHandler: faker.random.alphaNumeric(8) as any,
       },
@@ -140,6 +139,19 @@ export const everythingEnabled: Config<{
           enabled: true,
           identifier: '1.0',
           middleware: [],
+          options: {
+            cors: [
+              {
+                allowCredentials: true,
+                allowedHeaders: [faker.random.alphaNumeric(8)],
+                allowedMethods: [Methods.get],
+                allowedOrigin: [faker.internet.url()],
+                exposedHeaders: [faker.random.alphaNumeric(8)],
+                maxAge: faker.random.number(),
+              },
+            ],
+            sensitive: true,
+          },
           router: [],
         },
       ],
@@ -234,11 +246,9 @@ export const everythingEnabledWithoudVersioning: Config<{
           maxAge: faker.random.number(),
         },
         expose: faker.random.alphaNumeric(8) as any,
-        ignoreCaptures: faker.random.alphaNumeric(8) as any,
         proxy: false,
         sensitive: faker.random.alphaNumeric(8) as any,
         silent: faker.random.alphaNumeric(8) as any,
-        strict: faker.random.alphaNumeric(8) as any,
         subdomainOffset: faker.random.number(),
         versionHandler: false,
       },

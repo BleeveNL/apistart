@@ -1,7 +1,6 @@
 import {Config} from '../../systemInterfaces/config'
 import Immer from 'immer'
 import Loghandler from 'loghandler'
-import * as _ from 'lodash'
 import {Dependencies, ServiceConfiguratorDBEnabled} from './interfaces'
 import {Sequelize, Options} from 'sequelize'
 import * as fs from 'fs'
@@ -24,7 +23,6 @@ export class DatabaseHandler {
         Immer,
         Log: Loghandler(config.log),
         Sequelize,
-        _,
         fs,
         systemModels: [Migrations],
       },

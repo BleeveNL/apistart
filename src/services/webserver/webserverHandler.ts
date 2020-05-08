@@ -3,7 +3,7 @@ import * as https from 'https'
 import immer from 'immer'
 import * as Koa from 'koa'
 import * as KoaBodyParser from 'koa-bodyparser'
-import KoaRouter, {Params, RouterOptions} from 'koa-advanced-router'
+import KoaRouter, {Params, Router} from 'koa-advanced-router'
 import {WebserverHandlerDeps, WebServerObject, WebserverEnabledServiceConfigurator} from './interfaces'
 import {Config} from '../../systemInterfaces/config'
 import {InternalSystem} from '../../systemInterfaces/internalSystem'
@@ -13,7 +13,6 @@ import {
   WebserverServiceHttpEnabled,
   WebserverServiceHttpsEnabled,
   WebserverServiceHVersionHandlingEnabled,
-  WebserverServiceHVersionHandlingDisabled,
 } from './interfaces/webserverServiceEnabled'
 import {WebserverCallbackFunction} from './interfaces/webserverCallbackFunction'
 import {Dependencies, CustomDependencies} from './interfaces/dependencies'
@@ -21,7 +20,6 @@ import {IMiddleware} from './interfaces/middleware'
 import {IRoute} from './interfaces/route'
 import {IParam} from './interfaces/param'
 import {Version} from './interfaces/version'
-import Router from 'koa-advanced-router/lib/router/router'
 
 export class WebserverHandler<
   TServiceConfigurator extends ServiceConfigurator = ServiceConfigurator,
@@ -169,26 +167,24 @@ export class WebserverHandler<
       }
     }
 
+    const router = this.deps.KoaRouter({
+      allowedMethods: system.Config.services.webserver.settings.allowedMethods,
+      cors: system.Config.services.webserver.settings.cors,
+      expose: system.Config.services.webserver.settings.expose,
+      sensitive: system.Config.services.webserver.settings.sensitive,
+      versionHandler: system.Config.services.webserver.settings.versionHandler,
+    })
+
+    this.HandleRoutes(system, system.Config.services.webserver.router, router)
+
     if (system.Config.services.webserver.settings.versionHandler) {
       const config = system.Config as Config<
         WebserverEnabledServiceConfigurator<WebserverServiceHVersionHandlingEnabled>
       >
-      app.use(
-        this.HandleVersions(
-          {
-            ...system,
-            Config: config,
-          },
-          config.services.webserver.versions,
-        ),
-      )
-    } else {
-      const config = system.Config as Config<
-        WebserverEnabledServiceConfigurator<WebserverServiceHVersionHandlingDisabled>
-      >
-      app.use(this.HandleRoutes(system, config.services.webserver.router))
+      this.HandleVersions({...system, Config: config}, router, config.services.webserver.versions)
     }
 
+    app.use(router.routes)
     return app
   }
 
@@ -229,20 +225,15 @@ export class WebserverHandler<
       Config<WebserverEnabledServiceConfigurator<WebserverServiceHVersionHandlingEnabled>>,
       TModels
     >,
+    router: Router,
     versions: Version[],
   ) {
-    const routerOptions: RouterOptions = {
-      expose: system.Config.services.webserver.settings.expose,
-    }
-
-    const router = this.deps.KoaRouter(routerOptions)
     for (const version of versions) {
       if (version.enabled) {
-        router.use(this.HandleSingleVersion(system, version))
+        const versionRouter = router.version(version.identifier, version.options)
+        this.HandleSingleVersion(system, versionRouter, version)
       }
     }
-
-    return router.routes
   }
 
   private HandleSingleVersion(
@@ -251,34 +242,20 @@ export class WebserverHandler<
       Config<WebserverEnabledServiceConfigurator<WebserverServiceHVersionHandlingEnabled>>,
       TModels
     >,
+    versionRouter: Router,
     version: Version,
   ) {
-    const routerOptions: RouterOptions = {
-      allowedMethods: system.Config.services.webserver.settings.allowedMethods,
-      cors: system.Config.services.webserver.settings.cors,
-      expose: system.Config.services.webserver.settings.expose,
-      ignoreCaptures: system.Config.services.webserver.settings.ignoreCaptures,
-      sensitive: system.Config.services.webserver.settings.sensitive,
-      strict: system.Config.services.webserver.settings.strict,
-      version: {
-        identifier: version.identifier,
-        type: system.Config.services.webserver.settings.versionHandler,
-      },
-    }
-
-    const router = this.deps.KoaRouter(routerOptions)
-
     if (version.middleware && version.middleware.length > 0) {
-      router.use(this.HandleMiddleware(system, version.middleware))
+      versionRouter.use(this.HandleMiddleware(system, version.middleware))
     }
 
-    return this.HandleRoutes(system, version.router, router)
+    this.HandleRoutes(system, version.router, versionRouter)
   }
 
   private HandleRoutes(
     system: InternalSystem<WebserverEnabledServiceConfigurator, Config<WebserverEnabledServiceConfigurator>, TModels>,
     routes: IRoute[],
-    router: Router = this.deps.KoaRouter({prefixes: '/'}),
+    router: Router,
   ) {
     for (const route of routes) {
       const path = typeof route.path === 'string' ? route.path.replace(/^\/|\/$/g, '') : route.path
@@ -304,10 +281,9 @@ export class WebserverHandler<
         middleware: middlewareList,
         params,
         path,
+        options: route.options,
       })
     }
-
-    return router.routes
   }
 
   private handleParam(
