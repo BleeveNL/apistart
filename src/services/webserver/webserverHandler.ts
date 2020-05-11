@@ -15,7 +15,7 @@ import {
   WebserverServiceHVersionHandlingEnabled,
 } from './interfaces/webserverServiceEnabled'
 import {WebserverCallbackFunction} from './interfaces/webserverCallbackFunction'
-import {Dependencies, CustomDependencies} from './interfaces/dependencies'
+import {Dependencies, CustomDependencies} from '../../systemInterfaces/dependencies'
 import {IMiddleware} from './interfaces/middleware'
 import {IRoute} from './interfaces/route'
 import {IParam} from './interfaces/param'
@@ -94,7 +94,6 @@ export class WebserverHandler<
         },
       )
     }
-
     if (system.Config.services.webserver.connection.https.enabled) {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const config = system.Config as Config<ServiceConfigurator<any, any, any, WebserverServiceHttpsEnabled>>

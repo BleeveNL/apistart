@@ -1,5 +1,5 @@
 import * as Koa from 'koa'
-import {CustomDependencies, Dependencies} from './dependencies'
+import {CustomDependencies, Dependencies} from '../../../systemInterfaces/dependencies'
 import {Config} from '../../../systemInterfaces/config'
 import {Models} from '../../database/interfaces/model'
 import {ServiceConfigurator} from '../../../systemInterfaces/serviceConfigurator'

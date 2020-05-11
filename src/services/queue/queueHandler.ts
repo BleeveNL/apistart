@@ -12,6 +12,7 @@ import {Config} from '../../systemInterfaces/config'
 import {InternalSystem} from '../../systemInterfaces/internalSystem'
 import {Models} from '../database/interfaces/model'
 import {ServiceConfigurator} from '../../systemInterfaces/serviceConfigurator'
+import {Dependencies as TDependencies} from '../../systemInterfaces/dependencies'
 
 export class QueueHandler {
   private deps: Dependencies
@@ -55,9 +56,9 @@ export class QueueHandler {
           },
         }),
         server: <
-          TConfig extends Config,
-          TModels extends Models,
-          TServiceConfigurator extends ServiceConfigurator = ServiceConfigurator
+          TServiceConfigurator extends ServiceConfigurator = ServiceConfigurator,
+          TConfig extends Config<TServiceConfigurator> = Config<TServiceConfigurator>,
+          TModels extends Models = Models
         >(
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
           sysDeps: InternalSystem<TServiceConfigurator, TConfig, TModels>,
@@ -211,13 +212,12 @@ export class QueueHandler {
           async msg => {
             try {
               if (msg !== null) {
-                const handler = await listener.handler(
-                  {
-                    ...sysDeps,
-                    Dependencies: dependencies,
-                  },
-                  msg,
-                )
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                const insertedDependencies: TDependencies<any, TServiceConfigurator, TConfig, TModels> = {
+                  ...sysDeps,
+                  Dependencies: dependencies,
+                }
+                const handler = await listener.handler(insertedDependencies, msg)
                 if (handler) {
                   connection.ack(msg)
                 } else {

@@ -4,7 +4,7 @@ import {EnabledService} from '../../systemInterfaces/services'
 import {ServiceConfigurator} from '../../systemInterfaces/serviceConfigurator'
 import {Config} from '../../systemInterfaces/config'
 import {Models} from '../database/interfaces/model'
-import {Dependencies as systemDependencies, CustomDependencies} from '../webserver/interfaces/dependencies'
+import {Dependencies as systemDependencies, CustomDependencies} from '../../systemInterfaces/dependencies'
 import {InternalSystem} from '../../systemInterfaces/internalSystem'
 
 export interface Dependencies {
@@ -66,7 +66,11 @@ export interface QueueEventListener<
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-export type QueueEventListenerList = QueueEventListener<any, any, any, any>[]
+export type QueueEventListenerList<
+  TServiceConfigurator extends ServiceConfigurator = ServiceConfigurator,
+  TConfig extends Config = Config,
+  TModels extends Models = Models
+> = QueueEventListener<TServiceConfigurator, any, TConfig, TModels>[]
 
 export interface QueueClient<TExchangeName extends string = string> {
   readonly publish: (

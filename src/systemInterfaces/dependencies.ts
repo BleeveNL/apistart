@@ -1,7 +1,7 @@
-import {Models} from '../../database/interfaces/model'
-import {Config} from '../../../systemInterfaces/config'
-import {InternalSystem} from '../../../systemInterfaces/internalSystem'
-import {ServiceConfigurator} from '../../../systemInterfaces/serviceConfigurator'
+import {Models} from '../services/database/interfaces/model'
+import {Config} from './config'
+import {InternalSystem} from './internalSystem'
+import {ServiceConfigurator} from './serviceConfigurator'
 
 export interface Dependencies<
   TDependencies extends CustomDependencies,

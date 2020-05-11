@@ -1,5 +1,5 @@
 import * as KoaRouter from 'koa-advanced-router'
-import {CustomDependencies, Dependencies, DependencyFunction} from './dependencies'
+import {CustomDependencies, Dependencies, DependencyFunction} from '../../../systemInterfaces/dependencies'
 import {Config} from '../../../systemInterfaces/config'
 import {Models} from '../../database/interfaces/model'
 import {ServiceConfigurator} from '../../../systemInterfaces/serviceConfigurator'

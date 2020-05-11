@@ -339,7 +339,7 @@ suite('Test Webserver Handler (./services/webserver/webserverHandler.ts)', () =>
           ModulesMock.reset()
         })
 
-        test('Https Server is Created an stared with listening to correct port', () => {
+        test.only('Https Server is Created an stared with listening to correct port', () => {
           const settings = (config as unknown) as Config<
             WebserverEnabledServiceConfigurator<WebserverServiceHttpsEnabled>
           >
@@ -351,8 +351,12 @@ suite('Test Webserver Handler (./services/webserver/webserverHandler.ts)', () =>
             webserver()
 
             assert.isTrue(ModulesMock.https.stubs.createServer.calledOnce)
-            assert.isTrue(ModulesMock.https.stubs.createServer.args[0].length === 1)
-            assert.isTrue(ModulesMock.https.stubs.createServer.args[0][0] === koaCallBackReturnValue)
+            assert.isTrue(ModulesMock.https.stubs.createServer.args[0].length === 2)
+            assert.deepEqual(
+              ModulesMock.https.stubs.createServer.args[0][0],
+              settings.services.webserver.connection.https.cert,
+            )
+            assert.isTrue(ModulesMock.https.stubs.createServer.args[0][1] === koaCallBackReturnValue)
             assert.isTrue(ModulesMock.koa.stubs.callback.calledOnce)
             assert.isTrue(ModulesMock.https.stubs.listen.calledOnce)
             assert.isTrue(ModulesMock.https.stubs.listen.args[0].length === 2)
