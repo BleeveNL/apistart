@@ -17,7 +17,7 @@ export interface Config<Services extends ServiceConfigurator = any> {
   readonly log: logHandlerConfig
   readonly services: {
     readonly cache: Services['cache'] extends true ? CacheConfig : DisabledService
-    readonly database: Services['db'] extends true ? DatabaseConfig : DisabledService
+    readonly database: Services['database'] extends true ? DatabaseConfig : DisabledService
     readonly queue: Services['queue'] extends QueueService
       ? QueueConfig<Services['queue']['exchanges']>
       : DisabledService

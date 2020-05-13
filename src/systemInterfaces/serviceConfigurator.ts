@@ -7,7 +7,7 @@ export interface ServiceConfigurator<
   TWebserver = false | WebserverServiceEnabled
 > {
   readonly cache: TCache
-  readonly db: TDb
+  readonly database: TDb
   readonly queue: TQueue
   readonly webserver: TWebserver
 }

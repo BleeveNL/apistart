@@ -23,5 +23,5 @@ export interface DatabaseConfig extends EnabledService, Options {
 }
 
 export interface ServiceConfiguratorDBEnabled extends ServiceConfigurator {
-  db: true
+  database: true
 }

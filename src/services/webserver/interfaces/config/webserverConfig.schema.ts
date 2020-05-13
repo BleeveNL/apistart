@@ -80,7 +80,7 @@ const versions = {
       bodyParser: joi
         .object({
           detectJSON: joi.function().maxArity(1).optional(),
-          enableTypes: joi.array().items(joi.string()).required(),
+          enableTypes: joi.array().items(joi.string()).optional(),
           enabled: joi.valid(true).required(),
           encode: joi.string().optional(),
           extendTypes: joi

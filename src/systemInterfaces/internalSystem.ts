@@ -13,8 +13,8 @@ export interface InternalSystem<
 > {
   readonly Cache: TServiceConfigurator['cache'] extends true ? Redis : undefined
   readonly Config: TConfig
-  readonly DB: TServiceConfigurator['db'] extends true ? Sequelize : undefined
+  readonly DB: TServiceConfigurator['database'] extends true ? Sequelize : undefined
   readonly Log: Log
-  readonly Models: TServiceConfigurator['db'] extends true ? TModels : undefined
+  readonly Models: TServiceConfigurator['database'] extends true ? TModels : undefined
   readonly Events: QueueHandlerSetup<TServiceConfigurator, TConfig, TModels>['client']
 }

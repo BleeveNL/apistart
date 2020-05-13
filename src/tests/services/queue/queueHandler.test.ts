@@ -141,7 +141,7 @@ suite('Test QueueHandler (./services/queue/queueHandler.ts)', () => {
           let config: Config<{
             queue: {enabled: true; exchanges: any}
             cache: false
-            db: false
+            database: false
             webserver: false
           }> = immer(JSON.parse(JSON.stringify(correctConfig)) as Config<any>, (draft: any) => {
             draft.services.queue.enabled = true
@@ -186,7 +186,7 @@ suite('Test QueueHandler (./services/queue/queueHandler.ts)', () => {
           let config: Config<{
             queue: {enabled: true; exchanges: any}
             cache: false
-            db: false
+            database: false
             webserver: false
           }> = immer(JSON.parse(JSON.stringify(correctConfig)) as Config<any>, (draft: any) => {
             draft.services.queue.enabled = true
@@ -230,7 +230,7 @@ suite('Test QueueHandler (./services/queue/queueHandler.ts)', () => {
           let config: Config<{
             queue: {enabled: true; exchanges: any}
             cache: false
-            db: false
+            database: false
             webserver: false
           }> = immer(JSON.parse(JSON.stringify(correctConfig)) as Config<any>, (draft: any) => {
             draft.services.queue.enabled = true
@@ -287,7 +287,7 @@ suite('Test QueueHandler (./services/queue/queueHandler.ts)', () => {
           const config: Config<{
             queue: {enabled: true; exchanges: any}
             cache: false
-            db: false
+            database: false
             webserver: false
           }> = immer(JSON.parse(JSON.stringify(correctConfig)) as Config<any>, (draft: any) => {
             draft.services.queue.enabled = true
@@ -355,7 +355,7 @@ suite('Test QueueHandler (./services/queue/queueHandler.ts)', () => {
         })
 
         suite('publish a message works as expected', () => {
-          let config: Config<{queue: {enabled: true; exchanges: any}; cache: false; db: false; webserver: false}>
+          let config: Config<{queue: {enabled: true; exchanges: any}; cache: false; database: false; webserver: false}>
           let queueHandler: QueueHandler
           let client: QueueClient<any>
 
@@ -489,7 +489,7 @@ suite('Test QueueHandler (./services/queue/queueHandler.ts)', () => {
       })
 
       suite('test server functionality', () => {
-        let config: Config<{queue: {enabled: true; exchanges: any}; cache: false; db: false; webserver: false}>
+        let config: Config<{queue: {enabled: true; exchanges: any}; cache: false; database: false; webserver: false}>
 
         setup(async () => {
           config = immer(JSON.parse(JSON.stringify(correctConfig)) as Config<any>, (draft: any) => {

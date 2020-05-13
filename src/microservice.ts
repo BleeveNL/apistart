@@ -80,7 +80,7 @@ export class Microservice<
   private async getDB() {
     return ((this.config.services.database.enabled
       ? this.deps.services.database.setup()
-      : undefined) as unknown) as TServiceConfigurator['db'] extends true ? Sequelize : undefined
+      : undefined) as unknown) as TServiceConfigurator['database'] extends true ? Sequelize : undefined
   }
 
   private async getQueue() {
@@ -91,7 +91,7 @@ export class Microservice<
   private GetModels<TModels extends Models>(db: Sequelize | undefined) {
     return ((this.config.services.database.enabled && db
       ? this.deps.services.database.getModels<TModels>(db)
-      : undefined) as unknown) as TServiceConfigurator['db'] extends true ? TModels : undefined
+      : undefined) as unknown) as TServiceConfigurator['database'] extends true ? TModels : undefined
   }
 }
 

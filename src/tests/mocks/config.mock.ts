@@ -43,7 +43,7 @@ export const error = ({
 
 export const everythingEnabled: Config<{
   cache: true
-  db: true
+  database: true
   queue: {
     enabled: true
     exchanges: 'test' | 'test2'
@@ -161,7 +161,7 @@ export const everythingEnabled: Config<{
 
 export const everythingEnabledWithoudVersioning: Config<{
   cache: true
-  db: true
+  database: true
   queue: {
     enabled: true
     exchanges: 'test' | 'test2'
