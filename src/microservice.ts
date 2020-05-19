@@ -47,9 +47,14 @@ export class Microservice<
     )
   }
 
-  public static validateConfig<TConfig extends Config = Config>(config: unknown): config is TConfig {
+  public static configIsValid<TConfig extends Config = Config>(config: unknown): config is TConfig {
     const validate = configSchema.validate(config, {allowUnknown: true})
     return validate.error === undefined
+  }
+
+  public static validateConfig(config: unknown) {
+    const validate = configSchema.validate(config, {allowUnknown: true})
+    return validate
   }
 
   public async setup() {

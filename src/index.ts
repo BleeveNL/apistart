@@ -11,11 +11,21 @@ export const apiStart = <
 >(
   config: unknown,
 ) => {
-  if (Microservice.validateConfig<TConfig>(config)) {
+  if (Microservice.configIsValid<TConfig>(config)) {
     return Microservice.factory<TServiceConfigurator, TConfig, TModels>(config)
   }
 
   throw configSchema.validate(config, {allowUnknown: true}).error
+}
+
+export const ValidateConfig = (config: unknown) => {
+  const validate = Microservice.validateConfig(config)
+
+  if (validate.error === undefined) {
+    return true
+  } else {
+    return validate
+  }
 }
 
 export default apiStart

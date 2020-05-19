@@ -17,6 +17,7 @@ export default joi.object({
   hooks: joi.object().optional(),
   host: joi.string().optional(),
   isolationLevel: joi.string().optional(),
+  models: joi.array().items().required(),
   native: joi.boolean().optional(),
   omitNull: joi.boolean().optional(),
   operatorsAliases: joi.object().optional(),

@@ -1,4 +1,4 @@
-import {ModelAttributes, ModelOptions, Model as SequelizeModel, ModelCtor} from 'sequelize/types'
+import {ModelAttributes, ModelOptions, Model as SequelizeModel, ModelCtor} from 'sequelize'
 
 export abstract class ModelAbstract extends SequelizeModel {
   public static structure: ModelAttributes
