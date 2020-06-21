@@ -6,6 +6,7 @@ import {Sequelize, Options} from 'sequelize'
 import * as fs from 'fs'
 import Migrations from './models/migrations'
 import {Model, Models} from './interfaces/model'
+import {ApiStartSettings} from '../../systemInterfaces/apiStartSettings'
 
 export class DatabaseHandler {
   private deps: Dependencies
@@ -17,7 +18,7 @@ export class DatabaseHandler {
     this.config = config
   }
 
-  public static factory(config: Config) {
+  public static factory(config: Config): DatabaseHandler {
     return new this(
       {
         Immer,
@@ -30,7 +31,9 @@ export class DatabaseHandler {
     )
   }
 
-  public async setup() {
+  public async setup<TSettings extends ApiStartSettings>(): Promise<
+    TSettings['ServiceConfigurator']['database'] extends false ? never : Sequelize
+  > {
     if (this.DBisEnabled(this.config)) {
       const config = this.config
       const connection = this.connect(config.services.database)
@@ -41,7 +44,7 @@ export class DatabaseHandler {
         })
       })
 
-      return connection
+      return connection as TSettings['ServiceConfigurator']['database'] extends false ? never : Sequelize
     }
 
     throw new Error(`Given configuration forbids to run DatabaseHandler. Cache is disabled in configuration object.`)

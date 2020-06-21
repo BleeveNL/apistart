@@ -4,10 +4,14 @@ import immer from 'immer'
 import * as Koa from 'koa'
 import * as KoaBodyParser from 'koa-bodyparser'
 import KoaRouter, {Params, Router} from 'koa-advanced-router'
-import {WebserverHandlerDeps, WebServerObject, WebserverEnabledServiceConfigurator} from './interfaces'
+import {
+  WebserverHandlerDeps,
+  WebServerObject,
+  WebserverEnabledServiceConfigurator,
+  WebserverFunction,
+} from './interfaces'
 import {Config} from '../../systemInterfaces/config'
 import {InternalSystem} from '../../systemInterfaces/internalSystem'
-import {Models} from '../database/interfaces/model'
 import {ServiceConfigurator} from '../../systemInterfaces/serviceConfigurator'
 import {
   WebserverServiceHttpEnabled,
@@ -15,17 +19,15 @@ import {
   WebserverServiceHVersionHandlingEnabled,
 } from './interfaces/webserverServiceEnabled'
 import {WebserverCallbackFunction} from './interfaces/webserverCallbackFunction'
-import {Dependencies, CustomDependencies} from '../../systemInterfaces/dependencies'
+import {Dependencies} from '../../systemInterfaces/dependencies'
 import {IMiddleware} from './interfaces/middleware'
 import {IRoute} from './interfaces/route'
 import {IParam} from './interfaces/param'
 import {Version} from './interfaces/version'
+import {ApiStartSettings} from '../../systemInterfaces/apiStartSettings'
+import {UserDefinedObject} from '../../systemInterfaces/userDefinedObject'
 
-export class WebserverHandler<
-  TServiceConfigurator extends ServiceConfigurator = ServiceConfigurator,
-  TConfig extends Config<TServiceConfigurator> = Config,
-  TModels extends Models = Models
-> {
+export class WebserverHandler<TSettings extends ApiStartSettings = ApiStartSettings> {
   private webserverEnabled: boolean
 
   // eslint-disable-next-line no-useless-constructor
@@ -33,12 +35,8 @@ export class WebserverHandler<
     this.webserverEnabled = this.WebserverIsEnabled(config)
   }
 
-  public static factory<
-    TServiceConfigurator extends ServiceConfigurator = ServiceConfigurator,
-    TConfig extends Config = Config,
-    TModels extends Models = Models
-  >(config: Config) {
-    return new this<TServiceConfigurator, TConfig, TModels>(
+  public static factory<TSettings extends ApiStartSettings>(config: Config): WebserverHandler<TSettings> {
+    return new this<TSettings>(
       {
         Http: http,
         Https: https,
@@ -51,16 +49,16 @@ export class WebserverHandler<
     )
   }
 
-  public setup(system: InternalSystem<TServiceConfigurator, TConfig, TModels>) {
+  public setup(system: InternalSystem<TSettings>): WebserverFunction<TSettings> {
     if (this.webserverEnabled && this.WebserverIsEnabled(system.Config)) {
       const internalSystem = (system as unknown) as InternalSystem<
-        WebserverEnabledServiceConfigurator,
-        Config<WebserverEnabledServiceConfigurator>,
-        TModels
+        ApiStartSettings<WebserverEnabledServiceConfigurator, Config<WebserverEnabledServiceConfigurator>>
       >
       const configuration = this.MakeWebserviceInstance(internalSystem)
       // eslint-disable-next-line @typescript-eslint/no-empty-function
-      return (callback: () => void = () => {}) => this.start(internalSystem, configuration, callback)
+      return (callback => this.start(internalSystem, configuration, callback) as unknown) as WebserverFunction<
+        TSettings
+      >
     }
 
     return () => {
@@ -69,10 +67,12 @@ export class WebserverHandler<
   }
 
   private start(
-    system: InternalSystem<WebserverEnabledServiceConfigurator, Config<WebserverEnabledServiceConfigurator>, TModels>,
+    system: InternalSystem<
+      ApiStartSettings<WebserverEnabledServiceConfigurator, Config<WebserverEnabledServiceConfigurator>>
+    >,
     instance: Koa,
     // eslint-disable-next-line @typescript-eslint/no-empty-function
-    callback: WebserverCallbackFunction<TServiceConfigurator, TConfig, TModels> = () => {},
+    callback: WebserverCallbackFunction<TSettings> = () => {},
   ) {
     const server: WebServerObject = {}
     if (system.Config.services.webserver.connection.http.enabled) {
@@ -133,7 +133,9 @@ export class WebserverHandler<
   }
 
   private MakeWebserviceInstance(
-    system: InternalSystem<WebserverEnabledServiceConfigurator, Config<WebserverEnabledServiceConfigurator>, TModels>,
+    system: InternalSystem<
+      ApiStartSettings<WebserverEnabledServiceConfigurator, Config<WebserverEnabledServiceConfigurator>>
+    >,
   ) {
     const app = new this.deps.Koa()
     // settings
@@ -192,7 +194,9 @@ export class WebserverHandler<
   }
 
   private HandleMiddleware(
-    system: InternalSystem<WebserverEnabledServiceConfigurator, Config<WebserverEnabledServiceConfigurator>, TModels>,
+    system: InternalSystem<
+      ApiStartSettings<WebserverEnabledServiceConfigurator, Config<WebserverEnabledServiceConfigurator>>
+    >,
     middlewareList2Handle: IMiddleware[],
   ) {
     const middlewareList: Koa.Middleware[] = []
@@ -209,11 +213,13 @@ export class WebserverHandler<
     return middlewareList
   }
 
-  private HandleDependencies<TDeps extends CustomDependencies = CustomDependencies>(
-    system: InternalSystem<WebserverEnabledServiceConfigurator, Config<WebserverEnabledServiceConfigurator>, TModels>,
+  private HandleDependencies<TDeps extends UserDefinedObject = UserDefinedObject>(
+    system: InternalSystem<
+      ApiStartSettings<WebserverEnabledServiceConfigurator, Config<WebserverEnabledServiceConfigurator>>
+    >,
     dependencies: TDeps,
-  ): Dependencies<TDeps, TServiceConfigurator, TConfig, TModels> {
-    const internalSystem = system as InternalSystem<TServiceConfigurator, TConfig, TModels>
+  ): Dependencies<TSettings> {
+    const internalSystem = system as InternalSystem<TSettings>
 
     return {
       ...internalSystem,
@@ -224,9 +230,10 @@ export class WebserverHandler<
 
   private HandleVersions(
     system: InternalSystem<
-      WebserverEnabledServiceConfigurator,
-      Config<WebserverEnabledServiceConfigurator<WebserverServiceHVersionHandlingEnabled>>,
-      TModels
+      ApiStartSettings<
+        WebserverEnabledServiceConfigurator,
+        Config<WebserverEnabledServiceConfigurator<WebserverServiceHVersionHandlingEnabled>>
+      >
     >,
     router: Router,
     versions: Version[],
@@ -241,9 +248,10 @@ export class WebserverHandler<
 
   private HandleSingleVersion(
     system: InternalSystem<
-      WebserverEnabledServiceConfigurator,
-      Config<WebserverEnabledServiceConfigurator<WebserverServiceHVersionHandlingEnabled>>,
-      TModels
+      ApiStartSettings<
+        WebserverEnabledServiceConfigurator,
+        Config<WebserverEnabledServiceConfigurator<WebserverServiceHVersionHandlingEnabled>>
+      >
     >,
     versionRouter: Router,
     version: Version,
@@ -256,7 +264,9 @@ export class WebserverHandler<
   }
 
   private HandleRoutes(
-    system: InternalSystem<WebserverEnabledServiceConfigurator, Config<WebserverEnabledServiceConfigurator>, TModels>,
+    system: InternalSystem<
+      ApiStartSettings<WebserverEnabledServiceConfigurator, Config<WebserverEnabledServiceConfigurator>>
+    >,
     routes: IRoute[],
     router: Router,
   ) {
@@ -289,7 +299,9 @@ export class WebserverHandler<
   }
 
   private handleParam(
-    system: InternalSystem<WebserverEnabledServiceConfigurator, Config<WebserverEnabledServiceConfigurator>, TModels>,
+    system: InternalSystem<
+      ApiStartSettings<WebserverEnabledServiceConfigurator, Config<WebserverEnabledServiceConfigurator>>
+    >,
     param: IParam,
   ) {
     if (typeof param === 'function') {

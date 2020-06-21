@@ -74,7 +74,7 @@ suite('Test DatabaseHandler (./services/database/databaseHandler.ts)', () => {
     test('setup() throws error when database is disabled by configuration', async () => {
       try {
         await databaseHandler.setup()
-        assert.isNotOk("Shoudln't come here")
+        assert.isNotOk("shouldn't come here")
       } catch (err) {
         assert.strictEqual(
           err.message,
@@ -124,7 +124,7 @@ suite('Test DatabaseHandler (./services/database/databaseHandler.ts)', () => {
 
       try {
         await databaseHandler.setup()
-        assert.isNotOk("Shoudln't come here")
+        assert.isNotOk("shouldn't come here")
       } catch (err) {
         assert.strictEqual(err.message, error.message)
       }
@@ -294,7 +294,7 @@ suite('Test DatabaseHandler (./services/database/databaseHandler.ts)', () => {
 
       try {
         await databaseHandler.getModels((faker.random.alphaNumeric(64) as any) as Sequelize)
-        assert.isNotOk("Shoudln't come here")
+        assert.isNotOk("shouldn't come here")
       } catch (err) {
         assert.strictEqual(
           err.message,

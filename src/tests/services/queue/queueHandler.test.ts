@@ -14,12 +14,11 @@ import queueDisabledSchema from './validationSchemas/queueDisabled.schema'
 import queueEnabledSchema from './validationSchemas/queueEnabled.schema'
 import {Config} from '../../../systemInterfaces/config'
 import queueEnabledClientSchema from './validationSchemas/queueEnabledClient.schema'
-import {QueueClient} from '../../../services/queue/interfaces'
+import {QueueClient, QueueHandlerSetupEnabled, QueueHandlerSetupDisabled} from '../../../services/queue/interfaces'
 import {InternalSystem} from '../../../systemInterfaces/internalSystem'
-import {Models} from '../../../services/database/interfaces/model'
-import {ServiceConfigurator} from '../../../systemInterfaces/serviceConfigurator'
 import * as EventHandlerMock from './mocks/eventHandler.mock'
 import * as sinon from 'sinon'
+import {ApiStartSettings} from '../../../systemInterfaces/apiStartSettings'
 
 suite('Test QueueHandler (./services/queue/queueHandler.ts)', () => {
   let correctConfig: Config<any> = JSON.parse(JSON.stringify(configMocked.correct.everythingDisabled))
@@ -72,19 +71,19 @@ suite('Test QueueHandler (./services/queue/queueHandler.ts)', () => {
 
     suite('test behavior when service is disabled', async () => {
       test('setup() returns only a function with a server functionality in it', async () => {
-        const queue = await queueHandler.setup()
+        const queue = ((await queueHandler.setup()) as unknown) as QueueHandlerSetupDisabled
         joi.assert(queue, queueDisabledSchema)
         assert.isFunction(queue.server)
-        const loaded = await queue.server(({} as unknown) as any)
+        const loaded = await queue.server()
         assert.isFunction(loaded)
       })
 
       test('server() throws correct error.', async () => {
-        const queue = await queueHandler.setup()
-        const loaded = await queue.server(({} as unknown) as any)
+        const queue = ((await queueHandler.setup()) as unknown) as QueueHandlerSetupDisabled
+        const loaded = (await queue.server()) as any
 
         try {
-          await loaded({} as any)
+          await loaded()
           assert.fail("Shouldn't come here!")
         } catch (err) {
           assert.equal(err.message, 'Queue server listener is started while service is disabled in configuration.')
@@ -92,7 +91,7 @@ suite('Test QueueHandler (./services/queue/queueHandler.ts)', () => {
       })
 
       test('client is undefined when service is disabled', async () => {
-        const queue = await queueHandler.setup()
+        const queue = ((await queueHandler.setup()) as unknown) as QueueHandlerSetupDisabled
 
         assert.equal(typeof queue.client, 'undefined')
       })
@@ -111,7 +110,7 @@ suite('Test QueueHandler (./services/queue/queueHandler.ts)', () => {
       })
 
       suite('test of connection with rabbitMQ is made correctly', () => {
-        test('system throws error when no exchanges are setted up.', async () => {
+        test('system throws error when no exchanges are configured.', async () => {
           const config = immer(JSON.parse(JSON.stringify(correctConfig)) as Config<any>, (draft: any) => {
             draft.services.queue.enabled = true
             draft.services.queue.exchanges = []
@@ -131,7 +130,7 @@ suite('Test QueueHandler (./services/queue/queueHandler.ts)', () => {
             assert.fail("Shouldn't come here")
           } catch (err) {
             const expectedError = new Error(
-              "Couldn't establish connection with amqp service, because none exchanges are configurated in config file.",
+              "Couldn't establish connection with amqp service, because none exchanges are configured in config file.",
             )
             assert.strictEqual(expectedError.message, err.message)
           }
@@ -148,8 +147,8 @@ suite('Test QueueHandler (./services/queue/queueHandler.ts)', () => {
             draft.services.queue.exchanges = []
           })
 
-          const MaximalEcxhanges = Math.round(Math.random() * 5) + 2
-          for (let i = 0; i < MaximalEcxhanges; i++) {
+          const MaximalExchanges = Math.round(Math.random() * 5) + 2
+          for (let i = 0; i < MaximalExchanges; i++) {
             const exchangeItem = {
               name: faker.random.alphaNumeric(8),
               options: {
@@ -193,8 +192,8 @@ suite('Test QueueHandler (./services/queue/queueHandler.ts)', () => {
             draft.services.queue.exchanges = []
           })
 
-          const MaximalEcxhanges = Math.round(Math.random() * 5) + 2
-          for (let i = 0; i < MaximalEcxhanges; i++) {
+          const MaximalExchanges = Math.round(Math.random() * 5) + 2
+          for (let i = 0; i < MaximalExchanges; i++) {
             const exchangeItem = {
               name: faker.random.alphaNumeric(8),
               options: {
@@ -237,8 +236,8 @@ suite('Test QueueHandler (./services/queue/queueHandler.ts)', () => {
             draft.services.queue.exchanges = []
           })
 
-          const MaximalEcxhanges = Math.round(Math.random() * 5) + 2
-          for (let i = 0; i < MaximalEcxhanges; i++) {
+          const MaximalExchanges = Math.round(Math.random() * 5) + 2
+          for (let i = 0; i < MaximalExchanges; i++) {
             const exchangeItem = {
               name: faker.random.alphaNumeric(8),
               options: {
@@ -334,7 +333,7 @@ suite('Test QueueHandler (./services/queue/queueHandler.ts)', () => {
       })
 
       test('setup() returns client & server functionality', async () => {
-        const queue = await queueHandler.setup()
+        const queue = ((await queueHandler.setup()) as unknown) as QueueHandlerSetupEnabled<ApiStartSettings>
 
         joi.assert(queue, queueEnabledSchema)
       })
@@ -380,7 +379,7 @@ suite('Test QueueHandler (./services/queue/queueHandler.ts)', () => {
               },
               config,
             )
-            const connection = await queueHandler.setup()
+            const connection = (await queueHandler.setup()) as any
             if (connection.client !== undefined) {
               client = connection.client()
             } else {
@@ -392,7 +391,7 @@ suite('Test QueueHandler (./services/queue/queueHandler.ts)', () => {
             const exchangeName = faker.random.alphaNumeric(16)
 
             await client.publish(exchangeName, faker.random.alphaNumeric(8), {})
-
+            console.log(loghandlerMock.stubs.err.callCount)
             assert.equal(loghandlerMock.stubs.err.calledOnce, true)
             assert.equal(loghandlerMock.stubs.err.args[0][0].name, 'Error')
             assert.equal(
@@ -526,8 +525,8 @@ suite('Test QueueHandler (./services/queue/queueHandler.ts)', () => {
         })
 
         test('Server function returns a function that allows 2 argument', async () => {
-          const queue = await queueHandler.setup()
-          const Deps = ({} as unknown) as InternalSystem<ServiceConfigurator, Config, Models>
+          const queue = ((await queueHandler.setup()) as unknown) as QueueHandlerSetupEnabled<ApiStartSettings>
+          const Deps = ({} as unknown) as InternalSystem<ApiStartSettings>
 
           const server = queue.server(Deps)
           assert.isFunction(server)
@@ -535,8 +534,8 @@ suite('Test QueueHandler (./services/queue/queueHandler.ts)', () => {
         })
 
         test('Server throws an error as EventListener uses an unknown exchange', async () => {
-          const queue = await queueHandler.setup()
-          const Deps = ({} as unknown) as InternalSystem<ServiceConfigurator, Config, Models>
+          const queue = ((await queueHandler.setup()) as unknown) as QueueHandlerSetupEnabled<ApiStartSettings>
+          const Deps = ({} as unknown) as InternalSystem<ApiStartSettings>
           const eventHandlerMock = EventHandlerMock
 
           const eventHandler = eventHandlerMock.Instance as any
@@ -556,8 +555,8 @@ suite('Test QueueHandler (./services/queue/queueHandler.ts)', () => {
         })
 
         test('Server Calls Callback function when server is correctly booted', async () => {
-          const queue = await queueHandler.setup()
-          const Deps = ({} as unknown) as InternalSystem<ServiceConfigurator, Config, Models>
+          const queue = ((await queueHandler.setup()) as unknown) as QueueHandlerSetupEnabled<ApiStartSettings>
+          const Deps = ({} as unknown) as InternalSystem<ApiStartSettings>
 
           const eventHandlerMock1 = EventHandlerMock
           const eventHandler = eventHandlerMock1.Instance as any
@@ -571,8 +570,8 @@ suite('Test QueueHandler (./services/queue/queueHandler.ts)', () => {
         })
 
         test('Callback functions has only System Dependencies as argument', async () => {
-          const queue = await queueHandler.setup()
-          const Deps = ({} as unknown) as InternalSystem<ServiceConfigurator, Config, Models>
+          const queue = ((await queueHandler.setup()) as unknown) as QueueHandlerSetupEnabled<ApiStartSettings>
+          const Deps = ({} as unknown) as InternalSystem<ApiStartSettings>
 
           const eventHandlerMock1 = EventHandlerMock
           const eventHandler = eventHandlerMock1.Instance as any
@@ -590,8 +589,8 @@ suite('Test QueueHandler (./services/queue/queueHandler.ts)', () => {
         })
 
         test('Server makes correct Connection with AMQP server for each EventListener', async () => {
-          const queue = await queueHandler.setup()
-          const Deps = ({} as unknown) as InternalSystem<ServiceConfigurator, Config, Models>
+          const queue = ((await queueHandler.setup()) as unknown) as QueueHandlerSetupEnabled<ApiStartSettings>
+          const Deps = ({} as unknown) as InternalSystem<ApiStartSettings>
 
           const eventHandlerMock1 = EventHandlerMock
           const eventHandler1 = eventHandlerMock1.Instance as any
@@ -651,8 +650,8 @@ suite('Test QueueHandler (./services/queue/queueHandler.ts)', () => {
         })
 
         test('server acknowledge message when EventHandler returns true', async () => {
-          const queue = await queueHandler.setup()
-          const Deps = ({} as unknown) as InternalSystem<ServiceConfigurator, Config, Models>
+          const queue = ((await queueHandler.setup()) as unknown) as QueueHandlerSetupEnabled<ApiStartSettings>
+          const Deps = ({} as unknown) as InternalSystem<ApiStartSettings>
 
           const eventHandlerMock1 = EventHandlerMock
           const eventHandler1 = eventHandlerMock1.Instance as any
@@ -676,8 +675,8 @@ suite('Test QueueHandler (./services/queue/queueHandler.ts)', () => {
         })
 
         test('server does not acknowledge message when EventHandler returns false', async () => {
-          const queue = await queueHandler.setup()
-          const Deps = ({} as unknown) as InternalSystem<ServiceConfigurator, Config, Models>
+          const queue = ((await queueHandler.setup()) as unknown) as QueueHandlerSetupEnabled<ApiStartSettings>
+          const Deps = ({} as unknown) as InternalSystem<ApiStartSettings>
 
           const eventHandlerMock1 = EventHandlerMock
           const eventHandler1 = eventHandlerMock1.Instance as any
@@ -701,10 +700,10 @@ suite('Test QueueHandler (./services/queue/queueHandler.ts)', () => {
         })
 
         test('server calls EventHandler correctly', async () => {
-          const queue = await queueHandler.setup()
+          const queue = ((await queueHandler.setup()) as unknown) as QueueHandlerSetupEnabled<ApiStartSettings>
           const Deps = ({
             sysDeps: faker.random.alphaNumeric(16),
-          } as unknown) as InternalSystem<ServiceConfigurator, Config, Models>
+          } as unknown) as InternalSystem<ApiStartSettings>
 
           const dependencies = {
             handlerDeps: faker.random.alphaNumeric(16),
@@ -734,8 +733,8 @@ suite('Test QueueHandler (./services/queue/queueHandler.ts)', () => {
         })
 
         test('server does not acknowledge message when EventHandler throws Error (if msg is not null)', async () => {
-          const queue = await queueHandler.setup()
-          const Deps = ({} as unknown) as InternalSystem<ServiceConfigurator, Config, Models>
+          const queue = ((await queueHandler.setup()) as unknown) as QueueHandlerSetupEnabled<ApiStartSettings>
+          const Deps = ({} as unknown) as InternalSystem<ApiStartSettings>
 
           const eventHandlerMock1 = EventHandlerMock
           const eventHandler1 = eventHandlerMock1.Instance as any
@@ -758,10 +757,10 @@ suite('Test QueueHandler (./services/queue/queueHandler.ts)', () => {
         })
 
         test('server does Log Error as Critical when EventHandler throws Error', async () => {
-          const queue = await queueHandler.setup()
+          const queue = ((await queueHandler.setup()) as unknown) as QueueHandlerSetupEnabled<ApiStartSettings>
           const Deps = ({
             Log: loghandlerMock.Instance,
-          } as unknown) as InternalSystem<ServiceConfigurator, Config, Models>
+          } as unknown) as InternalSystem<ApiStartSettings>
 
           const eventHandlerMock1 = EventHandlerMock
           const eventHandler1 = eventHandlerMock1.Instance as any
@@ -797,10 +796,10 @@ suite('Test QueueHandler (./services/queue/queueHandler.ts)', () => {
         })
 
         test('EventHandler can have a dependency object that gets available in handler', async () => {
-          const queue = await queueHandler.setup()
+          const queue = ((await queueHandler.setup()) as unknown) as QueueHandlerSetupEnabled<ApiStartSettings>
           const Deps = ({
             test: faker.random.alphaNumeric(31),
-          } as unknown) as InternalSystem<ServiceConfigurator, Config, Models>
+          } as unknown) as InternalSystem<ApiStartSettings>
 
           const eventHandlerMock1 = EventHandlerMock
           const eventHandler1 = eventHandlerMock1.Instance as any
@@ -830,10 +829,10 @@ suite('Test QueueHandler (./services/queue/queueHandler.ts)', () => {
         })
 
         test('Eventhandler can have undefined queue name', async () => {
-          const queue = await queueHandler.setup()
+          const queue = ((await queueHandler.setup()) as unknown) as QueueHandlerSetupEnabled<ApiStartSettings>
           const Deps = ({
             test: faker.random.alphaNumeric(31),
-          } as unknown) as InternalSystem<ServiceConfigurator, Config, Models>
+          } as unknown) as InternalSystem<ApiStartSettings>
 
           const eventHandlerMock1 = EventHandlerMock
           const eventHandler1 = eventHandlerMock1.Instance as any
@@ -853,8 +852,8 @@ suite('Test QueueHandler (./services/queue/queueHandler.ts)', () => {
         })
 
         test('Server returns with True when Queue Server works correctly', async () => {
-          const queue = await queueHandler.setup()
-          const Deps = ({} as unknown) as InternalSystem<ServiceConfigurator, Config, Models>
+          const queue = ((await queueHandler.setup()) as unknown) as QueueHandlerSetupEnabled<ApiStartSettings>
+          const Deps = ({} as unknown) as InternalSystem<ApiStartSettings>
 
           const eventHandlerMock1 = EventHandlerMock
           const eventHandler = eventHandlerMock1.Instance as any
@@ -865,8 +864,8 @@ suite('Test QueueHandler (./services/queue/queueHandler.ts)', () => {
         })
 
         test('Server returns with False and Logs Critical Error when Queue Server does not work correctly', async () => {
-          const queue = await queueHandler.setup()
-          const Deps = ({} as unknown) as InternalSystem<ServiceConfigurator, Config, Models>
+          const queue = ((await queueHandler.setup()) as unknown) as QueueHandlerSetupEnabled<ApiStartSettings>
+          const Deps = ({} as unknown) as InternalSystem<ApiStartSettings>
 
           const eventHandlerMock1 = EventHandlerMock
           const eventHandler = eventHandlerMock1.Instance as any

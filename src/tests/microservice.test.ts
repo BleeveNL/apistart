@@ -13,10 +13,13 @@ import CacheHandler from '../services/cache/cacheHandler'
 import DatabaseHandler from '../services/database/databaseHandler'
 import QueueHandler from '../services/queue/queueHandler'
 import WebserverHandler from '../services/webserver/webserverHandler'
+import {Helpers} from '../systemInterfaces/helpers'
+import * as faker from 'faker'
 
 suite('Test plugin (microservice.ts).', () => {
   const MicroserviceClass: Microservice = new Microservice(
     {
+      helpers: ({[faker.random.alphaNumeric()]: faker.random.alphaNumeric()} as unknown) as Helpers,
       joi,
       log: (new mockedLogHandler.Instance() as unknown) as Log,
       services: {
@@ -42,6 +45,7 @@ suite('Test plugin (microservice.ts).', () => {
     assert.instanceOf(
       new DefaultExport(
         {
+          helpers: {} as Helpers,
           joi,
           log: (new mockedLogHandler.Instance() as unknown) as Log,
           services: {
@@ -63,12 +67,12 @@ suite('Test plugin (microservice.ts).', () => {
     })
 
     test('factory() needs one parameter', () => {
-      assert.equal(Microservice.factory.length, 1)
+      assert.equal(Microservice.factory.length, 2)
     })
 
     test('factory() return instanceOf MicroService Class', () => {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      assert.instanceOf(Microservice.factory(mockedConfig.correct.everythingDisabled), Microservice)
+      assert.instanceOf(Microservice.factory(mockedConfig.correct.everythingDisabled, {}), Microservice)
     })
   })
 
@@ -112,7 +116,7 @@ suite('Test plugin (microservice.ts).', () => {
 
       Object.keys(microservice).forEach(key => {
         assert.isTrue(
-          ['Cache', 'Config', 'DB', 'Events', 'Log', 'Models', 'EventListener', 'Webserver'].includes(key),
+          ['Cache', 'Config', 'DB', 'Helpers', 'Events', 'Log', 'Models', 'EventListener', 'Webserver'].includes(key),
           `${key} isn't part of object schema`,
         )
       })
@@ -121,8 +125,10 @@ suite('Test plugin (microservice.ts).', () => {
     test('When all services are enabled. Setup() returns object according schema', async () => {
       DatabaseHandlerMock.stubs.setup.returns(true)
 
+      const helpers = ({[faker.random.alphaNumeric()]: faker.random.alphaNumeric()} as unknown) as Helpers
       const MicroserviceClass: Microservice = new Microservice(
         {
+          helpers,
           joi,
           log: (new mockedLogHandler.Instance() as unknown) as Log,
           services: {
@@ -132,7 +138,7 @@ suite('Test plugin (microservice.ts).', () => {
             webserver: (new WebserverHandlerMock.Instance() as any) as WebserverHandler,
           },
         },
-        JSON.parse(JSON.stringify(mockedConfig.correct.everythingEnabled)),
+        mockedConfig.correct.everythingEnabled,
       )
       const microservice = await MicroserviceClass.setup()
 
@@ -143,6 +149,9 @@ suite('Test plugin (microservice.ts).', () => {
 
       assert.isTrue('Config' in microservice)
       assert.deepEqual(microservice.Config, mockedConfig.correct.everythingEnabled)
+
+      assert.isTrue('Helpers' in microservice)
+      assert.deepEqual(microservice.Helpers, helpers)
 
       assert.isTrue('DB' in microservice)
       assert.isTrue(DatabaseHandlerMock.stubs.setup.calledOnce)
@@ -164,7 +173,7 @@ suite('Test plugin (microservice.ts).', () => {
 
       Object.keys(microservice).forEach(key => {
         assert.isTrue(
-          ['Cache', 'Config', 'DB', 'Events', 'Log', 'Models', 'EventListener', 'Webserver'].includes(key),
+          ['Cache', 'Config', 'DB', 'Helpers', 'Events', 'Log', 'Models', 'EventListener', 'Webserver'].includes(key),
           `${key} isn't part of object schema`,
         )
       })

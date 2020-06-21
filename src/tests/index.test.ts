@@ -9,14 +9,14 @@ suite('Test plugin (index.ts).', () => {
   })
 
   test('Allows 1 Parameter', () => {
-    assert.equal(apiStart.length, 1)
+    assert.equal(apiStart.length, 2)
   })
 
   test("Throws error when given parameter isn't a valid configuration", () => {
-    assert.throw(() => apiStart(mockedConfig.error))
+    assert.throw(() => apiStart(mockedConfig.error, {}))
   })
 
   test('Returns instanceOf Microservice when correct config is given', async () => {
-    assert.instanceOf(await apiStart(mockedConfig.correct.everythingDisabled), Microservice)
+    assert.instanceOf(await apiStart(mockedConfig.correct.everythingDisabled, {}), Microservice)
   })
 })

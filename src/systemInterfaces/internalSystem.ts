@@ -1,20 +1,16 @@
-import {Config} from './config'
-import {Models} from '../services/database/interfaces/model'
-import {ServiceConfigurator} from './serviceConfigurator'
 import {Redis} from 'ioredis'
 import {Sequelize} from 'sequelize/types'
 import {QueueHandlerSetup} from '../services/queue/interfaces'
 import {Log} from 'loghandler'
+import {ApiStartSettings} from './apiStartSettings'
+import SystemHelpers from '../helpers/interface'
 
-export interface InternalSystem<
-  TServiceConfigurator extends ServiceConfigurator,
-  TConfig extends Config,
-  TModels extends Models
-> {
-  readonly Cache: TServiceConfigurator['cache'] extends true ? Redis : undefined
-  readonly Config: TConfig
-  readonly DB: TServiceConfigurator['database'] extends true ? Sequelize : undefined
+export interface InternalSystem<TSettings extends ApiStartSettings> {
+  readonly Cache: TSettings['ServiceConfigurator']['cache'] extends true ? Redis : undefined
+  readonly Config: TSettings['Config']
+  readonly DB: TSettings['ServiceConfigurator']['database'] extends true ? Sequelize : undefined
+  readonly Helpers: SystemHelpers & TSettings['Helpers']
   readonly Log: Log
-  readonly Models: TServiceConfigurator['database'] extends true ? TModels : undefined
-  readonly Events: QueueHandlerSetup<TServiceConfigurator, TConfig, TModels>['client']
+  readonly Models: TSettings['ServiceConfigurator']['database'] extends true ? TSettings['Models'] : undefined
+  readonly Events: QueueHandlerSetup<TSettings>['client']
 }

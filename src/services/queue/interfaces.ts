@@ -1,11 +1,11 @@
 import {Log} from 'loghandler'
 import * as amqp from 'amqplib'
 import {EnabledService} from '../../systemInterfaces/services'
-import {ServiceConfigurator} from '../../systemInterfaces/serviceConfigurator'
-import {Config} from '../../systemInterfaces/config'
-import {Models} from '../database/interfaces/model'
-import {Dependencies as systemDependencies, CustomDependencies} from '../../systemInterfaces/dependencies'
+import {Dependencies as systemDependencies} from '../../systemInterfaces/dependencies'
 import {InternalSystem} from '../../systemInterfaces/internalSystem'
+import {ApiStartSettings} from '../../systemInterfaces/apiStartSettings'
+import {ServiceConfigurator} from '../../systemInterfaces/serviceConfigurator'
+import {UserDefinedObject} from '../../systemInterfaces/userDefinedObject'
 
 export interface Dependencies {
   readonly Amqp: typeof amqp
@@ -32,13 +32,8 @@ export interface ServiceConfiguratorQueueEnabled extends ServiceConfigurator {
   queue: QueueService
 }
 
-export type QueueEventListenerHandler<
-  TServiceConfigurator extends ServiceConfigurator,
-  TDependencies extends CustomDependencies,
-  TConfig extends Config,
-  TModels extends Models
-> = (
-  sysDeps: systemDependencies<TDependencies, TServiceConfigurator, TConfig, TModels>,
+export type QueueEventListenerHandler<TSettings extends ApiStartSettings> = (
+  sysDeps: systemDependencies<TSettings, UserDefinedObject>,
   msg: amqp.ConsumeMessage,
 ) => Promise<boolean>
 
@@ -51,43 +46,39 @@ export interface QueueSettingsOptions extends amqp.Options.AssertQueue {
 }
 
 export interface QueueEventListener<
-  TServiceConfigurator extends ServiceConfigurator,
-  TDependencies extends CustomDependencies,
-  TConfig extends Config,
-  TModels extends Models
+  TSettings extends ApiStartSettings = ApiStartSettings,
+  TDependencies extends UserDefinedObject = UserDefinedObject
 > {
-  readonly dependencies?: systemDependencies<TDependencies, TServiceConfigurator, TConfig, TModels> | TDependencies
-  readonly exchange: TServiceConfigurator['queue'] extends QueueService
-    ? TServiceConfigurator['queue']['exchanges']
+  readonly dependencies?: systemDependencies<TSettings, TDependencies> | TDependencies
+  readonly exchange: TSettings['ServiceConfigurator']['queue'] extends QueueService
+    ? TSettings['ServiceConfigurator']['queue']['exchanges']
     : string
-  readonly handler: QueueEventListenerHandler<TServiceConfigurator, TDependencies, TConfig, TModels>
+  readonly handler: QueueEventListenerHandler<TSettings>
   readonly routingKey: string
   readonly settings: QueueEventListenerSettings
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export type QueueEventListenerList<
-  TServiceConfigurator extends ServiceConfigurator = ServiceConfigurator,
-  TConfig extends Config = Config,
-  TModels extends Models = Models
-> = QueueEventListener<TServiceConfigurator, any, TConfig, TModels>[]
+  TSettings extends ApiStartSettings = ApiStartSettings,
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  TDependencies extends UserDefinedObject = Record<string | number | symbol, any>
+> = QueueEventListener<TSettings, TDependencies>[]
 
 export interface QueueClient<TExchangeName extends string = string> {
   readonly publish: (
     exchangeName: TExchangeName,
     routingKey: string,
-    // tslint:disable-next-line: no-any
-    data: {},
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    data: Record<number | string | symbol, any> | any[] | boolean | number | string,
     options?: amqp.Options.Publish,
   ) => void
 }
 
 export type QueueHandlerSetup<
-  TServiceConfigurator extends ServiceConfigurator = ServiceConfigurator,
-  TConfig extends Config = Config,
-  TModels extends Models = Models
-> = TServiceConfigurator['queue'] extends QueueService
-  ? QueueHandlerSetupEnabled<TServiceConfigurator, TConfig, TModels>
+  TSettings extends ApiStartSettings
+> = TSettings['ServiceConfigurator']['queue'] extends QueueService
+  ? QueueHandlerSetupEnabled<TSettings>
   : QueueHandlerSetupDisabled
 
 export interface QueueHandlerSetupDisabled {
@@ -95,16 +86,9 @@ export interface QueueHandlerSetupDisabled {
   server: () => never
 }
 
-export interface QueueHandlerSetupEnabled<
-  TServiceConfigurator extends ServiceConfigurator = ServiceConfigurator,
-  TConfig extends Config = Config,
-  TModels extends Models = Models
-> {
+export interface QueueHandlerSetupEnabled<TSettings extends ApiStartSettings> {
   client: () => QueueClient
   server: (
-    sysDeps: InternalSystem<TServiceConfigurator, TConfig, TModels>,
-  ) => (
-    listeners: QueueEventListenerList,
-    callback?: (sysDeps: InternalSystem<TServiceConfigurator, TConfig, TModels>) => void,
-  ) => Promise<boolean>
+    sysDeps: InternalSystem<TSettings>,
+  ) => (listeners: QueueEventListenerList, callback?: (sysDeps: InternalSystem<TSettings>) => void) => Promise<boolean>
 }

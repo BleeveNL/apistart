@@ -1,11 +1,11 @@
 import * as Sequelize from 'sequelize'
+import {UserDefinedObject} from '../../../systemInterfaces/userDefinedObject'
 
-// tslint:disable-next-line:no-any
 export interface Seed {
   readonly seed: () => Promise<void>
 }
 
-export interface SeedClass<TDependencies extends {}> {
+export interface SeedClass<TDependencies extends UserDefinedObject> {
   readonly factory: (DB: Sequelize.Sequelize) => Seed
   new (DB: Sequelize.Sequelize, deps: TDependencies): Seed
 }

@@ -3,6 +3,7 @@ import {Config} from '../../systemInterfaces/config'
 import Immer from 'immer'
 import Loghandler from 'loghandler'
 import * as redis from 'ioredis'
+import {ApiStartSettings} from '../../systemInterfaces/apiStartSettings'
 
 export class CacheHandler {
   private deps: Dependencies
@@ -14,7 +15,7 @@ export class CacheHandler {
     this.config = config
   }
 
-  public static factory(config: Config) {
+  public static factory(config: Config): CacheHandler {
     return new this(
       {
         Immer,
@@ -25,7 +26,9 @@ export class CacheHandler {
     )
   }
 
-  public async setup() {
+  public async setup<TSettings extends ApiStartSettings>(): Promise<
+    TSettings['ServiceConfigurator']['cache'] extends false ? never : Promise<redis.Redis>
+  > {
     if (this.CacheIsEnabled(this.config)) {
       const cacheConfig = this.config.services.cache
 

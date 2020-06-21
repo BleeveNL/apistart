@@ -6,6 +6,8 @@ import * as KoaBodyParser from 'koa-bodyparser'
 import Router from 'koa-advanced-router'
 import {ServiceConfigurator, QueueService} from '../../systemInterfaces/serviceConfigurator'
 import {WebserverServiceEnabled} from './interfaces/webserverServiceEnabled'
+import {ApiStartSettings} from '../../systemInterfaces/apiStartSettings'
+import {InternalSystem} from '../../systemInterfaces/internalSystem'
 
 export interface WebserverHandlerDeps {
   readonly Http: typeof http
@@ -28,3 +30,7 @@ export interface WebServerObject {
   http?: http.Server
   https?: http.Server
 }
+
+export type WebserverFunction<TSettings extends ApiStartSettings> = (
+  callback?: (internalSystem: InternalSystem<TSettings>) => void,
+) => TSettings['ServiceConfigurator']['webserver'] extends false ? never : WebserverStartResponse

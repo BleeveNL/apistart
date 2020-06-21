@@ -17,18 +17,18 @@ import {Methods} from 'koa-advanced-router'
 import {assert} from 'chai'
 import {InternalSystem} from '../../../systemInterfaces/internalSystem'
 import WebserverHandler from '../../../services/webserver/webserverHandler'
-import {Models} from '../../../services/database/interfaces/model'
+import {ApiStartSettings} from '../../../systemInterfaces/apiStartSettings'
 
 let config: Config<WebserverEnabledServiceConfigurator<WebserverServiceHVersionHandlingDisabled>> = JSON.parse(
-  JSON.stringify(configMocked.correct.everythingEnabledWithoudVersioning),
+  JSON.stringify(configMocked.correct.everythingEnabledWithoutVersioning),
 )
 let dependenciesMock: WebserverHandlerDeps
-let webserverHandler: WebserverHandler<WebserverEnabledServiceConfigurator>
-let internalSystem: InternalSystem<WebserverEnabledServiceConfigurator, Config, Models>
+let webserverHandler: WebserverHandler<ApiStartSettings<WebserverEnabledServiceConfigurator>>
+let internalSystem: InternalSystem<ApiStartSettings<WebserverEnabledServiceConfigurator>>
 let webserver: (callback?: () => void) => {close: (callback?: () => void) => void}
 
 suite('Test Webserver Handler (./services/webserver/webserverHandler.ts)', () => {
-  suite('Routeting is handled correctly', () => {
+  suite('Routeing is handled correctly', () => {
     setup(() => {
       config = immer(config, draftConfig => {
         draftConfig.services.webserver.settings.versionHandler = false
@@ -60,7 +60,7 @@ suite('Test Webserver Handler (./services/webserver/webserverHandler.ts)', () =>
         Log: new ModulesMock.logHandler.Instance(),
         Models: {},
         Queue: QueueHandlerMock.Instance,
-      } as unknown) as InternalSystem<any, Config, {}>
+      } as unknown) as InternalSystem<ApiStartSettings<WebserverEnabledServiceConfigurator>>
 
       webserverHandler = new WebserverHandler(
         dependenciesMock,
@@ -86,7 +86,7 @@ suite('Test Webserver Handler (./services/webserver/webserverHandler.ts)', () =>
       ])
       assert.equal(ModulesMock.koaRouter.stubs.route.args[0][0].middleware.length, 1)
       assert.deepEqual(ModulesMock.koaRouter.stubs.route.args[0][0].params, {})
-      assert.deepEqual(ModulesMock.koaRouter.stubs.route.args[0][0].path, path.replace(/^\/|\/$/g, ''))
+      assert.deepEqual(ModulesMock.koaRouter.stubs.route.args[0][0].path, path)
 
       assert.equal(ControllerMock.stubs.controller.callCount, 0)
       ModulesMock.koaRouter.stubs.route.args[0][0].middleware[0]()

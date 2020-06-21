@@ -18,15 +18,15 @@ import {
   WebserverServiceHttpEnabled,
   WebserverServiceHttpsEnabled,
 } from '../../../services/webserver/interfaces/webserverServiceEnabled'
-import {ServiceConfigurator} from '../../../systemInterfaces/serviceConfigurator'
-import {Models} from '../../../services/database/interfaces/model'
 import {MiddlewareObject} from '../../../services/webserver/interfaces/middleware'
+import {ApiStartSettings} from '../../../systemInterfaces/apiStartSettings'
+import {UserDefinedObject} from '../../../systemInterfaces/userDefinedObject'
 import bodyParser = require('koa-bodyparser')
 
 let dependenciesMock: WebserverHandlerDeps
 let config: Config<WebserverEnabledServiceConfigurator>
-let webserverHandler: DefaultExport<WebserverEnabledServiceConfigurator>
-let internalSystem: InternalSystem<WebserverEnabledServiceConfigurator, Config, Models>
+let webserverHandler: DefaultExport<ApiStartSettings<WebserverEnabledServiceConfigurator>>
+let internalSystem: InternalSystem<ApiStartSettings<WebserverEnabledServiceConfigurator>>
 let webserver: (callback?: () => void) => {close: (callback?: () => void) => void}
 
 suite('Test Webserver Handler (./services/webserver/webserverHandler.ts)', () => {
@@ -65,7 +65,7 @@ suite('Test Webserver Handler (./services/webserver/webserverHandler.ts)', () =>
         Log: new ModulesMock.logHandler.Instance(),
         Models: {},
         Queue: QueueHandlerMock.Instance,
-      } as unknown) as InternalSystem<any, Config, {}>
+      } as unknown) as InternalSystem<ApiStartSettings<WebserverEnabledServiceConfigurator>>
 
       webserverHandler = new WebserverHandler(dependenciesMock, config)
     })
@@ -107,14 +107,14 @@ suite('Test Webserver Handler (./services/webserver/webserverHandler.ts)', () =>
           KoaRouter: ModulesMock.koaRouter.Instance,
         } as unknown) as WebserverHandlerDeps
 
-        internalSystem = ({
+        internalSystem = {
           Cache: CacheHandlerMock.Instance,
           Config: configMocked.correct.everythingEnabled,
           DB: DatabaseHandlerMock.Instance,
           Log: new ModulesMock.logHandler.Instance(),
           Models: {},
           Queue: QueueHandlerMock.Instance,
-        } as unknown) as InternalSystem<any, Config, {}>
+        } as any
 
         webserverHandler = new WebserverHandler(
           dependenciesMock,
@@ -190,7 +190,7 @@ suite('Test Webserver Handler (./services/webserver/webserverHandler.ts)', () =>
             assert.isTrue(ModulesMock.http.stubs.listen.args[0].length === 2)
             assert.isTrue(ModulesMock.http.stubs.listen.args[0][0] === settings.services.webserver.connection.http.port)
           } else {
-            assert.fail('Something weird happened')
+            throw new Error('Something weird happened')
           }
         })
 
@@ -208,7 +208,7 @@ suite('Test Webserver Handler (./services/webserver/webserverHandler.ts)', () =>
             assert.isTrue(callbackstub.args[0].length === 1)
             assert.deepEqual(callbackstub.args[0][0], internalSystem)
           } else {
-            assert.fail('Something weird happened')
+            throw new Error('Something weird happened')
           }
         })
 
@@ -238,7 +238,7 @@ suite('Test Webserver Handler (./services/webserver/webserverHandler.ts)', () =>
               assert.fail("Couldn't find right logged item!")
             }
           } else {
-            assert.fail('Something weird happened')
+            throw new Error('Something weird happened')
           }
         })
 
@@ -304,7 +304,7 @@ suite('Test Webserver Handler (./services/webserver/webserverHandler.ts)', () =>
           }
         })
 
-        test('Http server get succesfully closed after calling returned close command', () => {
+        test('Http server get successfully closed after calling returned close command', () => {
           const server = webserver()
 
           assert.isFalse(ModulesMock.http.stubs.emit.calledOnce)
@@ -339,7 +339,7 @@ suite('Test Webserver Handler (./services/webserver/webserverHandler.ts)', () =>
           ModulesMock.reset()
         })
 
-        test.only('Https Server is Created an stared with listening to correct port', () => {
+        test('Https Server is Created an stared with listening to correct port', () => {
           const settings = (config as unknown) as Config<
             WebserverEnabledServiceConfigurator<WebserverServiceHttpsEnabled>
           >
@@ -364,7 +364,7 @@ suite('Test Webserver Handler (./services/webserver/webserverHandler.ts)', () =>
               ModulesMock.https.stubs.listen.args[0][0] === settings.services.webserver.connection.https.port,
             )
           } else {
-            assert.fail('Something weird happened')
+            throw new Error('Something weird happened')
           }
         })
 
@@ -382,7 +382,7 @@ suite('Test Webserver Handler (./services/webserver/webserverHandler.ts)', () =>
             assert.isTrue(callbackstub.args[0].length === 1)
             assert.deepEqual(callbackstub.args[0][0], internalSystem)
           } else {
-            assert.fail('Something weird happened')
+            throw new Error('Something weird happened')
           }
         })
 
@@ -412,7 +412,7 @@ suite('Test Webserver Handler (./services/webserver/webserverHandler.ts)', () =>
               assert.fail("Couldn't find right logged item!")
             }
           } else {
-            assert.fail('Something weird happened')
+            throw new Error('Something weird happened')
           }
         })
 
@@ -442,9 +442,13 @@ suite('Test Webserver Handler (./services/webserver/webserverHandler.ts)', () =>
           ModulesMock.koa.stubs.callback.returns(koaCallBackReturnValue)
           webserver()
 
+          const httpsConfig = config.services.webserver.connection.https as any
+
           assert.isTrue(ModulesMock.https.stubs.createServer.calledOnce)
-          assert.isTrue(ModulesMock.https.stubs.createServer.args[0].length === 1)
-          assert.isTrue(ModulesMock.https.stubs.createServer.args[0][0] === koaCallBackReturnValue)
+          console.log(ModulesMock.https.stubs.createServer.args[0].length)
+          assert.isTrue(ModulesMock.https.stubs.createServer.args[0].length === 2)
+          assert.deepEqual(ModulesMock.https.stubs.createServer.args[0][0], httpsConfig.cert)
+          assert.isTrue(ModulesMock.https.stubs.createServer.args[0][1] === koaCallBackReturnValue)
           assert.isTrue(ModulesMock.koa.stubs.callback.calledOnce)
           assert.isTrue(ModulesMock.https.stubs.listen.calledOnce)
           assert.isTrue(ModulesMock.https.stubs.listen.args[0].length === 2)
@@ -490,7 +494,7 @@ suite('Test Webserver Handler (./services/webserver/webserverHandler.ts)', () =>
           }
         })
 
-        test('Https server get succesfully closed after calling returned close command', () => {
+        test('Https server get successfully closed after calling returned close command', () => {
           const server = webserver()
 
           assert.isFalse(ModulesMock.https.stubs.emit.calledOnce)
@@ -712,7 +716,7 @@ suite('Test Webserver Handler (./services/webserver/webserverHandler.ts)', () =>
               webserverHandler.setup({
                 ...internalSystem,
                 Config: config,
-              } as InternalSystem<ServiceConfigurator, Config, Models>)
+              } as InternalSystem<ApiStartSettings<WebserverEnabledServiceConfigurator>>)
             })
 
             teardown(() => {
@@ -743,8 +747,8 @@ suite('Test Webserver Handler (./services/webserver/webserverHandler.ts)', () =>
           })
 
           suite('when middleware is added as a object', () => {
-            let dependencyObj: {}
-            const dependencyfnc = () => ({
+            let dependencyObj: UserDefinedObject
+            const dependencyFnc = () => ({
               uuid1: 'f1fe7480-6776-437d-b844-c387f449a9b7',
               uuid2: 'fe191870-6432-11ea-bc55-0242ac130003',
               uuid3: 'fe191a82-6432-11ea-bc55-0242ac130003',
@@ -765,7 +769,7 @@ suite('Test Webserver Handler (./services/webserver/webserverHandler.ts)', () =>
                 config => {
                   const middlewareList = []
                   for (let i = 0; i < numberOfMiddleware; i++) {
-                    const middleware: MiddlewareObject<typeof dependencyObj> = {
+                    const middleware: MiddlewareObject<ApiStartSettings, typeof dependencyObj> = {
                       dependencies: dependencyObj,
                       fnc: MiddlewareMock.Instance,
                     }
@@ -782,7 +786,7 @@ suite('Test Webserver Handler (./services/webserver/webserverHandler.ts)', () =>
               webserverHandler.setup({
                 ...internalSystem,
                 Config: config,
-              } as InternalSystem<ServiceConfigurator, Config, Models>)
+              } as InternalSystem<ApiStartSettings<WebserverEnabledServiceConfigurator>>)
             })
 
             teardown(() => {
@@ -822,8 +826,8 @@ suite('Test Webserver Handler (./services/webserver/webserverHandler.ts)', () =>
                 config => {
                   const middlewareList = []
                   for (let i = 0; i < numberOfMiddleware; i++) {
-                    const middleware: MiddlewareObject<typeof dependencyObj> = {
-                      dependencies: dependencyfnc,
+                    const middleware: MiddlewareObject<ApiStartSettings, typeof dependencyObj> = {
+                      dependencies: dependencyFnc,
                       fnc: MiddlewareMock.Instance,
                     }
 
@@ -839,14 +843,14 @@ suite('Test Webserver Handler (./services/webserver/webserverHandler.ts)', () =>
               webserverHandler.setup({
                 ...internalSystem,
                 Config: config,
-              } as InternalSystem<ServiceConfigurator, Config, Models>)
+              } as InternalSystem<ApiStartSettings<WebserverEnabledServiceConfigurator>>)
 
               assert.equal(MiddlewareMock.stubs.setup.callCount, numberOfMiddleware)
               assert.equal(MiddlewareMock.stubs.setup.args[0].length, 1)
               assert.deepEqual(MiddlewareMock.stubs.setup.args[0][0], {
                 ...internalSystem,
                 Config: config,
-                Dependencies: dependencyfnc(),
+                Dependencies: dependencyFnc(),
               })
               assert.equal(MiddlewareMock.stubs.middleware.callCount, 0)
 
@@ -865,7 +869,7 @@ suite('Test Webserver Handler (./services/webserver/webserverHandler.ts)', () =>
               ModulesMock.reset()
               MiddlewareMock.reset()
 
-              const middlewareDepedencyStub = sinon.stub().returns(dependencyObj)
+              const middlewareDependencyStub = sinon.stub().returns(dependencyObj)
 
               config = immer(
                 JSON.parse(
@@ -874,7 +878,7 @@ suite('Test Webserver Handler (./services/webserver/webserverHandler.ts)', () =>
                 config => {
                   config.services.webserver.middleware = [
                     {
-                      dependencies: middlewareDepedencyStub,
+                      dependencies: middlewareDependencyStub,
                       fnc: MiddlewareMock.Instance,
                     },
                   ]
@@ -886,11 +890,11 @@ suite('Test Webserver Handler (./services/webserver/webserverHandler.ts)', () =>
               webserverHandler.setup({
                 ...internalSystem,
                 Config: config,
-              } as InternalSystem<ServiceConfigurator, Config, Models>)
+              } as InternalSystem<ApiStartSettings<WebserverEnabledServiceConfigurator>>)
 
-              assert.equal(middlewareDepedencyStub.callCount, 1)
-              assert.equal(middlewareDepedencyStub.args[0].length, 1)
-              assert.deepEqual(middlewareDepedencyStub.args[0][0], {
+              assert.equal(middlewareDependencyStub.callCount, 1)
+              assert.equal(middlewareDependencyStub.args[0].length, 1)
+              assert.deepEqual(middlewareDependencyStub.args[0][0], {
                 ...internalSystem,
                 Config: config,
                 Dependencies: {},

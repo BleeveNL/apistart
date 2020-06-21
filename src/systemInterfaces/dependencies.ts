@@ -1,25 +1,15 @@
-import {Models} from '../services/database/interfaces/model'
-import {Config} from './config'
 import {InternalSystem} from './internalSystem'
-import {ServiceConfigurator} from './serviceConfigurator'
+import {ApiStartSettings} from './apiStartSettings'
+import {UserDefinedObject} from './userDefinedObject'
 
 export interface Dependencies<
-  TDependencies extends CustomDependencies,
-  TServiceConfigurator extends ServiceConfigurator,
-  TConfig extends Config<TServiceConfigurator>,
-  TModels extends Models
-> extends InternalSystem<TServiceConfigurator, TConfig, TModels> {
+  TSettings extends ApiStartSettings,
+  TDependencies extends UserDefinedObject = UserDefinedObject
+> extends InternalSystem<TSettings> {
   readonly Dependencies: TDependencies
 }
 
-export interface CustomDependencies {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  readonly [key: string]: any
-}
-
 export type DependencyFunction<
-  TDependencies extends CustomDependencies = {},
-  TServiceConfigurator extends ServiceConfigurator = ServiceConfigurator,
-  TConfig extends Config<TServiceConfigurator> = Config<TServiceConfigurator>,
-  TModels extends Models = Models
-> = (deps: Dependencies<{}, TServiceConfigurator, TConfig, TModels>) => TDependencies
+  TSettings extends ApiStartSettings,
+  TDependencies extends UserDefinedObject = UserDefinedObject
+> = (deps: Dependencies<TSettings, TDependencies>) => TDependencies

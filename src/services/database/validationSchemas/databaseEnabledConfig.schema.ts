@@ -3,7 +3,7 @@ import * as joi from '@hapi/joi'
 export default joi.object({
   database: joi.string().optional(),
   define: joi.object().optional(),
-  dialect: joi.valid('mysql', 'postgres', 'sqlite', 'mariadb', 'mssql', 'mariadb').optional(),
+  dialect: joi.valid('mysql', 'postgres', 'sqlite', 'mariadb', 'mssql').optional(),
   dialectModule: joi.object().optional(),
   dialectModulePath: joi.string().optional(),
   dialectOptions: joi.object().optional(),

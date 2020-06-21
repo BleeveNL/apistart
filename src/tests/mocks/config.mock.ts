@@ -128,6 +128,7 @@ export const everythingEnabled: Config<{
           maxAge: faker.random.number(),
         },
         expose: faker.random.alphaNumeric(8) as any,
+        prefix: faker.random.alphaNumeric(8),
         proxy: false,
         sensitive: faker.random.alphaNumeric(8) as any,
         silent: faker.random.alphaNumeric(8) as any,
@@ -159,7 +160,7 @@ export const everythingEnabled: Config<{
   },
 }
 
-export const everythingEnabledWithoudVersioning: Config<{
+export const everythingEnabledWithoutVersioning: Config<{
   cache: true
   database: true
   queue: {
@@ -260,7 +261,7 @@ export default {
   correct: {
     everythingDisabled,
     everythingEnabled,
-    everythingEnabledWithoudVersioning,
+    everythingEnabledWithoutVersioning,
   },
   error,
 }

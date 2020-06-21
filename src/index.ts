@@ -1,24 +1,20 @@
 import Microservice from './microservice'
 import configSchema from './validationSchemas/config.schema'
-import {Config} from './systemInterfaces/config'
-import {ServiceConfigurator} from './systemInterfaces/serviceConfigurator'
-import {Models} from './services/database/interfaces/model'
+import {ApiStartSettings} from './systemInterfaces/apiStartSettings'
+import {ValidationResult} from '@hapi/joi'
 
-export const apiStart = <
-  TServiceConfigurator extends ServiceConfigurator = ServiceConfigurator,
-  TConfig extends Config<TServiceConfigurator> = Config<TServiceConfigurator>,
-  TModels extends Models = Models
->(
+export const apiStart = <TSettings extends ApiStartSettings = ApiStartSettings>(
   config: unknown,
-) => {
-  if (Microservice.configIsValid<TConfig>(config)) {
-    return Microservice.factory<TServiceConfigurator, TConfig, TModels>(config)
+  helpers: TSettings['Helpers'],
+): Microservice => {
+  if (Microservice.configIsValid<TSettings['Config']>(config)) {
+    return Microservice.factory<TSettings>(config, helpers)
   }
 
   throw configSchema.validate(config, {allowUnknown: true}).error
 }
 
-export const ValidateConfig = (config: unknown) => {
+export const ValidateConfig = (config: unknown): ValidationResult | true => {
   const validate = Microservice.validateConfig(config)
 
   if (validate.error === undefined) {
@@ -29,6 +25,9 @@ export const ValidateConfig = (config: unknown) => {
 }
 
 export default apiStart
+export {ApiStartSettings as TypeSettings} from './systemInterfaces/apiStartSettings'
+export {loadEnvFactory as loadEnv} from './helpers/fnc/loadEnv'
+export {env} from './helpers/fnc/env'
 export {ServiceConfigurator} from './systemInterfaces/serviceConfigurator'
 export {Config} from './systemInterfaces/config'
 export {IController} from './services/webserver/interfaces/controller'
@@ -43,3 +42,5 @@ export {Seed} from './services/database/interfaces/seed'
 export {QueueEventListener, QueueEventListenerHandler, QueueService} from './services/queue/interfaces'
 export {WebserverServiceEnabled} from './services/webserver/interfaces/webserverServiceEnabled'
 export {Model} from 'sequelize'
+export {Context} from 'koa'
+export {Dependencies as SystemDependencies} from './systemInterfaces/dependencies'

@@ -7,12 +7,12 @@ import {
   QueueEventListenerList,
   QueueConfig,
   QueueExchangeSettings,
+  QueueHandlerSetup,
 } from './interfaces'
 import {Config} from '../../systemInterfaces/config'
 import {InternalSystem} from '../../systemInterfaces/internalSystem'
-import {Models} from '../database/interfaces/model'
-import {ServiceConfigurator} from '../../systemInterfaces/serviceConfigurator'
 import {Dependencies as TDependencies} from '../../systemInterfaces/dependencies'
+import {ApiStartSettings} from '../../systemInterfaces/apiStartSettings'
 
 export class QueueHandler {
   private deps: Dependencies
@@ -24,7 +24,7 @@ export class QueueHandler {
     this.config = config
   }
 
-  public static factory(config: Config) {
+  public static factory(config: Config): QueueHandler {
     return new this(
       {
         Amqp,
@@ -35,17 +35,18 @@ export class QueueHandler {
     )
   }
 
-  public async setup() {
+  public async setup<TSettings extends ApiStartSettings>(): Promise<QueueHandlerSetup<TSettings>> {
     if (this.queueEnabled(this.config)) {
       const settings: QueueConfig = this.config.services.queue
       const connection = await this.setupConnection(settings)
 
-      return {
+      return ({
         client: () => ({
           publish: async (
             exchangeName: string,
             routingKey: string,
-            data: {} | [] | boolean | number | string,
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            data: Record<number | string | symbol, any> | any[] | boolean | number | string,
             options?: Amqp.Options.Publish,
           ) => {
             this.PublishMessage(this.deps, settings, connection, exchangeName, routingKey, data, options)
@@ -55,26 +56,13 @@ export class QueueHandler {
               })
           },
         }),
-        server: <
-          TServiceConfigurator extends ServiceConfigurator = ServiceConfigurator,
-          TConfig extends Config<TServiceConfigurator> = Config<TServiceConfigurator>,
-          TModels extends Models = Models
-        >(
+        server: <TSettings extends ApiStartSettings>(
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          sysDeps: InternalSystem<TServiceConfigurator, TConfig, TModels>,
-        ) => async (
-          listeners: QueueEventListenerList,
-          callback?: (sysDeps: InternalSystem<TServiceConfigurator, TConfig, TModels>) => void,
-        ) => {
+          sysDeps: InternalSystem<TSettings>,
+        ) => async (listeners: QueueEventListenerList, callback?: (sysDeps: InternalSystem<TSettings>) => void) => {
           if (this.verifyQueueEventListeners(listeners)) {
             try {
-              await this.startServer<TConfig, TModels, TServiceConfigurator>(
-                this.deps,
-                sysDeps,
-                settings,
-                connection,
-                listeners,
-              )
+              await this.startServer<TSettings>(this.deps, sysDeps, settings, connection, listeners)
               if (callback) {
                 callback(sysDeps)
               }
@@ -86,7 +74,7 @@ export class QueueHandler {
 
           return false
         },
-      }
+      } as unknown) as QueueHandlerSetup<TSettings>
     }
 
     return {
@@ -95,7 +83,7 @@ export class QueueHandler {
           throw new Error('Queue server listener is started while service is disabled in configuration.')
         }
       },
-    }
+    } as QueueHandlerSetup<TSettings>
   }
 
   private queueEnabled(config: Config): config is Config<ServiceConfiguratorQueueEnabled> {
@@ -133,7 +121,7 @@ export class QueueHandler {
       return channel
     } else {
       throw new Error(
-        "Couldn't establish connection with amqp service, because none exchanges are configurated in config file.",
+        "Couldn't establish connection with amqp service, because none exchanges are configured in config file.",
       )
     }
   }
@@ -144,7 +132,8 @@ export class QueueHandler {
     channel: Amqp.Channel,
     exchangeName: string,
     routingKey: string,
-    data: {},
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    data: Record<number | string | symbol, any> | any[] | boolean | number | string,
     options?: Amqp.Options.Publish,
   ) {
     const exchange = settings.exchanges.reduce((acc, cur) =>
@@ -171,26 +160,22 @@ export class QueueHandler {
       await channel.assertExchange(exchange.name, this.getExchangeType(exchange), exchangeOptions)
 
       channel.publish(exchange.name, routingKey, Buffer.from(JSON.stringify(data), 'utf-8'), msgOptions)
-      deps.Log.info(`Added new event with routingkey "${routingKey}" to "${exchange.name}" exchange.`, {
+      deps.Log.info(`Added new event with routing key "${routingKey}" to "${exchange.name}" exchange.`, {
         data,
         exchangeName,
         options,
         routingKey,
       })
     } else {
-      throw new Error(
-        `Couldn't publish message, because exchange Name ${exchangeName} isn't configured in config file.`,
+      this.deps.Log.err(
+        new Error(`Couldn't publish message, because exchange Name ${exchangeName} isn't configured in config file.`),
       )
     }
   }
 
-  private async startServer<
-    TConfig extends Config,
-    TModels extends Models,
-    TServiceConfigurator extends ServiceConfigurator = ServiceConfigurator
-  >(
+  private async startServer<TSettings extends ApiStartSettings>(
     deps: Dependencies,
-    sysDeps: InternalSystem<TServiceConfigurator, TConfig, TModels>,
+    sysDeps: InternalSystem<TSettings>,
     settings: QueueConfig,
     connection: Amqp.Channel,
     eventListeners: QueueEventListenerList,
@@ -213,7 +198,7 @@ export class QueueHandler {
             try {
               if (msg !== null) {
                 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                const insertedDependencies: TDependencies<any, TServiceConfigurator, TConfig, TModels> = {
+                const insertedDependencies: TDependencies<TSettings> = {
                   ...sysDeps,
                   Dependencies: dependencies,
                 }
