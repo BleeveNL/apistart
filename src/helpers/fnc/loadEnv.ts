@@ -67,8 +67,7 @@ export const loadEnv = <TEnvvars extends DotenvParseOutput = DotenvParseOutput>(
   return result.parsed as TEnvvars
 }
 
-export const loadEnvFactory = <TEnvvars extends DotenvParseOutput = DotenvParseOutput>(
-  opts?: DotenvConfigOptions,
-): TEnvvars => loadEnv<TEnvvars>({dotEnv: config}, opts)
+export const loadEnvFactory = <TEnvvars extends DotenvParseOutput = DotenvParseOutput>(opts?: EnvOptions): TEnvvars =>
+  loadEnv<TEnvvars>({dotEnv: config}, opts)
 
 export default loadEnvFactory
