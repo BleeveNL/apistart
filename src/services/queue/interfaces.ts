@@ -32,7 +32,8 @@ export interface ServiceConfiguratorQueueEnabled extends ServiceConfigurator {
   queue: QueueService
 }
 
-export type QueueEventListenerHandler<TSettings extends ApiStartSettings> = (
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export type QueueEventListenerHandler<TSettings extends ApiStartSettings<any> = ApiStartSettings<any>> = (
   sysDeps: systemDependencies<TSettings, UserDefinedObject>,
   msg: amqp.ConsumeMessage,
 ) => Promise<boolean>

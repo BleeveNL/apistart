@@ -52,7 +52,7 @@ export class WebserverHandler<TSettings extends ApiStartSettings = ApiStartSetti
   public setup(system: InternalSystem<TSettings>): WebserverFunction<TSettings> {
     if (this.webserverEnabled && this.WebserverIsEnabled(system.Config)) {
       const internalSystem = (system as unknown) as InternalSystem<
-        ApiStartSettings<WebserverEnabledServiceConfigurator, Config<WebserverEnabledServiceConfigurator>>
+        ApiStartSettings<WebserverEnabledServiceConfigurator>
       >
       const configuration = this.MakeWebserviceInstance(internalSystem)
       // eslint-disable-next-line @typescript-eslint/no-empty-function
@@ -67,9 +67,7 @@ export class WebserverHandler<TSettings extends ApiStartSettings = ApiStartSetti
   }
 
   private start(
-    system: InternalSystem<
-      ApiStartSettings<WebserverEnabledServiceConfigurator, Config<WebserverEnabledServiceConfigurator>>
-    >,
+    system: InternalSystem<ApiStartSettings<WebserverEnabledServiceConfigurator>>,
     instance: Koa,
     // eslint-disable-next-line @typescript-eslint/no-empty-function
     callback: WebserverCallbackFunction<TSettings> = () => {},
@@ -132,11 +130,7 @@ export class WebserverHandler<TSettings extends ApiStartSettings = ApiStartSetti
     }
   }
 
-  private MakeWebserviceInstance(
-    system: InternalSystem<
-      ApiStartSettings<WebserverEnabledServiceConfigurator, Config<WebserverEnabledServiceConfigurator>>
-    >,
-  ) {
+  private MakeWebserviceInstance(system: InternalSystem<ApiStartSettings<WebserverEnabledServiceConfigurator>>) {
     const app = new this.deps.Koa()
     // settings
     app.env = system.Config.app.env
@@ -194,9 +188,7 @@ export class WebserverHandler<TSettings extends ApiStartSettings = ApiStartSetti
   }
 
   private HandleMiddleware(
-    system: InternalSystem<
-      ApiStartSettings<WebserverEnabledServiceConfigurator, Config<WebserverEnabledServiceConfigurator>>
-    >,
+    system: InternalSystem<ApiStartSettings<WebserverEnabledServiceConfigurator>>,
     middlewareList2Handle: IMiddleware[],
   ) {
     const middlewareList: Koa.Middleware[] = []
@@ -214,9 +206,7 @@ export class WebserverHandler<TSettings extends ApiStartSettings = ApiStartSetti
   }
 
   private HandleDependencies<TDeps extends UserDefinedObject = UserDefinedObject>(
-    system: InternalSystem<
-      ApiStartSettings<WebserverEnabledServiceConfigurator, Config<WebserverEnabledServiceConfigurator>>
-    >,
+    system: InternalSystem<ApiStartSettings<WebserverEnabledServiceConfigurator>>,
     dependencies: TDeps,
   ): Dependencies<TSettings> {
     const internalSystem = system as InternalSystem<TSettings>
@@ -229,12 +219,7 @@ export class WebserverHandler<TSettings extends ApiStartSettings = ApiStartSetti
   }
 
   private HandleVersions(
-    system: InternalSystem<
-      ApiStartSettings<
-        WebserverEnabledServiceConfigurator,
-        Config<WebserverEnabledServiceConfigurator<WebserverServiceHVersionHandlingEnabled>>
-      >
-    >,
+    system: InternalSystem<ApiStartSettings<WebserverEnabledServiceConfigurator>>,
     router: Router,
     versions: Version[],
   ) {
@@ -247,12 +232,7 @@ export class WebserverHandler<TSettings extends ApiStartSettings = ApiStartSetti
   }
 
   private HandleSingleVersion(
-    system: InternalSystem<
-      ApiStartSettings<
-        WebserverEnabledServiceConfigurator,
-        Config<WebserverEnabledServiceConfigurator<WebserverServiceHVersionHandlingEnabled>>
-      >
-    >,
+    system: InternalSystem<ApiStartSettings<WebserverEnabledServiceConfigurator>>,
     versionRouter: Router,
     version: Version,
   ) {
@@ -264,9 +244,7 @@ export class WebserverHandler<TSettings extends ApiStartSettings = ApiStartSetti
   }
 
   private HandleRoutes(
-    system: InternalSystem<
-      ApiStartSettings<WebserverEnabledServiceConfigurator, Config<WebserverEnabledServiceConfigurator>>
-    >,
+    system: InternalSystem<ApiStartSettings<WebserverEnabledServiceConfigurator>>,
     routes: IRoute[],
     router: Router,
   ) {
@@ -298,12 +276,7 @@ export class WebserverHandler<TSettings extends ApiStartSettings = ApiStartSetti
     }
   }
 
-  private handleParam(
-    system: InternalSystem<
-      ApiStartSettings<WebserverEnabledServiceConfigurator, Config<WebserverEnabledServiceConfigurator>>
-    >,
-    param: IParam,
-  ) {
+  private handleParam(system: InternalSystem<ApiStartSettings<WebserverEnabledServiceConfigurator>>, param: IParam) {
     if (typeof param === 'function') {
       return param(this.HandleDependencies(system, {}))
     } else {

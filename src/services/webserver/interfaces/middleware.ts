@@ -4,12 +4,14 @@ import {ApiStartSettings} from '../../../systemInterfaces/apiStartSettings'
 import {UserDefinedObject} from '../../../systemInterfaces/userDefinedObject'
 
 export type MiddlewareFunction<
-  TSettings extends ApiStartSettings = ApiStartSettings,
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  TSettings extends ApiStartSettings<any> = ApiStartSettings,
   TDependencies extends UserDefinedObject = UserDefinedObject
 > = (deps: Dependencies<TSettings, TDependencies>) => Koa.Middleware
 
 export interface MiddlewareObject<
-  TSettings extends ApiStartSettings = ApiStartSettings,
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  TSettings extends ApiStartSettings<any> = ApiStartSettings,
   TDependencies extends UserDefinedObject = UserDefinedObject
 > {
   readonly dependencies: TDependencies | DependencyFunction<TSettings, TDependencies>
@@ -17,6 +19,7 @@ export interface MiddlewareObject<
 }
 
 export type IMiddleware<
-  TSettings extends ApiStartSettings = ApiStartSettings,
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  TSettings extends ApiStartSettings<any> = ApiStartSettings,
   TDependencies extends UserDefinedObject = UserDefinedObject
 > = MiddlewareFunction<TSettings, TDependencies> | MiddlewareObject<TSettings, TDependencies>

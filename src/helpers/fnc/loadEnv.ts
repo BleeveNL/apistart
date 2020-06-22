@@ -40,7 +40,7 @@ export const loadEnv = <TEnvvars extends DotenvParseOutput = DotenvParseOutput>(
         const itemSchema = schema[envName]
         const envValue = parsed[envName]
 
-        if (itemSchema.required === true && envValue !== undefined) {
+        if (itemSchema.required === true && envValue === undefined) {
           throw new Error(`Environment variable "${envName}" isn't available in .env file.`)
         } else if (itemSchema.default && (envValue === undefined || envValue.length === 0)) {
           process.env[envName] = itemSchema.default

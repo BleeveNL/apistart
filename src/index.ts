@@ -3,7 +3,8 @@ import configSchema from './validationSchemas/config.schema'
 import {ApiStartSettings} from './systemInterfaces/apiStartSettings'
 import {ValidationResult} from '@hapi/joi'
 
-export const apiStart = <TSettings extends ApiStartSettings = ApiStartSettings>(
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export const apiStart = <TSettings extends ApiStartSettings<any>>(
   config: unknown,
   helpers: TSettings['Helpers'],
 ): Microservice => {
