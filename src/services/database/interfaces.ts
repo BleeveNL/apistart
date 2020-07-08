@@ -1,6 +1,7 @@
 import * as fs from 'fs'
 import {Log} from 'loghandler'
 import {
+  Dialect,
   Options,
   Sequelize,
   ARRAY,
@@ -41,6 +42,7 @@ export interface Dependencies {
 }
 
 export interface DatabaseConfig extends EnabledService, Options {
+  readonly dialect: Dialect
   readonly folder: {
     readonly migrations: string
     readonly seeds: string
