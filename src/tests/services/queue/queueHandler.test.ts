@@ -391,7 +391,6 @@ suite('Test QueueHandler (./services/queue/queueHandler.ts)', () => {
             const exchangeName = faker.random.alphaNumeric(16)
 
             await client.publish(exchangeName, faker.random.alphaNumeric(8), {})
-            console.log(loghandlerMock.stubs.err.callCount)
             assert.equal(loghandlerMock.stubs.err.calledOnce, true)
             assert.equal(loghandlerMock.stubs.err.args[0][0].name, 'Error')
             assert.equal(

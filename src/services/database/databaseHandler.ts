@@ -5,7 +5,7 @@ import {Dependencies, ServiceConfiguratorDBEnabled} from './interfaces'
 import {Sequelize, Options} from 'sequelize'
 import * as fs from 'fs'
 import Migrations from './models/migrations'
-import {Model, Models} from './interfaces/model'
+import {Models} from './interfaces/model'
 import {ApiStartSettings} from '../../systemInterfaces/apiStartSettings'
 
 export class DatabaseHandler {
@@ -25,7 +25,7 @@ export class DatabaseHandler {
         Log: Loghandler(config.log),
         Sequelize,
         fs,
-        systemModels: [Migrations],
+        systemModels: {Migrations: Migrations},
       },
       config,
     )
@@ -55,13 +55,14 @@ export class DatabaseHandler {
       const models = this.config.services.database.models
       let output: Models = {}
 
-      for (const model of models) {
+      for (const modelName in models) {
+        const model = models[modelName]
         output = this.deps.Immer(output, draft => {
           model.init(model.structure, {
             ...model.settings,
             sequelize: DB,
           })
-          draft[model.name] = model
+          draft[modelName] = model
         })
       }
 
@@ -89,8 +90,9 @@ export class DatabaseHandler {
     return connection
   }
 
-  private async SyncMigrationTable(DB: Sequelize, models: Model[]) {
-    for (const model of models) {
+  private async SyncMigrationTable(DB: Sequelize, models: Models) {
+    for (const modelName in models) {
+      const model = models[modelName]
       model.init(model.structure, {sequelize: DB, ...model.settings})
       await model.sync()
     }

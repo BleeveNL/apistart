@@ -1,8 +1,34 @@
 import * as fs from 'fs'
 import {Log} from 'loghandler'
-import {Options, Sequelize} from 'sequelize'
+import {
+  Options,
+  Sequelize,
+  ARRAY,
+  BIGINT,
+  BLOB,
+  BOOLEAN,
+  CIDR,
+  CITEXT,
+  DATE,
+  DATEONLY,
+  DECIMAL,
+  DOUBLE,
+  ENUM,
+  FLOAT,
+  GEOMETRY,
+  INET,
+  INTEGER,
+  JSON,
+  JSONB,
+  MACADDR,
+  RANGE,
+  REAL,
+  STRING,
+  TEXT,
+  UUID,
+} from 'sequelize'
 import immer from 'immer'
-import {Model} from './interfaces/model'
+import {Models} from './interfaces/model'
 import {EnabledService} from '../../systemInterfaces/services'
 import {ServiceConfigurator} from '../../systemInterfaces/serviceConfigurator'
 
@@ -11,7 +37,7 @@ export interface Dependencies {
   readonly Immer: typeof immer
   readonly Log: Log
   readonly Sequelize: typeof Sequelize
-  readonly systemModels: Model[]
+  readonly systemModels: Models
 }
 
 export interface DatabaseConfig extends EnabledService, Options {
@@ -19,9 +45,35 @@ export interface DatabaseConfig extends EnabledService, Options {
     readonly migrations: string
     readonly seeds: string
   }
-  readonly models: Model[]
+  readonly models: Models
 }
 
 export interface ServiceConfiguratorDBEnabled extends ServiceConfigurator {
   database: true
+}
+
+export const DBDataTypes = {
+  ARRAY,
+  BIGINT,
+  BLOB,
+  BOOLEAN,
+  CIDR,
+  CITEXT,
+  DATE,
+  DATEONLY,
+  DECIMAL,
+  DOUBLE,
+  ENUM,
+  FLOAT,
+  GEOMETRY,
+  INET,
+  INTEGER,
+  JSON,
+  JSONB,
+  MACADDR,
+  RANGE,
+  REAL,
+  STRING,
+  TEXT,
+  UUID,
 }

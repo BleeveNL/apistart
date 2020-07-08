@@ -10,7 +10,7 @@ import configMocked from '../../mocks/config.mock'
 import * as sequelizeMock from '../../mocks/nodeModules/sequelize.mock'
 import {Sequelize} from 'sequelize/types'
 import * as ModelMocked from './mocks/model.mock'
-import {Model} from '../../../services/database/interfaces/model'
+import {Model, Models} from '../../../services/database/interfaces/model'
 import {Config} from '../../../systemInterfaces/config'
 
 suite('Test DatabaseHandler (./services/database/databaseHandler.ts)', () => {
@@ -48,7 +48,7 @@ suite('Test DatabaseHandler (./services/database/databaseHandler.ts)', () => {
         Log: (new loghandlerMock.Instance() as unknown) as Log,
         Sequelize: (sequelizeMock.Instance as unknown) as typeof Sequelize,
         fs,
-        systemModels: [],
+        systemModels: {},
       },
       correctConfig,
     )
@@ -60,7 +60,7 @@ suite('Test DatabaseHandler (./services/database/databaseHandler.ts)', () => {
           Log: (new loghandlerMock.Instance() as unknown) as Log,
           Sequelize: (sequelizeMock.Instance as unknown) as typeof Sequelize,
           fs,
-          systemModels: [],
+          systemModels: {},
         },
         correctConfig,
       )
@@ -90,7 +90,7 @@ suite('Test DatabaseHandler (./services/database/databaseHandler.ts)', () => {
           Log: (new loghandlerMock.Instance() as unknown) as Log,
           Sequelize: (sequelizeMock.Instance as unknown) as typeof Sequelize,
           fs,
-          systemModels: [],
+          systemModels: {},
         },
         configMocked.correct.everythingEnabled,
       )
@@ -117,7 +117,7 @@ suite('Test DatabaseHandler (./services/database/databaseHandler.ts)', () => {
           Log: (new loghandlerMock.Instance() as unknown) as Log,
           Sequelize: (sequelizeMock.Instance as unknown) as typeof Sequelize,
           fs,
-          systemModels: [],
+          systemModels: {},
         },
         configMocked.correct.everythingEnabled,
       )
@@ -137,7 +137,7 @@ suite('Test DatabaseHandler (./services/database/databaseHandler.ts)', () => {
           Log: (new loghandlerMock.Instance() as unknown) as Log,
           Sequelize: (sequelizeMock.Instance as unknown) as typeof Sequelize,
           fs,
-          systemModels: [],
+          systemModels: {},
         },
         configMocked.correct.everythingEnabled,
       )
@@ -166,11 +166,14 @@ suite('Test DatabaseHandler (./services/database/databaseHandler.ts)', () => {
 
     test('Given system models get correctly initialized + synced', async () => {
       const randomNumber = Math.round(1 + 10 * Math.random())
-      const systemModels: Model[] = []
+      let systemModels: Models = {}
       const mock = ModelMocked
 
       for (let i = 0; i < randomNumber; i++) {
-        systemModels.push((mock.Instance as any) as Model)
+        systemModels = immer(systemModels, draft => {
+          const modelName = faker.random.alphaNumeric(8)
+          draft[modelName] = (mock.Instance as any) as Model
+        })
       }
 
       databaseHandler = new DatabaseHandler(
@@ -189,9 +192,9 @@ suite('Test DatabaseHandler (./services/database/databaseHandler.ts)', () => {
 
       assert.equal(mock.stubs.init.callCount, randomNumber)
       assert.equal(mock.stubs.sync.callCount, randomNumber)
-
-      for (let i = 0; i < randomNumber; i++) {
-        const model = systemModels[i]
+      let i = 0
+      for (const modelName in systemModels) {
+        const model = systemModels[modelName]
         const initArgs = mock.stubs.init.args[i]
         const syncArgs = mock.stubs.sync.args[i]
 
@@ -200,6 +203,7 @@ suite('Test DatabaseHandler (./services/database/databaseHandler.ts)', () => {
         assert.containsAllKeys(initArgs[1], ['sequelize'])
         assert.instanceOf(initArgs[1].sequelize, sequelizeMock.Instance)
         assert.equal(syncArgs.length, 0)
+        i++
       }
     })
 
@@ -210,7 +214,7 @@ suite('Test DatabaseHandler (./services/database/databaseHandler.ts)', () => {
           Log: (new loghandlerMock.Instance() as unknown) as Log,
           Sequelize: (sequelizeMock.Instance as unknown) as typeof Sequelize,
           fs,
-          systemModels: [(ModelMocked.Instance as any) as Model],
+          systemModels: {test: (ModelMocked.Instance as any) as Model},
         },
         configMocked.correct.everythingEnabled,
       )
@@ -241,13 +245,16 @@ suite('Test DatabaseHandler (./services/database/databaseHandler.ts)', () => {
 
     test('Given user defined models get correctly initialized + synced', async () => {
       const randomNumber = Math.round(1 + 10 * Math.random())
-      const models: Model[] = []
+      let models: Models = {}
 
       const mock = ModelMocked
       const DB = faker.random.alphaNumeric(64)
 
       for (let i = 0; i < randomNumber; i++) {
-        models.push((mock.Instance as any) as Model)
+        models = immer(models, draft => {
+          const modelName = faker.random.alphaNumeric(8)
+          draft[modelName] = (mock.Instance as any) as Model
+        })
       }
 
       const config = immer(configMocked.correct.everythingEnabled, draft => {
@@ -260,7 +267,7 @@ suite('Test DatabaseHandler (./services/database/databaseHandler.ts)', () => {
           Log: (new loghandlerMock.Instance() as unknown) as Log,
           Sequelize: (sequelizeMock.Instance as unknown) as typeof Sequelize,
           fs,
-          systemModels: [],
+          systemModels: {},
         },
         config,
       )
@@ -268,15 +275,16 @@ suite('Test DatabaseHandler (./services/database/databaseHandler.ts)', () => {
       ModelMocked.reset()
 
       await databaseHandler.getModels((DB as any) as Sequelize)
-
-      for (let i = 0; i < randomNumber; i++) {
-        const model = models[i]
+      let i = 0
+      for (const modelName in models) {
+        const model = models[modelName]
         const initArgs = mock.stubs.init.args[i]
 
         assert.deepEqual(initArgs[0], model.structure)
         assert.include(initArgs[1], model.settings)
         assert.containsAllKeys(initArgs[1], ['sequelize'])
         assert.equal(initArgs[1].sequelize, DB)
+        i++
       }
     })
 
@@ -287,7 +295,7 @@ suite('Test DatabaseHandler (./services/database/databaseHandler.ts)', () => {
           Log: (new loghandlerMock.Instance() as unknown) as Log,
           Sequelize: (sequelizeMock.Instance as unknown) as typeof Sequelize,
           fs,
-          systemModels: [],
+          systemModels: {},
         },
         configMocked.correct.everythingDisabled,
       )

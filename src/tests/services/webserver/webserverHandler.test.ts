@@ -445,7 +445,6 @@ suite('Test Webserver Handler (./services/webserver/webserverHandler.ts)', () =>
           const httpsConfig = config.services.webserver.connection.https as any
 
           assert.isTrue(ModulesMock.https.stubs.createServer.calledOnce)
-          console.log(ModulesMock.https.stubs.createServer.args[0].length)
           assert.isTrue(ModulesMock.https.stubs.createServer.args[0].length === 2)
           assert.deepEqual(ModulesMock.https.stubs.createServer.args[0][0], httpsConfig.cert)
           assert.isTrue(ModulesMock.https.stubs.createServer.args[0][1] === koaCallBackReturnValue)
