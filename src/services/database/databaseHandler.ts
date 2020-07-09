@@ -39,7 +39,7 @@ export class DatabaseHandler {
       const connection = this.connect(config.services.database)
       await connection.authenticate().then(async () => {
         this.deps.Log.info('Database connection is made')
-        await this.SyncMigrationTable(connection, this.deps.systemModels).catch(err => {
+        await this.SyncMigrationTable(connection, this.deps.systemModels, config).catch(err => {
           this.deps.Log.err('Error during syncing system DB Models', err)
         })
       })
@@ -90,11 +90,11 @@ export class DatabaseHandler {
     return connection
   }
 
-  private async SyncMigrationTable(DB: Sequelize, models: Models) {
+  private async SyncMigrationTable(DB: Sequelize, models: Models, config: Config<ServiceConfiguratorDBEnabled>) {
     for (const modelName in models) {
       const model = models[modelName]
       model.init(model.structure, {sequelize: DB, ...model.settings})
-      await model.sync()
+      await model.sync(config.services.database.sync)
     }
   }
 }
