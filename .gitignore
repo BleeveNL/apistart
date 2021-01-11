@@ -65,3 +65,4 @@ typings/
 
 # ignore compiled code
 lib/
+.DS_Store

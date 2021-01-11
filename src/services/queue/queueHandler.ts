@@ -11,7 +11,7 @@ import {
 } from './interfaces'
 import {Config} from '../../systemInterfaces/config'
 import {InternalSystem} from '../../systemInterfaces/internalSystem'
-import {Dependencies as TDependencies} from '../../systemInterfaces/dependencies'
+import {Dependencies as TDependencies, Dependencies as SystemDependencies} from '../../systemInterfaces/dependencies'
 import {ApiStartSettings} from '../../systemInterfaces/apiStartSettings'
 
 export class QueueHandler {
@@ -41,7 +41,7 @@ export class QueueHandler {
       const connection = await this.setupConnection(settings)
 
       return ({
-        client: () => ({
+        client: {
           publish: async (
             exchangeName: string,
             routingKey: string,
@@ -55,7 +55,7 @@ export class QueueHandler {
                 this.deps.Log.err(err)
               })
           },
-        }),
+        },
         server: <TSettings extends ApiStartSettings>(
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
           sysDeps: InternalSystem<TSettings>,
@@ -189,7 +189,9 @@ export class QueueHandler {
         let dependencies = {}
         if (listener.dependencies) {
           dependencies =
-            typeof listener.dependencies === 'function' ? listener.dependencies(sysDeps) : listener.dependencies
+            typeof listener.dependencies === 'function'
+              ? listener.dependencies(sysDeps as SystemDependencies<TSettings>)
+              : listener.dependencies
         }
 
         connection.consume(

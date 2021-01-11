@@ -40,7 +40,12 @@ export {Version as IVersion} from './services/webserver/interfaces/version'
 export {Models, ModelAbstract, Model} from './services/database/interfaces/model'
 export {Migration} from './services/database/interfaces/migration'
 export {Seed} from './services/database/interfaces/seed'
-export {QueueEventListener, QueueEventListenerHandler, QueueService} from './services/queue/interfaces'
+export {
+  QueueEventListener,
+  QueueEventListenerHandler,
+  QueueService,
+  QueueEventListenerList,
+} from './services/queue/interfaces'
 export {WebserverServiceEnabled} from './services/webserver/interfaces/webserverServiceEnabled'
 export {DBDataTypes} from './services/database/interfaces'
 export {Model as BaseModel} from 'sequelize'

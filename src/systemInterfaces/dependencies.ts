@@ -14,4 +14,4 @@ export type DependencyFunction<
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   TSettings extends ApiStartSettings<any>,
   TDependencies extends UserDefinedObject = UserDefinedObject
-> = (deps: Dependencies<TSettings, TDependencies>) => TDependencies
+> = (deps: Dependencies<TSettings>) => TDependencies
