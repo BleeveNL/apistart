@@ -1,4 +1,4 @@
-import * as joi from '@hapi/joi'
+import * as joi from 'joi'
 import cacheEnabledConfigSchema from '../services/cache/validationSchemas/cacheEnabledConfig.schema'
 import databaseEnabledConfigSchema from '../services/database/validationSchemas/databaseEnabledConfig.schema'
 import queueEnabledConfigSchema from '../services/queue/validationSchemas/queueEnabledConfig.schema'

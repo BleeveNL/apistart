@@ -1,5 +1,5 @@
 import logHandler from 'loghandler'
-import * as joi from '@hapi/joi'
+import * as Joi from 'joi'
 import configSchema from './validationSchemas/config.schema'
 import {Config} from './systemInterfaces/config'
 import {Dependencies} from './interfaces'
@@ -14,8 +14,6 @@ import WebserverHandler from './services/webserver/webserverHandler'
 import {ApiStartSettings} from './systemInterfaces/apiStartSettings'
 import SystemHelpers from './helpers/index'
 import {ApiStart} from './systemInterfaces/apiStart'
-import Joi = require('@hapi/joi')
-
 export class Microservice<TSettings extends ApiStartSettings = ApiStartSettings> {
   private readonly deps: Dependencies
 
@@ -33,7 +31,7 @@ export class Microservice<TSettings extends ApiStartSettings = ApiStartSettings>
     return new this<TSettings>(
       {
         helpers: {...SystemHelpers, ...customHelpers},
-        joi,
+        joi: Joi,
         log: logHandler(config.log),
         services: {
           cache: CacheHandler.factory(config),

@@ -1,4 +1,4 @@
-import * as joi from '@hapi/joi'
+import * as joi from 'joi'
 
 const dependenciesSchema = joi.alternatives().try(joi.object(), joi.function().maxArity(1))
 

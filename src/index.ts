@@ -1,7 +1,7 @@
 import Microservice from './microservice'
 import configSchema from './validationSchemas/config.schema'
 import {ApiStartSettings} from './systemInterfaces/apiStartSettings'
-import {ValidationResult} from '@hapi/joi'
+import * as Joi from 'joi'
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const apiStart = <TSettings extends ApiStartSettings<any>>(
@@ -15,7 +15,7 @@ export const apiStart = <TSettings extends ApiStartSettings<any>>(
   throw configSchema.validate(config, {allowUnknown: true}).error
 }
 
-export const ValidateConfig = (config: unknown): ValidationResult | true => {
+export const ValidateConfig = (config: unknown): Joi.ValidationResult | true => {
   const validate = Microservice.validateConfig(config)
 
   if (validate.error === undefined) {

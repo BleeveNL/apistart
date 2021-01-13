@@ -2,7 +2,7 @@
 import {assert} from 'chai'
 import DefaultExport, {Microservice} from '../microservice'
 import * as mockedLogHandler from './mocks/nodeModules/logHandler.mock'
-import * as joi from '@hapi/joi'
+import * as joi from 'joi'
 import {Log} from 'loghandler'
 import mockedConfig from './mocks/config.mock'
 import * as CacheHandlerMock from './mocks/cacheHandler.mock'

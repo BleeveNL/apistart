@@ -1,4 +1,4 @@
-import * as joi from '@hapi/joi'
+import * as joi from 'joi'
 import {Log} from 'loghandler'
 import CacheHandler from './services/cache/cacheHandler'
 import DatabaseHandler from './services/database/databaseHandler'

@@ -1,4 +1,4 @@
-import * as joi from '@hapi/joi'
+import * as joi from 'joi'
 
 export default joi.object({
   database: joi.string().optional(),
