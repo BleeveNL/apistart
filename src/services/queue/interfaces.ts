@@ -76,20 +76,31 @@ export interface QueueClient<TExchangeName extends string = string> {
   ) => void
 }
 
+export type QueueHandlerEnabledServerFunction<TSettings extends ApiStartSettings> = (
+  listeners: QueueEventListenerList,
+  callback?: (sysDeps: InternalSystem<TSettings>) => void,
+) => Promise<boolean>
+
+export type QueueHandlerDisabledServerFunction = () => never
+
+export type QueueHandlerServerFunction<
+  TSettings extends ApiStartSettings
+> = TSettings['ServiceConfigurator']['queue'] extends false
+  ? QueueHandlerDisabledServerFunction
+  : QueueHandlerEnabledServerFunction<TSettings>
+
 export interface QueueHandlerSetupDisabled {
   client: undefined
-  server: () => never
+  server: () => QueueHandlerDisabledServerFunction
 }
 
 export interface QueueHandlerSetupEnabled<TSettings extends ApiStartSettings> {
   client: QueueClient
-  server: (
-    sysDeps: InternalSystem<TSettings>,
-  ) => (listeners: QueueEventListenerList, callback?: (sysDeps: InternalSystem<TSettings>) => void) => Promise<boolean>
+  server: (sysDeps: InternalSystem<TSettings>) => QueueHandlerEnabledServerFunction<TSettings>
 }
 
 export type QueueHandlerSetup<
   TSettings extends ApiStartSettings
-> = TSettings['ServiceConfigurator']['queue'] extends QueueService
-  ? QueueHandlerSetupEnabled<TSettings>
-  : QueueHandlerSetupDisabled
+> = TSettings['ServiceConfigurator']['queue'] extends false
+  ? QueueHandlerSetupDisabled
+  : QueueHandlerSetupEnabled<TSettings>

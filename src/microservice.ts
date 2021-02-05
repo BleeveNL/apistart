@@ -69,7 +69,7 @@ export class Microservice<TSettings extends ApiStartSettings = ApiStartSettings>
 
     return {
       ...system,
-      EventListener: (Queue.server as unknown) as ApiStart<TSettings>['EventListener'],
+      EventListener: Queue.server(system) as ApiStart<TSettings>['EventListener'],
       Webserver: this.deps.services.webserver.setup(system) as ApiStart<TSettings>['Webserver'],
     }
   }
