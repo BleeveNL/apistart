@@ -5,18 +5,18 @@ import Loghandler from 'loghandler'
 import * as redis from 'ioredis'
 import {ApiStartSettings} from '../../systemInterfaces/apiStartSettings'
 
-export class CacheHandler {
+export class CacheHandler<TSettings extends ApiStartSettings> {
   private deps: Dependencies
 
-  private config: Config
+  private config: Config<TSettings>
 
   public constructor(deps: Dependencies, config: Config) {
     this.deps = deps
     this.config = config
   }
 
-  public static factory(config: Config): CacheHandler {
-    return new this(
+  public static factory<TSettings extends ApiStartSettings>(config: Config<TSettings>): CacheHandler<TSettings> {
+    return new this<TSettings>(
       {
         Immer,
         Log: Loghandler(config.log),
@@ -43,7 +43,7 @@ export class CacheHandler {
     throw Error('Given configuration forbids to run CacheHandler. Cache is disabled in configuration object.')
   }
 
-  private CacheIsEnabled(config: Config): config is Config<ServiceConfiguratorCacheEnabled> {
+  private CacheIsEnabled(config: Config): config is Config<ApiStartSettings<ServiceConfiguratorCacheEnabled>> {
     return config.services.cache.enabled
   }
 

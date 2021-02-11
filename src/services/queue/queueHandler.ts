@@ -14,18 +14,18 @@ import {InternalSystem} from '../../systemInterfaces/internalSystem'
 import {Dependencies as TDependencies, Dependencies as SystemDependencies} from '../../systemInterfaces/dependencies'
 import {ApiStartSettings} from '../../systemInterfaces/apiStartSettings'
 
-export class QueueHandler {
+export class QueueHandler<TSettings extends ApiStartSettings> {
   private deps: Dependencies
 
-  private config: Config
+  private config: Config<TSettings>
 
-  public constructor(deps: Dependencies, config: Config) {
+  public constructor(deps: Dependencies, config: Config<TSettings>) {
     this.deps = deps
     this.config = config
   }
 
-  public static factory(config: Config): QueueHandler {
-    return new this(
+  public static factory<TSettings extends ApiStartSettings>(config: Config<TSettings>): QueueHandler<TSettings> {
+    return new this<TSettings>(
       {
         Amqp,
         Log: LogHandler(config.log),
@@ -79,14 +79,14 @@ export class QueueHandler {
 
     return {
       server: () => {
-        return async () => {
+        return () => {
           throw new Error('Queue server listener is started while service is disabled in configuration.')
         }
       },
     } as QueueHandlerSetup<TSettings>
   }
 
-  private queueEnabled(config: Config): config is Config<ServiceConfiguratorQueueEnabled> {
+  private queueEnabled(config: Config): config is Config<ApiStartSettings<ServiceConfiguratorQueueEnabled>> {
     return config.services.queue.enabled === true
   }
 
@@ -224,7 +224,7 @@ export class QueueHandler {
   }
 
   private verifyQueueEventListeners(listeners: QueueEventListenerList) {
-    const config: Config<ServiceConfiguratorQueueEnabled> = this.config
+    const config = this.config as Config<ApiStartSettings<ServiceConfiguratorQueueEnabled>>
     const exchangesNames = config.services.queue.exchanges.filter(exchange => exchange.name)
 
     for (const listener of listeners) {

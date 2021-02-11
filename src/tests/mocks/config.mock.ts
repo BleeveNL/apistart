@@ -2,6 +2,7 @@
 import * as faker from 'faker'
 import {Config} from '../../systemInterfaces/config'
 import {Methods} from 'koa-advanced-router'
+import {ApiStartSettings} from '../../systemInterfaces/apiStartSettings'
 
 export const everythingDisabled: Config = {
   app: {
@@ -41,19 +42,21 @@ export const error = ({
   },
 } as unknown) as Config
 
-export const everythingEnabled: Config<{
-  cache: true
-  database: true
-  queue: {
-    enabled: true
-    exchanges: 'test' | 'test2'
-  }
-  webserver: {
-    http: true
-    https: true
-    versionHandling: true
-  }
-}> = {
+export const everythingEnabled: Config<
+  ApiStartSettings<{
+    cache: true
+    database: true
+    queue: {
+      enabled: true
+      exchanges: 'test' | 'test2'
+    }
+    webserver: {
+      http: true
+      https: true
+      versionHandling: true
+    }
+  }>
+> = {
   app: {
     env: faker.random.alphaNumeric(8),
     name: faker.random.alphaNumeric(8),
@@ -160,19 +163,21 @@ export const everythingEnabled: Config<{
   },
 }
 
-export const everythingEnabledWithoutVersioning: Config<{
-  cache: true
-  database: true
-  queue: {
-    enabled: true
-    exchanges: 'test' | 'test2'
-  }
-  webserver: {
-    http: true
-    https: true
-    versionHandling: false
-  }
-}> = {
+export const everythingEnabledWithoutVersioning: Config<
+  ApiStartSettings<{
+    cache: true
+    database: true
+    queue: {
+      enabled: true
+      exchanges: 'test' | 'test2'
+    }
+    webserver: {
+      http: true
+      https: true
+      versionHandling: false
+    }
+  }>
+> = {
   app: {
     env: faker.random.alphaNumeric(8),
     name: faker.random.alphaNumeric(8),

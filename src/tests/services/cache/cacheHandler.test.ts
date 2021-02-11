@@ -8,6 +8,7 @@ import DependencyMock from './mocks/dependencies.mock'
 import {Config} from '../../../systemInterfaces/config'
 import {ServiceConfiguratorCacheEnabled} from '../../../services/cache/interfaces'
 import {Instance as RedisInstance} from '../../mocks/nodeModules/redis.mock'
+import {ApiStartSettings} from '../../../systemInterfaces/apiStartSettings'
 
 suite('Test CacheHandler (./services/cache/cacheHandler.ts)', () => {
   let correctConfig: Config<any> = JSON.parse(JSON.stringify(configMocked.correct.everythingDisabled))
@@ -109,7 +110,7 @@ suite('Test CacheHandler (./services/cache/cacheHandler.ts)', () => {
     })
 
     test('setup() returns instanceOf ioredis when Cache is enabled', async () => {
-      const config: Config<ServiceConfiguratorCacheEnabled> = {
+      const config: Config<ApiStartSettings<ServiceConfiguratorCacheEnabled>> = {
         ...correctConfig,
         services: {
           cache: {

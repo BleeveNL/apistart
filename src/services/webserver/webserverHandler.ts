@@ -16,7 +16,7 @@ import {ServiceConfigurator} from '../../systemInterfaces/serviceConfigurator'
 import {
   WebserverServiceHttpEnabled,
   WebserverServiceHttpsEnabled,
-  WebserverServiceHVersionHandlingEnabled,
+  WebserverServiceVersionHandlingEnabled,
 } from './interfaces/webserverServiceEnabled'
 import {WebserverCallbackFunction} from './interfaces/webserverCallbackFunction'
 import {Dependencies} from '../../systemInterfaces/dependencies'
@@ -56,9 +56,8 @@ export class WebserverHandler<TSettings extends ApiStartSettings = ApiStartSetti
       >
       const configuration = this.MakeWebserviceInstance(internalSystem)
       // eslint-disable-next-line @typescript-eslint/no-empty-function
-      return (callback => this.start(internalSystem, configuration, callback) as unknown) as WebserverFunction<
-        TSettings
-      >
+      return (callback =>
+        this.start(internalSystem, configuration, callback) as unknown) as WebserverFunction<TSettings>
     }
 
     return () => {
@@ -75,7 +74,9 @@ export class WebserverHandler<TSettings extends ApiStartSettings = ApiStartSetti
     const server: WebServerObject = {}
     if (system.Config.services.webserver.connection.http.enabled) {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const config = system.Config as Config<ServiceConfigurator<any, any, any, WebserverServiceHttpEnabled>>
+      const config = system.Config as Config<
+        ApiStartSettings<ServiceConfigurator<any, any, any, WebserverServiceHttpEnabled>>
+      >
       const httpWebserverSettings = config.services.webserver.connection.http
       server.http = this.deps.Http.createServer(instance.callback()).listen(
         httpWebserverSettings.port ? httpWebserverSettings.port : 80,
@@ -94,7 +95,9 @@ export class WebserverHandler<TSettings extends ApiStartSettings = ApiStartSetti
     }
     if (system.Config.services.webserver.connection.https.enabled) {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const config = system.Config as Config<ServiceConfigurator<any, any, any, WebserverServiceHttpsEnabled>>
+      const config = system.Config as Config<
+        ApiStartSettings<ServiceConfigurator<any, any, any, WebserverServiceHttpsEnabled>>
+      >
       const httpsWebserverSettings = config.services.webserver.connection.https
       server.https = this.deps.Https.createServer(
         {
@@ -178,7 +181,7 @@ export class WebserverHandler<TSettings extends ApiStartSettings = ApiStartSetti
 
     if (system.Config.services.webserver.settings.versionHandler) {
       const config = system.Config as Config<
-        WebserverEnabledServiceConfigurator<WebserverServiceHVersionHandlingEnabled>
+        ApiStartSettings<WebserverEnabledServiceConfigurator<WebserverServiceVersionHandlingEnabled>>
       >
       this.HandleVersions({...system, Config: config}, router, config.services.webserver.versions)
     }
@@ -287,7 +290,7 @@ export class WebserverHandler<TSettings extends ApiStartSettings = ApiStartSetti
   private WebserverIsEnabled(
     config: Config,
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  ): config is Config<WebserverEnabledServiceConfigurator> {
+  ): config is Config<ApiStartSettings<WebserverEnabledServiceConfigurator>> {
     return config.services.webserver.enabled
   }
 }

@@ -15,17 +15,17 @@ import {ApiStartSettings} from './systemInterfaces/apiStartSettings'
 import SystemHelpers from './helpers/index'
 import {ApiStart} from './systemInterfaces/apiStart'
 export class Microservice<TSettings extends ApiStartSettings = ApiStartSettings> {
-  private readonly deps: Dependencies
+  private readonly deps: Dependencies<TSettings>
 
-  private readonly config: TSettings['Config']
+  private readonly config: Config<TSettings>
 
-  public constructor(deps: Dependencies, config: TSettings['Config']) {
+  public constructor(deps: Dependencies<TSettings>, config: Config<TSettings>) {
     this.deps = deps
     this.config = config
   }
 
   public static factory<TSettings extends ApiStartSettings>(
-    config: TSettings['Config'],
+    config: Config<TSettings>,
     customHelpers: TSettings['Helpers'],
   ): Microservice<TSettings> {
     return new this<TSettings>(
@@ -34,9 +34,9 @@ export class Microservice<TSettings extends ApiStartSettings = ApiStartSettings>
         joi: Joi,
         log: logHandler(config.log),
         services: {
-          cache: CacheHandler.factory(config),
-          database: DatabaseHandler.factory(config),
-          queue: QueueHandler.factory(config),
+          cache: CacheHandler.factory<TSettings>(config),
+          database: DatabaseHandler.factory<TSettings>(config),
+          queue: QueueHandler.factory<TSettings>(config),
           webserver: WebserverHandler.factory<TSettings>(config),
         },
       },
@@ -44,7 +44,7 @@ export class Microservice<TSettings extends ApiStartSettings = ApiStartSettings>
     )
   }
 
-  public static configIsValid<TConfig extends Config = Config>(config: unknown): config is TConfig {
+  public static configIsValid<Tsettings extends ApiStartSettings>(config: unknown): config is Config<Tsettings> {
     const validate = configSchema.validate(config, {allowUnknown: true})
     return validate.error === undefined
   }
@@ -87,8 +87,7 @@ export class Microservice<TSettings extends ApiStartSettings = ApiStartSettings>
   }
 
   private async getQueue() {
-    const queue = await this.deps.services.queue.setup()
-    return queue
+    return this.deps.services.queue.setup()
   }
 
   private GetModels<TModels extends Models>(db: Sequelize | undefined) {

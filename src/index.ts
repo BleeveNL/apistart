@@ -8,7 +8,7 @@ export const apiStart = <TSettings extends ApiStartSettings<any>>(
   config: unknown,
   helpers: TSettings['Helpers'],
 ): Microservice => {
-  if (Microservice.configIsValid<TSettings['Config']>(config)) {
+  if (Microservice.configIsValid<TSettings>(config)) {
     return Microservice.factory<TSettings>(config, helpers)
   }
 

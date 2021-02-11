@@ -8,18 +8,18 @@ import Migrations from './models/migrations'
 import {Models} from './interfaces/model'
 import {ApiStartSettings} from '../../systemInterfaces/apiStartSettings'
 
-export class DatabaseHandler {
+export class DatabaseHandler<TSettings extends ApiStartSettings> {
   private deps: Dependencies
 
-  private config: Config
+  private config: Config<TSettings>
 
-  public constructor(deps: Dependencies, config: Config) {
+  public constructor(deps: Dependencies, config: Config<TSettings>) {
     this.deps = deps
     this.config = config
   }
 
-  public static factory(config: Config): DatabaseHandler {
-    return new this(
+  public static factory<TSettings extends ApiStartSettings>(config: Config<TSettings>): DatabaseHandler<TSettings> {
+    return new this<TSettings>(
       {
         Immer,
         Log: Loghandler(config.log),
@@ -72,7 +72,7 @@ export class DatabaseHandler {
     throw new Error(`Database "getModels()" shouldn't be called, because service is turned off by configuration!`)
   }
 
-  private DBisEnabled(config: Config): config is Config<ServiceConfiguratorDBEnabled> {
+  private DBisEnabled(config: Config): config is Config<ApiStartSettings<ServiceConfiguratorDBEnabled>> {
     return config.services.database.enabled
   }
 
@@ -90,7 +90,11 @@ export class DatabaseHandler {
     return connection
   }
 
-  private async SyncMigrationTable(DB: Sequelize, models: Models, config: Config<ServiceConfiguratorDBEnabled>) {
+  private async SyncMigrationTable(
+    DB: Sequelize,
+    models: Models,
+    config: Config<ApiStartSettings<ServiceConfiguratorDBEnabled>>,
+  ) {
     for (const modelName in models) {
       const model = models[modelName]
       model.init(model.structure, {sequelize: DB, ...model.settings})

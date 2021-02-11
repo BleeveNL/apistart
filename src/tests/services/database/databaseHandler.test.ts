@@ -198,11 +198,13 @@ suite('Test DatabaseHandler (./services/database/databaseHandler.ts)', () => {
         const initArgs = mock.stubs.init.args[i]
         const syncArgs = mock.stubs.sync.args[i]
 
+        console.log(syncArgs)
+
         assert.deepEqual(initArgs[0], model.structure)
         assert.include(initArgs[1], model.settings)
         assert.containsAllKeys(initArgs[1], ['sequelize'])
         assert.instanceOf(initArgs[1].sequelize, sequelizeMock.Instance)
-        assert.equal(syncArgs.length, 0)
+        assert.equal(syncArgs.length, 1)
         i++
       }
     })

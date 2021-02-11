@@ -13,7 +13,6 @@ import * as joi from 'joi'
 import queueDisabledSchema from './validationSchemas/queueDisabled.schema'
 import queueEnabledSchema from './validationSchemas/queueEnabled.schema'
 import {Config} from '../../../systemInterfaces/config'
-import queueEnabledClientSchema from './validationSchemas/queueEnabledClient.schema'
 import {QueueClient, QueueHandlerSetupEnabled, QueueHandlerSetupDisabled} from '../../../services/queue/interfaces'
 import {InternalSystem} from '../../../systemInterfaces/internalSystem'
 import * as EventHandlerMock from './mocks/eventHandler.mock'
@@ -137,12 +136,14 @@ suite('Test QueueHandler (./services/queue/queueHandler.ts)', () => {
         })
 
         test('Connect function of AMQPlib is only called once and correct', async () => {
-          let config: Config<{
-            queue: {enabled: true; exchanges: any}
-            cache: false
-            database: false
-            webserver: false
-          }> = immer(JSON.parse(JSON.stringify(correctConfig)) as Config<any>, (draft: any) => {
+          let config: Config<
+            ApiStartSettings<{
+              queue: {enabled: true; exchanges: any}
+              cache: false
+              database: false
+              webserver: false
+            }>
+          > = immer(JSON.parse(JSON.stringify(correctConfig)) as Config<any>, (draft: any) => {
             draft.services.queue.enabled = true
             draft.services.queue.exchanges = []
           })
@@ -182,12 +183,14 @@ suite('Test QueueHandler (./services/queue/queueHandler.ts)', () => {
         })
 
         test('CreateChannel function of AMQPlib is only called once and correct', async () => {
-          let config: Config<{
-            queue: {enabled: true; exchanges: any}
-            cache: false
-            database: false
-            webserver: false
-          }> = immer(JSON.parse(JSON.stringify(correctConfig)) as Config<any>, (draft: any) => {
+          let config: Config<
+            ApiStartSettings<{
+              queue: {enabled: true; exchanges: any}
+              cache: false
+              database: false
+              webserver: false
+            }>
+          > = immer(JSON.parse(JSON.stringify(correctConfig)) as Config<any>, (draft: any) => {
             draft.services.queue.enabled = true
             draft.services.queue.exchanges = []
           })
@@ -226,12 +229,14 @@ suite('Test QueueHandler (./services/queue/queueHandler.ts)', () => {
         })
 
         test('make sure that system assert exchanges correctly, to validate of settings are matching with server.', async () => {
-          let config: Config<{
-            queue: {enabled: true; exchanges: any}
-            cache: false
-            database: false
-            webserver: false
-          }> = immer(JSON.parse(JSON.stringify(correctConfig)) as Config<any>, (draft: any) => {
+          let config: Config<
+            ApiStartSettings<{
+              queue: {enabled: true; exchanges: any}
+              cache: false
+              database: false
+              webserver: false
+            }>
+          > = immer(JSON.parse(JSON.stringify(correctConfig)) as Config<any>, (draft: any) => {
             draft.services.queue.enabled = true
             draft.services.queue.exchanges = []
           })
@@ -283,12 +288,14 @@ suite('Test QueueHandler (./services/queue/queueHandler.ts)', () => {
         })
 
         test('Make sure that durability setting is true when no preference is given', async () => {
-          const config: Config<{
-            queue: {enabled: true; exchanges: any}
-            cache: false
-            database: false
-            webserver: false
-          }> = immer(JSON.parse(JSON.stringify(correctConfig)) as Config<any>, (draft: any) => {
+          const config: Config<
+            ApiStartSettings<{
+              queue: {enabled: true; exchanges: any}
+              cache: false
+              database: false
+              webserver: false
+            }>
+          > = immer(JSON.parse(JSON.stringify(correctConfig)) as Config<any>, (draft: any) => {
             draft.services.queue.enabled = true
             draft.services.queue.exchanges = [
               {
@@ -334,28 +341,17 @@ suite('Test QueueHandler (./services/queue/queueHandler.ts)', () => {
 
       test('setup() returns client & server functionality', async () => {
         const queue = ((await queueHandler.setup()) as unknown) as QueueHandlerSetupEnabled<ApiStartSettings>
-
         joi.assert(queue, queueEnabledSchema)
       })
 
       suite('test client functionality', () => {
-        test("client is a function that doesn't allow any arguments", async () => {
-          const queue: any = await queueHandler.setup()
-
-          assert.isFunction(queue.client)
-          assert.equal(queue.client.length, 0)
-        })
-
-        test('client() returns object according to schema', async () => {
-          const queue: any = await queueHandler.setup()
-          const client = queue.client()
-
-          joi.assert(client, queueEnabledClientSchema)
-        })
-
         suite('publish a message works as expected', () => {
-          let config: Config<{queue: {enabled: true; exchanges: any}; cache: false; database: false; webserver: false}>
-          let queueHandler: QueueHandler
+          let config: Config<
+            ApiStartSettings<{queue: {enabled: true; exchanges: any}; cache: false; database: false; webserver: false}>
+          >
+          let queueHandler: QueueHandler<
+            ApiStartSettings<{queue: {enabled: true; exchanges: any}; cache: false; database: false; webserver: false}>
+          >
           let client: QueueClient<any>
 
           setup(async () => {
@@ -381,7 +377,7 @@ suite('Test QueueHandler (./services/queue/queueHandler.ts)', () => {
             )
             const connection = (await queueHandler.setup()) as any
             if (connection.client !== undefined) {
-              client = connection.client()
+              client = connection.client
             } else {
               assert.fail("Setup() failed because client() wasn't  part of returned object of setup() of QueueHandler.")
             }
@@ -487,7 +483,9 @@ suite('Test QueueHandler (./services/queue/queueHandler.ts)', () => {
       })
 
       suite('test server functionality', () => {
-        let config: Config<{queue: {enabled: true; exchanges: any}; cache: false; database: false; webserver: false}>
+        let config: Config<
+          ApiStartSettings<{queue: {enabled: true; exchanges: any}; cache: false; database: false; webserver: false}>
+        >
 
         setup(async () => {
           config = immer(JSON.parse(JSON.stringify(correctConfig)) as Config<any>, (draft: any) => {

@@ -12,10 +12,16 @@ export interface WebserverServiceHttpsEnabled extends WebserverServiceEnabled {
   readonly https: true
 }
 
-export interface WebserverServiceHVersionHandlingEnabled extends WebserverServiceEnabled {
+export interface WebserverServiceVersionHandlingEnabled extends WebserverServiceEnabled {
   readonly versionHandling: true
 }
 
-export interface WebserverServiceHVersionHandlingDisabled extends WebserverServiceEnabled {
+export interface WebserverServiceVersionHandlingDisabled extends WebserverServiceEnabled {
   readonly versionHandling: false
+}
+
+export interface WebserverServiceEverythingEnabled extends WebserverServiceEnabled {
+  readonly http: true
+  readonly https: true
+  readonly versionHandling: true
 }

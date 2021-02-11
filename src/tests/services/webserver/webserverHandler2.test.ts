@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import {Config} from '../../../systemInterfaces/config'
-import {WebserverServiceHVersionHandlingEnabled} from '../../../services/webserver/interfaces/webserverServiceEnabled'
+import {WebserverServiceVersionHandlingEnabled} from '../../../services/webserver/interfaces/webserverServiceEnabled'
 import {WebserverEnabledServiceConfigurator, WebserverHandlerDeps} from '../../../services/webserver/interfaces'
 import immer from 'immer'
 import configMocked from '../../mocks/config.mock'
@@ -19,9 +19,9 @@ import WebserverHandler from '../../../services/webserver/webserverHandler'
 import {Version} from '../../../services/webserver/interfaces/version'
 import {ApiStartSettings} from '../../../systemInterfaces/apiStartSettings'
 
-let config: Config<WebserverEnabledServiceConfigurator<WebserverServiceHVersionHandlingEnabled>> = JSON.parse(
-  JSON.stringify(configMocked.correct.everythingEnabled),
-)
+let config: Config<
+  ApiStartSettings<WebserverEnabledServiceConfigurator<WebserverServiceVersionHandlingEnabled>>
+> = JSON.parse(JSON.stringify(configMocked.correct.everythingEnabled))
 let dependenciesMock: WebserverHandlerDeps
 let webserverHandler: WebserverHandler<ApiStartSettings<WebserverEnabledServiceConfigurator>>
 let internalSystem: InternalSystem<ApiStartSettings<WebserverEnabledServiceConfigurator>>

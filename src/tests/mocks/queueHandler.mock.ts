@@ -1,38 +1,34 @@
+/* eslint-disable no-useless-constructor */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable @typescript-eslint/explicit-module-boundary-types */
 import * as sinon from 'sinon'
 
 const stubs = {
   client: sinon.stub(),
+  loadServer: sinon.stub(),
   server: sinon.stub(),
   setup: sinon.stub(),
 }
 
 const reset = () => {
   stubs.client.reset()
+  stubs.loadServer.reset()
   stubs.server.reset()
   stubs.setup.reset()
 }
 
-const Instance = class {
+class Instance {
+  public constructor(private enabled: boolean) {}
+
   public setup(...args: any[]) {
-    return {
-      ...this,
-      ...stubs.setup(args),
-    }
-  }
+    stubs.setup(...args)
 
-  public client(...args: any[]) {
     return {
-      ...this,
-      ...stubs.client(args),
-    }
-  }
-
-  public server(...args: any[]) {
-    return {
-      ...this,
-      ...stubs.server(args),
+      client: this.enabled ? stubs.client : undefined,
+      server: (...args2: any[]) => {
+        stubs.server(...args2)
+        return stubs.loadServer
+      },
     }
   }
 }
