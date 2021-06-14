@@ -19,14 +19,14 @@ import * as faker from 'faker'
 suite('Test plugin (microservice.ts).', () => {
   const MicroserviceClass: Microservice = new Microservice(
     {
-      helpers: ({[faker.random.alphaNumeric()]: faker.random.alphaNumeric()} as unknown) as Helpers,
+      helpers: {[faker.random.alphaNumeric()]: faker.random.alphaNumeric()} as unknown as Helpers,
       joi,
-      log: (new mockedLogHandler.Instance() as unknown) as Log,
+      log: new mockedLogHandler.Instance() as unknown as Log,
       services: {
-        cache: (new CacheHandlerMock.Instance() as any) as CacheHandler<any>,
-        database: (new DatabaseHandlerMock.Instance() as any) as DatabaseHandler<any>,
-        queue: (new QueueHandlerMock.Instance(false) as any) as QueueHandler<any>,
-        webserver: (new WebserverHandlerMock.Instance() as any) as WebserverHandler,
+        cache: new CacheHandlerMock.Instance() as any as CacheHandler<any>,
+        database: new DatabaseHandlerMock.Instance() as any as DatabaseHandler<any>,
+        queue: new QueueHandlerMock.Instance(false) as any as QueueHandler<any>,
+        webserver: new WebserverHandlerMock.Instance() as any as WebserverHandler,
       },
     },
     JSON.parse(JSON.stringify(mockedConfig.correct.everythingDisabled)),
@@ -47,12 +47,12 @@ suite('Test plugin (microservice.ts).', () => {
         {
           helpers: {} as Helpers,
           joi,
-          log: (new mockedLogHandler.Instance() as unknown) as Log,
+          log: new mockedLogHandler.Instance() as unknown as Log,
           services: {
-            cache: (new CacheHandlerMock.Instance() as any) as CacheHandler<any>,
-            database: (new DatabaseHandlerMock.Instance() as any) as DatabaseHandler<any>,
-            queue: (new QueueHandlerMock.Instance(true) as any) as QueueHandler<any>,
-            webserver: (new WebserverHandlerMock.Instance() as any) as WebserverHandler,
+            cache: new CacheHandlerMock.Instance() as any as CacheHandler<any>,
+            database: new DatabaseHandlerMock.Instance() as any as DatabaseHandler<any>,
+            queue: new QueueHandlerMock.Instance(true) as any as QueueHandler<any>,
+            webserver: new WebserverHandlerMock.Instance() as any as WebserverHandler,
           },
         },
         mockedConfig.correct.everythingDisabled,
@@ -125,17 +125,17 @@ suite('Test plugin (microservice.ts).', () => {
     test('When all services are enabled. Setup() returns object according schema', async () => {
       DatabaseHandlerMock.stubs.setup.returns(true)
 
-      const helpers = ({[faker.random.alphaNumeric()]: faker.random.alphaNumeric()} as unknown) as Helpers
+      const helpers = {[faker.random.alphaNumeric()]: faker.random.alphaNumeric()} as unknown as Helpers
       const MicroserviceClass: Microservice = new Microservice(
         {
           helpers,
           joi,
-          log: (new mockedLogHandler.Instance() as unknown) as Log,
+          log: new mockedLogHandler.Instance() as unknown as Log,
           services: {
-            cache: (new CacheHandlerMock.Instance() as any) as CacheHandler<any>,
-            database: (new DatabaseHandlerMock.Instance() as any) as DatabaseHandler<any>,
-            queue: (new QueueHandlerMock.Instance(true) as any) as QueueHandler<any>,
-            webserver: (new WebserverHandlerMock.Instance() as any) as WebserverHandler,
+            cache: new CacheHandlerMock.Instance() as any as CacheHandler<any>,
+            database: new DatabaseHandlerMock.Instance() as any as DatabaseHandler<any>,
+            queue: new QueueHandlerMock.Instance(true) as any as QueueHandler<any>,
+            webserver: new WebserverHandlerMock.Instance() as any as WebserverHandler,
           },
         },
         mockedConfig.correct.everythingEnabled,

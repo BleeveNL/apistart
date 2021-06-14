@@ -7,8 +7,6 @@ export type IController<
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   TSettings extends ApiStartSettings<any> = ApiStartSettings,
   TDependencies extends UserDefinedObject = UserDefinedObject,
-  TCustomState extends Koa.Context = Koa.Context
-> = (
-  deps: Dependencies<TSettings, TDependencies>,
-) => // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  TCustomState extends Koa.Context = Koa.Context,
+> = (deps: Dependencies<TSettings, TDependencies>) => // eslint-disable-next-line @typescript-eslint/no-explicit-any
 (ctx: TCustomState, next: () => Promise<any>) => Promise<any>

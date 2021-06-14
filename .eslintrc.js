@@ -4,7 +4,7 @@ module.exports = {
     mocha: true,
     node: true,
   },
-  extends: ['standard', 'plugin:@typescript-eslint/recommended', 'prettier', 'prettier/@typescript-eslint'],
+  extends: ['standard', 'plugin:@typescript-eslint/recommended', 'prettier'],
   globals: {
     Atomics: 'readonly',
     SharedArrayBuffer: 'readonly',

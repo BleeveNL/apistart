@@ -40,7 +40,7 @@ export class QueueHandler<TSettings extends ApiStartSettings> {
       const settings: QueueConfig = this.config.services.queue
       const connection = await this.setupConnection(settings)
 
-      return ({
+      return {
         client: {
           publish: async (
             exchangeName: string,
@@ -56,25 +56,27 @@ export class QueueHandler<TSettings extends ApiStartSettings> {
               })
           },
         },
-        server: <TSettings extends ApiStartSettings>(
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          sysDeps: InternalSystem<TSettings>,
-        ) => async (listeners: QueueEventListenerList, callback?: (sysDeps: InternalSystem<TSettings>) => void) => {
-          if (this.verifyQueueEventListeners(listeners)) {
-            try {
-              await this.startServer<TSettings>(this.deps, sysDeps, settings, connection, listeners)
-              if (callback) {
-                callback(sysDeps)
+        server:
+          <TSettings extends ApiStartSettings>(
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            sysDeps: InternalSystem<TSettings>,
+          ) =>
+          async (listeners: QueueEventListenerList, callback?: (sysDeps: InternalSystem<TSettings>) => void) => {
+            if (this.verifyQueueEventListeners(listeners)) {
+              try {
+                await this.startServer<TSettings>(this.deps, sysDeps, settings, connection, listeners)
+                if (callback) {
+                  callback(sysDeps)
+                }
+                return true
+              } catch (err) {
+                this.deps.Log.crit(err)
               }
-              return true
-            } catch (err) {
-              this.deps.Log.crit(err)
             }
-          }
 
-          return false
-        },
-      } as unknown) as QueueHandlerSetup<TSettings>
+            return false
+          },
+      } as unknown as QueueHandlerSetup<TSettings>
     }
 
     return {

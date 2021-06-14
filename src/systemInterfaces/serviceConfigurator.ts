@@ -9,7 +9,7 @@ export interface ServiceConfigurator<
   TCache = boolean,
   TDb = boolean,
   TQueue = false | QueueService,
-  TWebserver = false | WebserverServiceEnabled
+  TWebserver = false | WebserverServiceEnabled,
 > {
   readonly cache: TCache
   readonly database: TDb

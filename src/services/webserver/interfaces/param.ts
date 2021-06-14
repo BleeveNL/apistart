@@ -9,13 +9,13 @@ export type ParamFunction<
   TSettings extends ApiStartSettings<any> = ApiStartSettings,
   TDependencies extends UserDefinedObject = UserDefinedObject,
   TCustomState extends DefaultState = DefaultState,
-  TParam = unknown
+  TParam = unknown,
 > = (deps: Dependencies<TSettings, TDependencies>) => KoaRouter.Param<TCustomState, DefaultContext, TParam>
 
 export interface ParamMiddlewareObject<
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   TSettings extends ApiStartSettings<any> = ApiStartSettings,
-  TDependencies extends UserDefinedObject = UserDefinedObject
+  TDependencies extends UserDefinedObject = UserDefinedObject,
 > {
   readonly dependencies: DependencyFunction<TSettings, TDependencies> | TDependencies
   readonly fnc: ParamFunction<TSettings, TDependencies>
@@ -24,5 +24,5 @@ export interface ParamMiddlewareObject<
 export type IParam<
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   TSettings extends ApiStartSettings<any> = ApiStartSettings,
-  TDependencies extends UserDefinedObject = UserDefinedObject
+  TDependencies extends UserDefinedObject = UserDefinedObject,
 > = ParamFunction<TSettings, TDependencies> | ParamMiddlewareObject<TSettings, TDependencies>

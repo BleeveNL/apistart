@@ -75,15 +75,15 @@ export class Microservice<TSettings extends ApiStartSettings = ApiStartSettings>
   }
 
   private async GetCache() {
-    return ((this.config.services.cache.enabled ? this.deps.services.cache.setup() : undefined) as unknown) as Promise<
+    return (this.config.services.cache.enabled ? this.deps.services.cache.setup() : undefined) as unknown as Promise<
       TSettings['ServiceConfigurator']['cache'] extends true ? Redis : undefined
     >
   }
 
   private async getDB() {
-    return ((this.config.services.database.enabled
+    return (this.config.services.database.enabled
       ? this.deps.services.database.setup()
-      : undefined) as unknown) as TSettings['ServiceConfigurator']['database'] extends true ? Sequelize : undefined
+      : undefined) as unknown as TSettings['ServiceConfigurator']['database'] extends true ? Sequelize : undefined
   }
 
   private async getQueue() {
@@ -91,9 +91,9 @@ export class Microservice<TSettings extends ApiStartSettings = ApiStartSettings>
   }
 
   private GetModels<TModels extends Models>(db: Sequelize | undefined) {
-    return ((this.config.services.database.enabled && db
+    return (this.config.services.database.enabled && db
       ? this.deps.services.database.getModels<TModels>(db)
-      : undefined) as unknown) as TSettings['ServiceConfigurator']['database'] extends true ? TModels : undefined
+      : undefined) as unknown as TSettings['ServiceConfigurator']['database'] extends true ? TModels : undefined
   }
 }
 

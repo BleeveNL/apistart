@@ -6,7 +6,7 @@ import {UserDefinedObject} from './userDefinedObject'
 
 export interface ApiStartSettings<
   TServiceConfigurator extends ServiceConfigurator = ServiceConfigurator,
-  TCustomConfig extends UserDefinedObject = UserDefinedObject
+  TCustomConfig extends UserDefinedObject = UserDefinedObject,
 > {
   ServiceConfigurator: TServiceConfigurator
   Config: Config<ApiStartSettings<TServiceConfigurator>> & TCustomConfig

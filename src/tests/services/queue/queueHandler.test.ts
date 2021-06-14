@@ -45,8 +45,8 @@ suite('Test QueueHandler (./services/queue/queueHandler.ts)', () => {
   suite('setup() works as expected', () => {
     let queueHandler = new QueueHandler(
       {
-        Amqp: (new AmqpLibMock.Instance() as unknown) as typeof amqp,
-        Log: (new loghandlerMock.Instance() as unknown) as Log,
+        Amqp: new AmqpLibMock.Instance() as unknown as typeof amqp,
+        Log: new loghandlerMock.Instance() as unknown as Log,
         Process: process,
       },
       correctConfig,
@@ -55,8 +55,8 @@ suite('Test QueueHandler (./services/queue/queueHandler.ts)', () => {
     setup(() => {
       queueHandler = new QueueHandler(
         {
-          Amqp: (new AmqpLibMock.Instance() as unknown) as typeof amqp,
-          Log: (new loghandlerMock.Instance() as unknown) as Log,
+          Amqp: new AmqpLibMock.Instance() as unknown as typeof amqp,
+          Log: new loghandlerMock.Instance() as unknown as Log,
           Process: process,
         },
         correctConfig,
@@ -70,7 +70,7 @@ suite('Test QueueHandler (./services/queue/queueHandler.ts)', () => {
 
     suite('test behavior when service is disabled', async () => {
       test('setup() returns only a function with a server functionality in it', async () => {
-        const queue = ((await queueHandler.setup()) as unknown) as QueueHandlerSetupDisabled
+        const queue = (await queueHandler.setup()) as unknown as QueueHandlerSetupDisabled
         joi.assert(queue, queueDisabledSchema)
         assert.isFunction(queue.server)
         const loaded = await queue.server()
@@ -78,7 +78,7 @@ suite('Test QueueHandler (./services/queue/queueHandler.ts)', () => {
       })
 
       test('server() throws correct error.', async () => {
-        const queue = ((await queueHandler.setup()) as unknown) as QueueHandlerSetupDisabled
+        const queue = (await queueHandler.setup()) as unknown as QueueHandlerSetupDisabled
         const loaded = (await queue.server()) as any
 
         try {
@@ -90,7 +90,7 @@ suite('Test QueueHandler (./services/queue/queueHandler.ts)', () => {
       })
 
       test('client is undefined when service is disabled', async () => {
-        const queue = ((await queueHandler.setup()) as unknown) as QueueHandlerSetupDisabled
+        const queue = (await queueHandler.setup()) as unknown as QueueHandlerSetupDisabled
 
         assert.equal(typeof queue.client, 'undefined')
       })
@@ -100,8 +100,8 @@ suite('Test QueueHandler (./services/queue/queueHandler.ts)', () => {
       setup(() => {
         queueHandler = new QueueHandler(
           {
-            Amqp: (new AmqpLibMock.Instance() as unknown) as typeof amqp,
-            Log: (new loghandlerMock.Instance() as unknown) as Log,
+            Amqp: new AmqpLibMock.Instance() as unknown as typeof amqp,
+            Log: new loghandlerMock.Instance() as unknown as Log,
             Process: process,
           },
           JSON.parse(JSON.stringify(configMocked.correct.everythingEnabled)),
@@ -117,8 +117,8 @@ suite('Test QueueHandler (./services/queue/queueHandler.ts)', () => {
 
           queueHandler = new QueueHandler(
             {
-              Amqp: (new AmqpLibMock.Instance() as unknown) as typeof amqp,
-              Log: (new loghandlerMock.Instance() as unknown) as Log,
+              Amqp: new AmqpLibMock.Instance() as unknown as typeof amqp,
+              Log: new loghandlerMock.Instance() as unknown as Log,
               Process: process,
             },
             config,
@@ -169,8 +169,8 @@ suite('Test QueueHandler (./services/queue/queueHandler.ts)', () => {
 
           queueHandler = new QueueHandler(
             {
-              Amqp: (new AmqpLibMock.Instance() as unknown) as typeof amqp,
-              Log: (new loghandlerMock.Instance() as unknown) as Log,
+              Amqp: new AmqpLibMock.Instance() as unknown as typeof amqp,
+              Log: new loghandlerMock.Instance() as unknown as Log,
               Process: process,
             },
             config,
@@ -216,8 +216,8 @@ suite('Test QueueHandler (./services/queue/queueHandler.ts)', () => {
 
           queueHandler = new QueueHandler(
             {
-              Amqp: (new AmqpLibMock.Instance() as unknown) as typeof amqp,
-              Log: (new loghandlerMock.Instance() as unknown) as Log,
+              Amqp: new AmqpLibMock.Instance() as unknown as typeof amqp,
+              Log: new loghandlerMock.Instance() as unknown as Log,
               Process: process,
             },
             config,
@@ -266,8 +266,8 @@ suite('Test QueueHandler (./services/queue/queueHandler.ts)', () => {
 
           queueHandler = new QueueHandler(
             {
-              Amqp: (new AmqpLibMock.Instance() as unknown) as typeof amqp,
-              Log: (new loghandlerMock.Instance() as unknown) as Log,
+              Amqp: new AmqpLibMock.Instance() as unknown as typeof amqp,
+              Log: new loghandlerMock.Instance() as unknown as Log,
               Process: process,
             },
             config,
@@ -324,8 +324,8 @@ suite('Test QueueHandler (./services/queue/queueHandler.ts)', () => {
 
           queueHandler = new QueueHandler(
             {
-              Amqp: (new AmqpLibMock.Instance() as unknown) as typeof amqp,
-              Log: (new loghandlerMock.Instance() as unknown) as Log,
+              Amqp: new AmqpLibMock.Instance() as unknown as typeof amqp,
+              Log: new loghandlerMock.Instance() as unknown as Log,
               Process: process,
             },
             config,
@@ -340,7 +340,7 @@ suite('Test QueueHandler (./services/queue/queueHandler.ts)', () => {
       })
 
       test('setup() returns client & server functionality', async () => {
-        const queue = ((await queueHandler.setup()) as unknown) as QueueHandlerSetupEnabled<ApiStartSettings>
+        const queue = (await queueHandler.setup()) as unknown as QueueHandlerSetupEnabled<ApiStartSettings>
         joi.assert(queue, queueEnabledSchema)
       })
 
@@ -369,8 +369,8 @@ suite('Test QueueHandler (./services/queue/queueHandler.ts)', () => {
 
             queueHandler = new QueueHandler(
               {
-                Amqp: (new AmqpLibMock.Instance() as unknown) as typeof amqp,
-                Log: (new loghandlerMock.Instance() as unknown) as Log,
+                Amqp: new AmqpLibMock.Instance() as unknown as typeof amqp,
+                Log: new loghandlerMock.Instance() as unknown as Log,
                 Process: process,
               },
               config,
@@ -502,8 +502,8 @@ suite('Test QueueHandler (./services/queue/queueHandler.ts)', () => {
 
           queueHandler = new QueueHandler(
             {
-              Amqp: (new AmqpLibMock.Instance() as unknown) as typeof amqp,
-              Log: (new loghandlerMock.Instance() as unknown) as Log,
+              Amqp: new AmqpLibMock.Instance() as unknown as typeof amqp,
+              Log: new loghandlerMock.Instance() as unknown as Log,
               Process: process,
             },
             config,
@@ -522,8 +522,8 @@ suite('Test QueueHandler (./services/queue/queueHandler.ts)', () => {
         })
 
         test('Server function returns a function that allows 2 argument', async () => {
-          const queue = ((await queueHandler.setup()) as unknown) as QueueHandlerSetupEnabled<ApiStartSettings>
-          const Deps = ({} as unknown) as InternalSystem<ApiStartSettings>
+          const queue = (await queueHandler.setup()) as unknown as QueueHandlerSetupEnabled<ApiStartSettings>
+          const Deps = {} as unknown as InternalSystem<ApiStartSettings>
 
           const server = queue.server(Deps)
           assert.isFunction(server)
@@ -531,8 +531,8 @@ suite('Test QueueHandler (./services/queue/queueHandler.ts)', () => {
         })
 
         test('Server throws an error as EventListener uses an unknown exchange', async () => {
-          const queue = ((await queueHandler.setup()) as unknown) as QueueHandlerSetupEnabled<ApiStartSettings>
-          const Deps = ({} as unknown) as InternalSystem<ApiStartSettings>
+          const queue = (await queueHandler.setup()) as unknown as QueueHandlerSetupEnabled<ApiStartSettings>
+          const Deps = {} as unknown as InternalSystem<ApiStartSettings>
           const eventHandlerMock = EventHandlerMock
 
           const eventHandler = eventHandlerMock.Instance as any
@@ -552,8 +552,8 @@ suite('Test QueueHandler (./services/queue/queueHandler.ts)', () => {
         })
 
         test('Server Calls Callback function when server is correctly booted', async () => {
-          const queue = ((await queueHandler.setup()) as unknown) as QueueHandlerSetupEnabled<ApiStartSettings>
-          const Deps = ({} as unknown) as InternalSystem<ApiStartSettings>
+          const queue = (await queueHandler.setup()) as unknown as QueueHandlerSetupEnabled<ApiStartSettings>
+          const Deps = {} as unknown as InternalSystem<ApiStartSettings>
 
           const eventHandlerMock1 = EventHandlerMock
           const eventHandler = eventHandlerMock1.Instance as any
@@ -567,8 +567,8 @@ suite('Test QueueHandler (./services/queue/queueHandler.ts)', () => {
         })
 
         test('Callback functions has only System Dependencies as argument', async () => {
-          const queue = ((await queueHandler.setup()) as unknown) as QueueHandlerSetupEnabled<ApiStartSettings>
-          const Deps = ({} as unknown) as InternalSystem<ApiStartSettings>
+          const queue = (await queueHandler.setup()) as unknown as QueueHandlerSetupEnabled<ApiStartSettings>
+          const Deps = {} as unknown as InternalSystem<ApiStartSettings>
 
           const eventHandlerMock1 = EventHandlerMock
           const eventHandler = eventHandlerMock1.Instance as any
@@ -586,8 +586,8 @@ suite('Test QueueHandler (./services/queue/queueHandler.ts)', () => {
         })
 
         test('Server makes correct Connection with AMQP server for each EventListener', async () => {
-          const queue = ((await queueHandler.setup()) as unknown) as QueueHandlerSetupEnabled<ApiStartSettings>
-          const Deps = ({} as unknown) as InternalSystem<ApiStartSettings>
+          const queue = (await queueHandler.setup()) as unknown as QueueHandlerSetupEnabled<ApiStartSettings>
+          const Deps = {} as unknown as InternalSystem<ApiStartSettings>
 
           const eventHandlerMock1 = EventHandlerMock
           const eventHandler1 = eventHandlerMock1.Instance as any
@@ -647,8 +647,8 @@ suite('Test QueueHandler (./services/queue/queueHandler.ts)', () => {
         })
 
         test('server acknowledge message when EventHandler returns true', async () => {
-          const queue = ((await queueHandler.setup()) as unknown) as QueueHandlerSetupEnabled<ApiStartSettings>
-          const Deps = ({} as unknown) as InternalSystem<ApiStartSettings>
+          const queue = (await queueHandler.setup()) as unknown as QueueHandlerSetupEnabled<ApiStartSettings>
+          const Deps = {} as unknown as InternalSystem<ApiStartSettings>
 
           const eventHandlerMock1 = EventHandlerMock
           const eventHandler1 = eventHandlerMock1.Instance as any
@@ -672,8 +672,8 @@ suite('Test QueueHandler (./services/queue/queueHandler.ts)', () => {
         })
 
         test('server does not acknowledge message when EventHandler returns false', async () => {
-          const queue = ((await queueHandler.setup()) as unknown) as QueueHandlerSetupEnabled<ApiStartSettings>
-          const Deps = ({} as unknown) as InternalSystem<ApiStartSettings>
+          const queue = (await queueHandler.setup()) as unknown as QueueHandlerSetupEnabled<ApiStartSettings>
+          const Deps = {} as unknown as InternalSystem<ApiStartSettings>
 
           const eventHandlerMock1 = EventHandlerMock
           const eventHandler1 = eventHandlerMock1.Instance as any
@@ -697,10 +697,10 @@ suite('Test QueueHandler (./services/queue/queueHandler.ts)', () => {
         })
 
         test('server calls EventHandler correctly', async () => {
-          const queue = ((await queueHandler.setup()) as unknown) as QueueHandlerSetupEnabled<ApiStartSettings>
-          const Deps = ({
+          const queue = (await queueHandler.setup()) as unknown as QueueHandlerSetupEnabled<ApiStartSettings>
+          const Deps = {
             sysDeps: faker.random.alphaNumeric(16),
-          } as unknown) as InternalSystem<ApiStartSettings>
+          } as unknown as InternalSystem<ApiStartSettings>
 
           const dependencies = {
             handlerDeps: faker.random.alphaNumeric(16),
@@ -730,8 +730,8 @@ suite('Test QueueHandler (./services/queue/queueHandler.ts)', () => {
         })
 
         test('server does not acknowledge message when EventHandler throws Error (if msg is not null)', async () => {
-          const queue = ((await queueHandler.setup()) as unknown) as QueueHandlerSetupEnabled<ApiStartSettings>
-          const Deps = ({} as unknown) as InternalSystem<ApiStartSettings>
+          const queue = (await queueHandler.setup()) as unknown as QueueHandlerSetupEnabled<ApiStartSettings>
+          const Deps = {} as unknown as InternalSystem<ApiStartSettings>
 
           const eventHandlerMock1 = EventHandlerMock
           const eventHandler1 = eventHandlerMock1.Instance as any
@@ -754,10 +754,10 @@ suite('Test QueueHandler (./services/queue/queueHandler.ts)', () => {
         })
 
         test('server does Log Error as Critical when EventHandler throws Error', async () => {
-          const queue = ((await queueHandler.setup()) as unknown) as QueueHandlerSetupEnabled<ApiStartSettings>
-          const Deps = ({
+          const queue = (await queueHandler.setup()) as unknown as QueueHandlerSetupEnabled<ApiStartSettings>
+          const Deps = {
             Log: loghandlerMock.Instance,
-          } as unknown) as InternalSystem<ApiStartSettings>
+          } as unknown as InternalSystem<ApiStartSettings>
 
           const eventHandlerMock1 = EventHandlerMock
           const eventHandler1 = eventHandlerMock1.Instance as any
@@ -793,10 +793,10 @@ suite('Test QueueHandler (./services/queue/queueHandler.ts)', () => {
         })
 
         test('EventHandler can have a dependency object that gets available in handler', async () => {
-          const queue = ((await queueHandler.setup()) as unknown) as QueueHandlerSetupEnabled<ApiStartSettings>
-          const Deps = ({
+          const queue = (await queueHandler.setup()) as unknown as QueueHandlerSetupEnabled<ApiStartSettings>
+          const Deps = {
             test: faker.random.alphaNumeric(31),
-          } as unknown) as InternalSystem<ApiStartSettings>
+          } as unknown as InternalSystem<ApiStartSettings>
 
           const eventHandlerMock1 = EventHandlerMock
           const eventHandler1 = eventHandlerMock1.Instance as any
@@ -826,10 +826,10 @@ suite('Test QueueHandler (./services/queue/queueHandler.ts)', () => {
         })
 
         test('Eventhandler can have undefined queue name', async () => {
-          const queue = ((await queueHandler.setup()) as unknown) as QueueHandlerSetupEnabled<ApiStartSettings>
-          const Deps = ({
+          const queue = (await queueHandler.setup()) as unknown as QueueHandlerSetupEnabled<ApiStartSettings>
+          const Deps = {
             test: faker.random.alphaNumeric(31),
-          } as unknown) as InternalSystem<ApiStartSettings>
+          } as unknown as InternalSystem<ApiStartSettings>
 
           const eventHandlerMock1 = EventHandlerMock
           const eventHandler1 = eventHandlerMock1.Instance as any
@@ -849,8 +849,8 @@ suite('Test QueueHandler (./services/queue/queueHandler.ts)', () => {
         })
 
         test('Server returns with True when Queue Server works correctly', async () => {
-          const queue = ((await queueHandler.setup()) as unknown) as QueueHandlerSetupEnabled<ApiStartSettings>
-          const Deps = ({} as unknown) as InternalSystem<ApiStartSettings>
+          const queue = (await queueHandler.setup()) as unknown as QueueHandlerSetupEnabled<ApiStartSettings>
+          const Deps = {} as unknown as InternalSystem<ApiStartSettings>
 
           const eventHandlerMock1 = EventHandlerMock
           const eventHandler = eventHandlerMock1.Instance as any
@@ -861,8 +861,8 @@ suite('Test QueueHandler (./services/queue/queueHandler.ts)', () => {
         })
 
         test('Server returns with False and Logs Critical Error when Queue Server does not work correctly', async () => {
-          const queue = ((await queueHandler.setup()) as unknown) as QueueHandlerSetupEnabled<ApiStartSettings>
-          const Deps = ({} as unknown) as InternalSystem<ApiStartSettings>
+          const queue = (await queueHandler.setup()) as unknown as QueueHandlerSetupEnabled<ApiStartSettings>
+          const Deps = {} as unknown as InternalSystem<ApiStartSettings>
 
           const eventHandlerMock1 = EventHandlerMock
           const eventHandler = eventHandlerMock1.Instance as any

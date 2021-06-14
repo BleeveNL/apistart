@@ -19,9 +19,8 @@ import {InternalSystem} from '../../../systemInterfaces/internalSystem'
 import WebserverHandler from '../../../services/webserver/webserverHandler'
 import {ApiStartSettings} from '../../../systemInterfaces/apiStartSettings'
 
-let config: Config<
-  ApiStartSettings<WebserverEnabledServiceConfigurator<WebserverServiceVersionHandlingDisabled>>
-> = JSON.parse(JSON.stringify(configMocked.correct.everythingEnabledWithoutVersioning))
+let config: Config<ApiStartSettings<WebserverEnabledServiceConfigurator<WebserverServiceVersionHandlingDisabled>>> =
+  JSON.parse(JSON.stringify(configMocked.correct.everythingEnabledWithoutVersioning))
 let dependenciesMock: WebserverHandlerDeps
 let webserverHandler: WebserverHandler<ApiStartSettings<WebserverEnabledServiceConfigurator>>
 let internalSystem: InternalSystem<ApiStartSettings<WebserverEnabledServiceConfigurator>>
@@ -43,7 +42,7 @@ suite('Test Webserver Handler (./services/webserver/webserverHandler.ts)', () =>
         ]
       })
 
-      dependenciesMock = ({
+      dependenciesMock = {
         Http: new ModulesMock.http.Instance(),
         Https: new ModulesMock.https.Instance(),
         Immer: immer,
@@ -51,16 +50,16 @@ suite('Test Webserver Handler (./services/webserver/webserverHandler.ts)', () =>
         KoaBodyParser: new ModulesMock.koaBodyParser.Instance().fn,
         KoaCors: new ModulesMock.koaCors.Instance().fn,
         KoaRouter: ModulesMock.koaRouter.Instance,
-      } as unknown) as WebserverHandlerDeps
+      } as unknown as WebserverHandlerDeps
 
-      internalSystem = ({
+      internalSystem = {
         Cache: CacheHandlerMock.Instance,
         Config: config,
         DB: DatabaseHandlerMock.Instance,
         Log: new ModulesMock.logHandler.Instance(),
         Models: {},
         Queue: QueueHandlerMock.Instance,
-      } as unknown) as InternalSystem<ApiStartSettings<WebserverEnabledServiceConfigurator>>
+      } as unknown as InternalSystem<ApiStartSettings<WebserverEnabledServiceConfigurator>>
 
       webserverHandler = new WebserverHandler(
         dependenciesMock,
@@ -190,7 +189,7 @@ suite('Test Webserver Handler (./services/webserver/webserverHandler.ts)', () =>
     })
 
     test('when route has middleware', () => {
-      const numberOfMiddleware = faker.random.number(8) + 2
+      const numberOfMiddleware = faker.datatype.number(8) + 2
       const returnValues = faker.random.alphaNumeric(24)
       MiddlewareMock.stubs.middleware.returns(returnValues)
 

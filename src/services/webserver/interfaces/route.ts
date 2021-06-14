@@ -11,7 +11,7 @@ export interface IRoute<
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   TSettings extends ApiStartSettings<any> = ApiStartSettings,
   TDependencies extends UserDefinedObject = UserDefinedObject,
-  TCustomState extends Koa.Context = Koa.Context
+  TCustomState extends Koa.Context = Koa.Context,
 > {
   readonly controller: IController<TSettings, TDependencies, TCustomState>
   readonly dependencies?: DependencyFunction<TSettings, TDependencies> | TDependencies

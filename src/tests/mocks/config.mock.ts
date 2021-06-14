@@ -32,7 +32,7 @@ export const everythingDisabled: Config = {
   },
 }
 
-export const error = ({
+export const error = {
   app: 'Broken Config',
   log: {
     reporters: [],
@@ -40,7 +40,7 @@ export const error = ({
       silent: true,
     },
   },
-} as unknown) as Config
+} as unknown as Config
 
 export const everythingEnabled: Config<
   ApiStartSettings<{
@@ -84,7 +84,7 @@ export const everythingEnabled: Config<
       },
       models: {},
       password: faker.random.alphaNumeric(15),
-      port: faker.random.number(),
+      port: faker.datatype.number(),
       username: faker.random.alphaNumeric(15),
     },
     queue: {
@@ -104,7 +104,7 @@ export const everythingEnabled: Config<
       connection: {
         http: {
           enabled: true,
-          port: faker.random.number(),
+          port: faker.datatype.number(),
         },
         https: {
           cert: {
@@ -112,7 +112,7 @@ export const everythingEnabled: Config<
             key: faker.random.alphaNumeric(48),
           },
           enabled: true,
-          port: faker.random.number(),
+          port: faker.datatype.number(),
         },
       },
 
@@ -128,14 +128,14 @@ export const everythingEnabled: Config<
           allowedMethods: [Methods.put],
           allowedOrigin: faker.internet.url(),
           exposedHeaders: [faker.random.alphaNumeric(8)],
-          maxAge: faker.random.number(),
+          maxAge: faker.datatype.number(),
         },
         expose: faker.random.alphaNumeric(8) as any,
         prefix: faker.random.alphaNumeric(8),
         proxy: false,
         sensitive: faker.random.alphaNumeric(8) as any,
         silent: faker.random.alphaNumeric(8) as any,
-        subdomainOffset: faker.random.number(),
+        subdomainOffset: faker.datatype.number(),
         versionHandler: faker.random.alphaNumeric(8) as any,
       },
       versions: [
@@ -151,7 +151,7 @@ export const everythingEnabled: Config<
                 allowedMethods: [Methods.get],
                 allowedOrigin: [faker.internet.url()],
                 exposedHeaders: [faker.random.alphaNumeric(8)],
-                maxAge: faker.random.number(),
+                maxAge: faker.datatype.number(),
               },
             ],
             sensitive: true,
@@ -205,7 +205,7 @@ export const everythingEnabledWithoutVersioning: Config<
       },
       models: {},
       password: faker.random.alphaNumeric(15),
-      port: faker.random.number(),
+      port: faker.datatype.number(),
       username: faker.random.alphaNumeric(15),
     },
     queue: {
@@ -225,7 +225,7 @@ export const everythingEnabledWithoutVersioning: Config<
       connection: {
         http: {
           enabled: true,
-          port: faker.random.number(),
+          port: faker.datatype.number(),
         },
         https: {
           cert: {
@@ -233,7 +233,7 @@ export const everythingEnabledWithoutVersioning: Config<
             key: faker.random.alphaNumeric(48),
           },
           enabled: true,
-          port: faker.random.number(),
+          port: faker.datatype.number(),
         },
       },
 
@@ -249,13 +249,13 @@ export const everythingEnabledWithoutVersioning: Config<
           allowedMethods: [Methods.put],
           allowedOrigin: faker.internet.url(),
           exposedHeaders: [faker.random.alphaNumeric(8)],
-          maxAge: faker.random.number(),
+          maxAge: faker.datatype.number(),
         },
         expose: faker.random.alphaNumeric(8) as any,
         proxy: false,
         sensitive: faker.random.alphaNumeric(8) as any,
         silent: faker.random.alphaNumeric(8) as any,
-        subdomainOffset: faker.random.number(),
+        subdomainOffset: faker.datatype.number(),
         versionHandler: false,
       },
     },

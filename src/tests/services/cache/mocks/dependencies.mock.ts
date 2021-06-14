@@ -8,7 +8,7 @@ import {Log} from 'loghandler'
 
 export const dependencies: Dependencies = {
   Immer,
-  Log: (new LoghandlerMock.Instance() as unknown) as Log,
+  Log: new LoghandlerMock.Instance() as unknown as Log,
   Redis: RedisMock.Instance as typeof Redis,
 }
 

@@ -59,14 +59,14 @@ suite('Test Webserver Handler (./services/webserver/webserverHandler.ts)', () =>
   suite('setup() works as expected!', () => {
     setup(() => {
       config = JSON.parse(JSON.stringify(configMocked.correct.everythingDisabled))
-      internalSystem = ({
+      internalSystem = {
         Cache: CacheHandlerMock.Instance,
         Config: configMocked.correct.everythingDisabled,
         DB: DatabaseHandlerMock.Instance,
         Log: new ModulesMock.logHandler.Instance(),
         Models: {},
         Queue: QueueHandlerMock.Instance,
-      } as unknown) as InternalSystem<ApiStartSettings<WebserverEnabledServiceConfigurator>>
+      } as unknown as InternalSystem<ApiStartSettings<WebserverEnabledServiceConfigurator>>
 
       webserverHandler = new WebserverHandler(dependenciesMock, config)
     })
@@ -98,7 +98,7 @@ suite('Test Webserver Handler (./services/webserver/webserverHandler.ts)', () =>
     suite('when webserver service is enabled', () => {
       setup(() => {
         config = JSON.parse(JSON.stringify(configMocked.correct.everythingEnabled))
-        dependenciesMock = ({
+        dependenciesMock = {
           Http: new ModulesMock.http.Instance(),
           Https: new ModulesMock.https.Instance(),
           Immer: immer,
@@ -106,7 +106,7 @@ suite('Test Webserver Handler (./services/webserver/webserverHandler.ts)', () =>
           KoaBodyParser: new ModulesMock.koaBodyParser.Instance().fn,
           KoaCors: new ModulesMock.koaCors.Instance().fn,
           KoaRouter: ModulesMock.koaRouter.Instance,
-        } as unknown) as WebserverHandlerDeps
+        } as unknown as WebserverHandlerDeps
 
         internalSystem = {
           Cache: CacheHandlerMock.Instance,
@@ -175,7 +175,7 @@ suite('Test Webserver Handler (./services/webserver/webserverHandler.ts)', () =>
         })
 
         test('Http Server is Created an stared with listening to correct port', () => {
-          const settings = (config as unknown) as Config<
+          const settings = config as unknown as Config<
             ApiStartSettings<WebserverEnabledServiceConfigurator<WebserverServiceHttpEnabled>>
           >
           if (settings.services.webserver.connection.http.enabled) {
@@ -198,7 +198,7 @@ suite('Test Webserver Handler (./services/webserver/webserverHandler.ts)', () =>
         })
 
         test('Http Server calls given callback function when system started listening', () => {
-          const settings = (config as unknown) as Config<
+          const settings = config as unknown as Config<
             ApiStartSettings<WebserverEnabledServiceConfigurator<WebserverServiceHttpEnabled>>
           >
           if (settings.services.webserver.connection.http.enabled) {
@@ -217,7 +217,7 @@ suite('Test Webserver Handler (./services/webserver/webserverHandler.ts)', () =>
 
         test('Http Server Logs on info level that server is started and on which port', () => {
           if (config.services.webserver.connection.http.enabled) {
-            const settings = (config as unknown) as Config<
+            const settings = config as unknown as Config<
               ApiStartSettings<WebserverEnabledServiceConfigurator<WebserverServiceHttpEnabled>>
             >
             webserver()
@@ -349,7 +349,7 @@ suite('Test Webserver Handler (./services/webserver/webserverHandler.ts)', () =>
         })
 
         test('Https Server is Created an stared with listening to correct port', () => {
-          const settings = (config as unknown) as Config<
+          const settings = config as unknown as Config<
             ApiStartSettings<WebserverEnabledServiceConfigurator<WebserverServiceHttpsEnabled>>
           >
           if (settings.services.webserver.connection.https.enabled) {
@@ -378,7 +378,7 @@ suite('Test Webserver Handler (./services/webserver/webserverHandler.ts)', () =>
         })
 
         test('Https Server calls given callback function when system started listening', () => {
-          const settings = (config as unknown) as Config<
+          const settings = config as unknown as Config<
             ApiStartSettings<WebserverEnabledServiceConfigurator<WebserverServiceHttpEnabled>>
           >
           if (settings.services.webserver.connection.https.enabled) {
@@ -396,7 +396,7 @@ suite('Test Webserver Handler (./services/webserver/webserverHandler.ts)', () =>
         })
 
         test('Https Server Logs on info level that server is started and on which port', () => {
-          const settings = (config as unknown) as Config<
+          const settings = config as unknown as Config<
             ApiStartSettings<WebserverEnabledServiceConfigurator<WebserverServiceHttpsEnabled>>
           >
           if (settings.services.webserver.connection.https.enabled) {
@@ -526,7 +526,7 @@ suite('Test Webserver Handler (./services/webserver/webserverHandler.ts)', () =>
               ApiStartSettings<WebserverEnabledServiceConfigurator<WebserverServiceEverythingEnabled>>
             >,
             config => {
-              config.services.webserver.connection.http = {enabled: true, port: faker.random.number()}
+              config.services.webserver.connection.http = {enabled: true, port: faker.datatype.number()}
             },
           )
           webserverHandler = new WebserverHandler(dependenciesMock, config)
@@ -603,7 +603,7 @@ suite('Test Webserver Handler (./services/webserver/webserverHandler.ts)', () =>
               ApiStartSettings<WebserverEnabledServiceConfigurator<WebserverServiceEverythingEnabled>>
             >,
             config => {
-              config.services.webserver.settings.silent = faker.random.boolean()
+              config.services.webserver.settings.silent = faker.datatype.boolean()
             },
           )
 
@@ -699,7 +699,7 @@ suite('Test Webserver Handler (./services/webserver/webserverHandler.ts)', () =>
 
         // eslint-disable-next-line @typescript-eslint/no-empty-function
         suite('System Middleware is loaded correctly', () => {
-          const numberOfMiddleware = faker.random.number(8) + 2
+          const numberOfMiddleware = faker.datatype.number(8) + 2
           const returnValues = faker.random.alphaNumeric(24)
 
           teardown(() => {

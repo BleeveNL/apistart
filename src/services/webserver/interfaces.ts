@@ -19,7 +19,7 @@ export interface WebserverHandlerDeps {
 }
 
 export type WebserverEnabledServiceConfigurator<
-  TWebserverConfig extends WebserverServiceEnabled = WebserverServiceEnabled
+  TWebserverConfig extends WebserverServiceEnabled = WebserverServiceEnabled,
 > = ServiceConfigurator<boolean, boolean, false | QueueService, TWebserverConfig>
 
 export interface WebserverStartResponse {

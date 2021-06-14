@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
+
 import * as http from 'http'
 import * as https from 'https'
 import immer from 'immer'
@@ -19,7 +21,7 @@ import {
   WebserverServiceVersionHandlingEnabled,
 } from './interfaces/webserverServiceEnabled'
 import {WebserverCallbackFunction} from './interfaces/webserverCallbackFunction'
-import {Dependencies} from '../../systemInterfaces/dependencies'
+import {Dependencies, DependencyFunction} from '../../systemInterfaces/dependencies'
 import {IMiddleware} from './interfaces/middleware'
 import {IRoute} from './interfaces/route'
 import {IParam} from './interfaces/param'
@@ -51,9 +53,7 @@ export class WebserverHandler<TSettings extends ApiStartSettings = ApiStartSetti
 
   public setup(system: InternalSystem<TSettings>): WebserverFunction<TSettings> {
     if (this.webserverEnabled && this.WebserverIsEnabled(system.Config)) {
-      const internalSystem = (system as unknown) as InternalSystem<
-        ApiStartSettings<WebserverEnabledServiceConfigurator>
-      >
+      const internalSystem = system as unknown as InternalSystem<ApiStartSettings<WebserverEnabledServiceConfigurator>>
       const configuration = this.MakeWebserviceInstance(internalSystem)
       // eslint-disable-next-line @typescript-eslint/no-empty-function
       return (callback =>
@@ -73,7 +73,6 @@ export class WebserverHandler<TSettings extends ApiStartSettings = ApiStartSetti
   ) {
     const server: WebServerObject = {}
     if (system.Config.services.webserver.connection.http.enabled) {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const config = system.Config as Config<
         ApiStartSettings<ServiceConfigurator<any, any, any, WebserverServiceHttpEnabled>>
       >
@@ -87,14 +86,12 @@ export class WebserverHandler<TSettings extends ApiStartSettings = ApiStartSetti
             status: 'started',
           })
 
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
           const internalSystem: any = system
           callback(internalSystem)
         },
       )
     }
     if (system.Config.services.webserver.connection.https.enabled) {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const config = system.Config as Config<
         ApiStartSettings<ServiceConfigurator<any, any, any, WebserverServiceHttpsEnabled>>
       >
@@ -112,7 +109,6 @@ export class WebserverHandler<TSettings extends ApiStartSettings = ApiStartSetti
           status: 'started',
         })
 
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const internalSystem: any = system
         callback(internalSystem)
       })
@@ -210,7 +206,7 @@ export class WebserverHandler<TSettings extends ApiStartSettings = ApiStartSetti
 
   private HandleDependencies<TDeps extends UserDefinedObject = UserDefinedObject>(
     system: InternalSystem<ApiStartSettings<WebserverEnabledServiceConfigurator>>,
-    dependencies: TDeps,
+    dependencies: TDeps | DependencyFunction<TSettings, TDeps>,
   ): Dependencies<TSettings> {
     const internalSystem = system as InternalSystem<TSettings>
 
@@ -287,10 +283,7 @@ export class WebserverHandler<TSettings extends ApiStartSettings = ApiStartSetti
     }
   }
 
-  private WebserverIsEnabled(
-    config: Config,
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  ): config is Config<ApiStartSettings<WebserverEnabledServiceConfigurator>> {
+  private WebserverIsEnabled(config: Config): config is Config<ApiStartSettings<WebserverEnabledServiceConfigurator>> {
     return config.services.webserver.enabled
   }
 }

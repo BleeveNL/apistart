@@ -20,7 +20,7 @@ export interface HttpsSettings extends HttpSettings {
 
 export interface WebserverConfigDefault<
   TSettings extends ApiStartSettings,
-  TWebserverService extends WebserverServiceEnabled
+  TWebserverService extends WebserverServiceEnabled,
 > extends EnabledService {
   readonly settings: {
     readonly allowedMethods?: boolean
@@ -49,14 +49,14 @@ export interface WebserverConfigDefault<
 
 export interface WebserverConfigDefaultWithVersioning<
   TSettings extends ApiStartSettings,
-  TWebserverService extends WebserverServiceEnabled
+  TWebserverService extends WebserverServiceEnabled,
 > extends WebserverConfigDefault<TSettings, TWebserverService> {
   readonly versions: Version<TSettings>[]
 }
 
 export type WebserverConfig<
   TSettings extends ApiStartSettings,
-  TWebserverService extends WebserverServiceEnabled
+  TWebserverService extends WebserverServiceEnabled,
 > = TWebserverService['versionHandling'] extends true
   ? WebserverConfigDefaultWithVersioning<TSettings, TWebserverService>
   : WebserverConfigDefault<TSettings, TWebserverService>
