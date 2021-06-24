@@ -1,38 +1,46 @@
-import {Dependencies, ServiceConfiguratorCacheEnabled} from './interfaces'
 import {Config} from '../../systemInterfaces/config'
 import Immer from 'immer'
-import Loghandler from 'loghandler'
-import * as redis from 'ioredis'
+import redis from 'ioredis'
 import {ApiStartSettings} from '../../systemInterfaces/apiStartSettings'
+import ServiceConfiguratorCacheEnabled from './interfaces/ServiceConfiguratorCacheEnabled.interface'
+import CacheConfig from './interfaces/cacheConfig.interface'
+import {LogHandlerResults} from 'loghandler/lib/interfaces'
+
+export interface SysDeps {
+  Log: LogHandlerResults
+}
+
+export interface Dependencies extends SysDeps {
+  readonly Immer: typeof Immer
+  readonly Redis: typeof redis
+}
 
 export class CacheHandler<TSettings extends ApiStartSettings> {
-  private deps: Dependencies
-
-  private config: Config<TSettings>
-
-  public constructor(deps: Dependencies, config: Config) {
+  public constructor(private deps: Dependencies, private config: Config<TSettings>) {
     this.deps = deps
     this.config = config
   }
 
-  public static factory<TSettings extends ApiStartSettings>(config: Config<TSettings>): CacheHandler<TSettings> {
+  public static factory<TSettings extends ApiStartSettings>(
+    sysdeps: SysDeps,
+    config: Config<TSettings>,
+  ): CacheHandler<TSettings> {
     return new this<TSettings>(
       {
+        ...sysdeps,
         Immer,
-        Log: Loghandler(config.log),
         Redis: redis,
       },
       config,
     )
   }
 
-  public async setup<TSettings extends ApiStartSettings>(): Promise<
-    TSettings['ServiceConfigurator']['cache'] extends false ? never : Promise<redis.Redis>
-  > {
+  public async setup() {
     if (this.CacheIsEnabled(this.config)) {
-      const cacheConfig = this.config.services.cache
+      const config = this.config
+      const cacheConfig: CacheConfig = config.services.cache
 
-      const client = cacheConfig.url
+      const client: redis.Redis = cacheConfig.url
         ? new this.deps.Redis(cacheConfig.url, cacheConfig)
         : new this.deps.Redis(cacheConfig)
 

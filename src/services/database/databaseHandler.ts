@@ -1,104 +1,109 @@
-import {Config} from '../../systemInterfaces/config'
-import Immer from 'immer'
-import Loghandler from 'loghandler'
-import {Dependencies, ServiceConfiguratorDBEnabled} from './interfaces'
-import {Sequelize, Options} from 'sequelize'
-import * as fs from 'fs'
-import Migrations from './models/migrations'
-import {Models} from './interfaces/model'
 import {ApiStartSettings} from '../../systemInterfaces/apiStartSettings'
+import {Config} from '../../systemInterfaces/config'
+import {MikroORM, Connection, IDatabaseDriver, EntityRepository, AnyEntity} from '@mikro-orm/core'
+import {MikroORMOptions} from '@mikro-orm/core/utils/Configuration'
+import {LogHandlerResults} from 'loghandler/lib/interfaces'
+import {EntityRepositoryList} from './interfaces/entityRepositoryList.interface'
+import {ServiceConfiguratorDBEnabled} from './interfaces/serviceConfiguratorDBEnabled.interface'
+import {DatabaseConfig} from './interfaces/databaseConfig.interface'
+
+export interface SysDeps {
+  Log: LogHandlerResults
+}
+
+export interface Dependencies extends SysDeps {
+  MikroORM: typeof MikroORM
+}
 
 export class DatabaseHandler<TSettings extends ApiStartSettings> {
-  private deps: Dependencies
+  private orm?: MikroORM<IDatabaseDriver<Connection>>
 
-  private config: Config<TSettings>
+  public constructor(private deps: Dependencies, private config: Config<TSettings>) {}
 
-  public constructor(deps: Dependencies, config: Config<TSettings>) {
-    this.deps = deps
-    this.config = config
-  }
-
-  public static factory<TSettings extends ApiStartSettings>(config: Config<TSettings>): DatabaseHandler<TSettings> {
+  public static factory<TSettings extends ApiStartSettings>(sysDeps: SysDeps, config: Config<TSettings>) {
     return new this<TSettings>(
       {
-        Immer,
-        Log: Loghandler(config.log),
-        Sequelize,
-        fs,
-        systemModels: {Migrations: Migrations},
+        ...sysDeps,
+        MikroORM,
       },
       config,
     )
   }
 
-  public async setup<TSettings extends ApiStartSettings>(): Promise<
-    TSettings['ServiceConfigurator']['database'] extends false ? never : Sequelize
-  > {
+  public async setup() {
     if (this.DBisEnabled(this.config)) {
       const config = this.config
-      const connection = this.connect(config.services.database)
-      await connection.authenticate().then(async () => {
-        this.deps.Log.info('Database connection is made')
-        await this.SyncMigrationTable(connection, this.deps.systemModels, config).catch(err => {
-          this.deps.Log.err('Error during syncing system DB Models', err)
-        })
-      })
-
-      return connection as TSettings['ServiceConfigurator']['database'] extends false ? never : Sequelize
+      const orm = await this.connect(config.services.database)
+      this.orm = orm
+      return orm
     }
 
-    throw new Error(`Given configuration forbids to run DatabaseHandler. Cache is disabled in configuration object.`)
+    throw new Error(`Given configuration forbids to run DatabaseHandler. Datbase is disabled in configuration object.`)
   }
 
-  public getModels<TModels extends Models>(DB: Sequelize): TModels {
-    if (this.DBisEnabled(this.config)) {
-      const models = this.config.services.database.models
-      let output: Models = {}
+  public async getModels(round = 0): Promise<EntityRepositoryList<TSettings['Models']>> {
+    if (this.DBisEnabled(this.config) && this.orm && (await this.orm.isConnected())) {
+      const config = this.config
+      const models: {[key: string]: EntityRepository<AnyEntity>} = {}
 
-      for (const modelName in models) {
-        const model = models[modelName]
-        output = this.deps.Immer(output, draft => {
-          model.init(model.structure, {
-            ...model.settings,
-            sequelize: DB,
-          })
-          draft[modelName] = model
-        })
+      for (const entityName in config.services.database.models) {
+        const entity = config.services.database.models[entityName]
+        models[entityName] = this.orm.em.getRepository(entity)
       }
 
-      return output as TModels
+      return models as unknown as EntityRepositoryList<TSettings['Models']>
+    } else {
+      if (round < 4) {
+        await this.setup()
+        return this.getModels(round++)
+      }
     }
 
-    throw new Error(`Database "getModels()" shouldn't be called, because service is turned off by configuration!`)
+    throw new Error(`Couldn't get Entities, because there went something wrong with connection to database.`)
   }
 
   private DBisEnabled(config: Config): config is Config<ApiStartSettings<ServiceConfiguratorDBEnabled>> {
     return config.services.database.enabled
   }
 
-  private connect(config: Options) {
-    const log = this.deps.Log
-    const connection = new this.deps.Sequelize({
-      benchmark: true,
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      logging: (msg: string, speed?: number, ...atr: any[]) => {
-        log.debug(msg, {speed}, atr)
-      },
-      ...config,
-    })
+  private async connect(config: DatabaseConfig<TSettings['Models']>) {
+    const entities: MikroORMOptions['entities'] = []
+    for (const entityName in config.models) {
+      const entity = config.models[entityName]
+      entities.push(entity)
+    }
 
-    return connection
+    return this.deps.MikroORM.init(
+      {
+        ...config,
+        entities,
+        autoJoinOneToOneOwner: true,
+        cache: {
+          enabled: false,
+        },
+        debug: true,
+        discovery: {
+          warnWhenNoEntities: false,
+          requireEntitiesArray: true,
+          alwaysAnalyseProperties: false,
+        },
+        implicitTransactions: config.type === 'mongo',
+        logger: this.getLogger(config.logger),
+        propagateToOneOwner: true,
+        strict: true,
+        validate: true,
+      },
+      true,
+    )
   }
 
-  private async SyncMigrationTable(
-    DB: Sequelize,
-    models: Models,
-    config: Config<ApiStartSettings<ServiceConfiguratorDBEnabled>>,
-  ) {
-    for (const modelName in models) {
-      const model = models[modelName]
-      model.init(model.structure, {sequelize: DB, ...model.settings})
-      await model.sync(config.services.database.sync)
+  private getLogger(loggerFunction?: (message: string) => void): (message: string) => void {
+    const log = this.deps.Log
+    return (msg: string) => {
+      log.debug(msg)
+      if (loggerFunction) {
+        loggerFunction(msg)
+      }
     }
   }
 }

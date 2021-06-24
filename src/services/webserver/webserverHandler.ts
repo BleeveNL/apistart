@@ -3,8 +3,8 @@
 import * as http from 'http'
 import * as https from 'https'
 import immer from 'immer'
-import * as Koa from 'koa'
-import * as KoaBodyParser from 'koa-bodyparser'
+import Koa from 'koa'
+import KoaBodyParser from 'koa-bodyparser'
 import KoaRouter, {Params, Router} from 'koa-advanced-router'
 import {
   WebserverHandlerDeps,
@@ -12,14 +12,7 @@ import {
   WebserverEnabledServiceConfigurator,
   WebserverFunction,
 } from './interfaces'
-import {Config} from '../../systemInterfaces/config'
 import {InternalSystem} from '../../systemInterfaces/internalSystem'
-import {ServiceConfigurator} from '../../systemInterfaces/serviceConfigurator'
-import {
-  WebserverServiceHttpEnabled,
-  WebserverServiceHttpsEnabled,
-  WebserverServiceVersionHandlingEnabled,
-} from './interfaces/webserverServiceEnabled'
 import {WebserverCallbackFunction} from './interfaces/webserverCallbackFunction'
 import {Dependencies, DependencyFunction} from '../../systemInterfaces/dependencies'
 import {IMiddleware} from './interfaces/middleware'
@@ -28,32 +21,31 @@ import {IParam} from './interfaces/param'
 import {Version} from './interfaces/version'
 import {ApiStartSettings} from '../../systemInterfaces/apiStartSettings'
 import {UserDefinedObject} from '../../systemInterfaces/userDefinedObject'
+import {RequestContext} from '@mikro-orm/core'
+import {ServiceConfigurator} from '../../systemInterfaces/serviceConfigurator'
+import {WebserverServiceEnabled} from './interfaces/webserverServiceEnabled'
 
-export class WebserverHandler<TSettings extends ApiStartSettings = ApiStartSettings> {
-  private webserverEnabled: boolean
-
+export class WebserverHandler<
+  TSettings extends ApiStartSettings = ApiStartSettings<WebserverEnabledServiceConfigurator<any, any, any>>,
+> {
   // eslint-disable-next-line no-useless-constructor
-  public constructor(private deps: WebserverHandlerDeps, config: Config) {
-    this.webserverEnabled = this.WebserverIsEnabled(config)
-  }
+  public constructor(private deps: WebserverHandlerDeps) {}
 
-  public static factory<TSettings extends ApiStartSettings>(config: Config): WebserverHandler<TSettings> {
-    return new this<TSettings>(
-      {
-        Http: http,
-        Https: https,
-        Immer: immer,
-        Koa: Koa,
-        KoaBodyParser: KoaBodyParser,
-        KoaRouter: KoaRouter,
-      },
-      config,
-    )
+  public static factory<TSettings extends ApiStartSettings>(): WebserverHandler<TSettings> {
+    return new this<TSettings>({
+      Http: http,
+      Https: https,
+      Immer: immer,
+      Koa: Koa,
+      KoaBodyParser: KoaBodyParser,
+      KoaRouter: KoaRouter,
+      DBMiddleware: RequestContext,
+    })
   }
 
   public setup(system: InternalSystem<TSettings>): WebserverFunction<TSettings> {
-    if (this.webserverEnabled && this.WebserverIsEnabled(system.Config)) {
-      const internalSystem = system as unknown as InternalSystem<ApiStartSettings<WebserverEnabledServiceConfigurator>>
+    if (this.WebserverIsEnabled(system)) {
+      const internalSystem = system
       const configuration = this.MakeWebserviceInstance(internalSystem)
       // eslint-disable-next-line @typescript-eslint/no-empty-function
       return (callback =>
@@ -66,17 +58,14 @@ export class WebserverHandler<TSettings extends ApiStartSettings = ApiStartSetti
   }
 
   private start(
-    system: InternalSystem<ApiStartSettings<WebserverEnabledServiceConfigurator>>,
+    system: InternalSystem<ApiStartSettings<WebserverEnabledServiceConfigurator<true, true, boolean>>>,
     instance: Koa,
     // eslint-disable-next-line @typescript-eslint/no-empty-function
     callback: WebserverCallbackFunction<TSettings> = () => {},
   ) {
     const server: WebServerObject = {}
     if (system.Config.services.webserver.connection.http.enabled) {
-      const config = system.Config as Config<
-        ApiStartSettings<ServiceConfigurator<any, any, any, WebserverServiceHttpEnabled>>
-      >
-      const httpWebserverSettings = config.services.webserver.connection.http
+      const httpWebserverSettings = system.Config.services.webserver.connection.http
       server.http = this.deps.Http.createServer(instance.callback()).listen(
         httpWebserverSettings.port ? httpWebserverSettings.port : 80,
         () => {
@@ -92,14 +81,11 @@ export class WebserverHandler<TSettings extends ApiStartSettings = ApiStartSetti
       )
     }
     if (system.Config.services.webserver.connection.https.enabled) {
-      const config = system.Config as Config<
-        ApiStartSettings<ServiceConfigurator<any, any, any, WebserverServiceHttpsEnabled>>
-      >
-      const httpsWebserverSettings = config.services.webserver.connection.https
+      const httpsWebserverSettings = system.Config.services.webserver.connection.https
       server.https = this.deps.Https.createServer(
         {
-          cert: config.services.webserver.connection.https.cert.cert,
-          key: config.services.webserver.connection.https.cert.key,
+          cert: system.Config.services.webserver.connection.https.cert.cert,
+          key: system.Config.services.webserver.connection.https.cert.key,
         },
         instance.callback(),
       ).listen(httpsWebserverSettings.port ? httpsWebserverSettings.port : 443, () => {
@@ -129,7 +115,9 @@ export class WebserverHandler<TSettings extends ApiStartSettings = ApiStartSetti
     }
   }
 
-  private MakeWebserviceInstance(system: InternalSystem<ApiStartSettings<WebserverEnabledServiceConfigurator>>) {
+  private MakeWebserviceInstance(
+    system: InternalSystem<ApiStartSettings<WebserverEnabledServiceConfigurator<true, true, boolean>>>,
+  ) {
     const app = new this.deps.Koa()
     // settings
     app.env = system.Config.app.env
@@ -158,6 +146,13 @@ export class WebserverHandler<TSettings extends ApiStartSettings = ApiStartSetti
       app.use(this.deps.KoaBodyParser(system.Config.services.webserver.settings.bodyParser))
     }
 
+    if (system.Config.services.database.enabled) {
+      const system2 = system as InternalSystem<
+        ApiStartSettings<ServiceConfigurator<any, true, any, WebserverServiceEnabled<true, true, any>>>
+      >
+      app.use(({}, next) => this.deps.DBMiddleware.createAsync(system2.DB.em, next))
+    }
+
     if (system.Config.services.webserver.middleware.length > 0) {
       for (const middleware of this.HandleMiddleware(system, system.Config.services.webserver.middleware)) {
         app.use(middleware)
@@ -175,11 +170,8 @@ export class WebserverHandler<TSettings extends ApiStartSettings = ApiStartSetti
 
     this.HandleRoutes(system, system.Config.services.webserver.router, router)
 
-    if (system.Config.services.webserver.settings.versionHandler) {
-      const config = system.Config as Config<
-        ApiStartSettings<WebserverEnabledServiceConfigurator<WebserverServiceVersionHandlingEnabled>>
-      >
-      this.HandleVersions({...system, Config: config}, router, config.services.webserver.versions)
+    if (this.versionHandlerIsEnabled(system)) {
+      this.HandleVersions(system, router)
     }
 
     app.use(router.routes)
@@ -187,17 +179,21 @@ export class WebserverHandler<TSettings extends ApiStartSettings = ApiStartSetti
   }
 
   private HandleMiddleware(
-    system: InternalSystem<ApiStartSettings<WebserverEnabledServiceConfigurator>>,
-    middlewareList2Handle: IMiddleware[],
+    system: InternalSystem<ApiStartSettings<WebserverEnabledServiceConfigurator<true, true, any>>>,
+    middlewareList2Handle: IMiddleware<ApiStartSettings<WebserverEnabledServiceConfigurator<true, true, any>>>[],
   ) {
     const middlewareList: Koa.Middleware[] = []
-    for (const middleware of middlewareList2Handle) {
-      if (typeof middleware === 'function') {
-        middlewareList.push(middleware(this.HandleDependencies(system, {})))
-      } else {
-        middlewareList.push(
-          middleware.fnc(this.HandleDependencies<typeof middleware.dependencies>(system, middleware.dependencies)),
-        )
+    if (system.Config.services.webserver.middleware.length > 0) {
+      for (const middleware of middlewareList2Handle) {
+        if (typeof middleware === 'function') {
+          middlewareList.push(middleware(this.HandleDependencies(system, {}) as any))
+        } else {
+          middlewareList.push(
+            middleware.fnc(
+              this.HandleDependencies<typeof middleware.dependencies>(system, middleware.dependencies) as any,
+            ),
+          )
+        }
       }
     }
 
@@ -205,10 +201,10 @@ export class WebserverHandler<TSettings extends ApiStartSettings = ApiStartSetti
   }
 
   private HandleDependencies<TDeps extends UserDefinedObject = UserDefinedObject>(
-    system: InternalSystem<ApiStartSettings<WebserverEnabledServiceConfigurator>>,
+    system: InternalSystem<ApiStartSettings<WebserverEnabledServiceConfigurator<true, true, any>>>,
     dependencies: TDeps | DependencyFunction<TSettings, TDeps>,
   ): Dependencies<TSettings> {
-    const internalSystem = system as InternalSystem<TSettings>
+    const internalSystem = system as unknown as InternalSystem<TSettings>
 
     return {
       ...internalSystem,
@@ -218,11 +214,10 @@ export class WebserverHandler<TSettings extends ApiStartSettings = ApiStartSetti
   }
 
   private HandleVersions(
-    system: InternalSystem<ApiStartSettings<WebserverEnabledServiceConfigurator>>,
+    system: InternalSystem<ApiStartSettings<WebserverEnabledServiceConfigurator<true, true, true>>>,
     router: Router,
-    versions: Version[],
   ) {
-    for (const version of versions) {
+    for (const version of system.Config.services.webserver.versions) {
       if (version.enabled) {
         const versionRouter = router.version(version.identifier, version.options)
         this.HandleSingleVersion(system, versionRouter, version)
@@ -231,20 +226,20 @@ export class WebserverHandler<TSettings extends ApiStartSettings = ApiStartSetti
   }
 
   private HandleSingleVersion(
-    system: InternalSystem<ApiStartSettings<WebserverEnabledServiceConfigurator>>,
+    system: InternalSystem<ApiStartSettings<WebserverEnabledServiceConfigurator<true, true, true>>>,
     versionRouter: Router,
-    version: Version,
+    version: Version<ApiStartSettings<WebserverEnabledServiceConfigurator<true, true, any>>>,
   ) {
     if (version.middleware && version.middleware.length > 0) {
-      versionRouter.use(this.HandleMiddleware(system, version.middleware))
+      versionRouter.use(this.HandleMiddleware(system, version.middleware) as any)
     }
 
     this.HandleRoutes(system, version.router, versionRouter)
   }
 
   private HandleRoutes(
-    system: InternalSystem<ApiStartSettings<WebserverEnabledServiceConfigurator>>,
-    routes: IRoute[],
+    system: InternalSystem<ApiStartSettings<WebserverEnabledServiceConfigurator<true, true, any>>>,
+    routes: IRoute<ApiStartSettings<WebserverEnabledServiceConfigurator<true, true, any>>>[],
     router: Router,
   ) {
     for (const route of routes) {
@@ -257,7 +252,10 @@ export class WebserverHandler<TSettings extends ApiStartSettings = ApiStartSetti
         middlewareList = middlewareList.concat(this.HandleMiddleware(system, route.middleware))
       }
 
-      middlewareList.push(route.controller(this.HandleDependencies(system, route.dependencies || {})))
+      const dependencies = this.HandleDependencies(system, route.dependencies || {})
+      const controller = route.controller(dependencies as any)
+
+      middlewareList.push(controller)
 
       if (route.params) {
         for (const paramKey in route.params) {
@@ -267,7 +265,7 @@ export class WebserverHandler<TSettings extends ApiStartSettings = ApiStartSetti
 
       router.route({
         methods,
-        middleware: middlewareList,
+        middleware: middlewareList as any,
         options: route.options,
         params,
         path: route.path,
@@ -275,16 +273,27 @@ export class WebserverHandler<TSettings extends ApiStartSettings = ApiStartSetti
     }
   }
 
-  private handleParam(system: InternalSystem<ApiStartSettings<WebserverEnabledServiceConfigurator>>, param: IParam) {
+  private handleParam(
+    system: InternalSystem<ApiStartSettings<WebserverEnabledServiceConfigurator<true, true, any>>>,
+    param: IParam<any>,
+  ) {
     if (typeof param === 'function') {
-      return param(this.HandleDependencies(system, {}))
+      return param(this.HandleDependencies(system, {}) as any)
     } else {
-      return param.fnc(this.HandleDependencies<typeof param.dependencies>(system, param.dependencies))
+      return param.fnc(this.HandleDependencies(system, param.dependencies) as any)
     }
   }
 
-  private WebserverIsEnabled(config: Config): config is Config<ApiStartSettings<WebserverEnabledServiceConfigurator>> {
-    return config.services.webserver.enabled
+  private WebserverIsEnabled(
+    system: InternalSystem<any>,
+  ): system is InternalSystem<ApiStartSettings<WebserverEnabledServiceConfigurator<true, true, boolean>>> {
+    return system.Config.services.database.enabled
+  }
+
+  private versionHandlerIsEnabled(
+    system: InternalSystem<ApiStartSettings<WebserverEnabledServiceConfigurator<true, true, any>>>,
+  ): system is InternalSystem<ApiStartSettings<WebserverEnabledServiceConfigurator<true, true, true>>> {
+    return system.Config.services.database.enabled && system.Config.services.webserver.settings.versionHandler !== false
   }
 }
 

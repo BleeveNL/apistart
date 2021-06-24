@@ -13,11 +13,14 @@ import * as joi from 'joi'
 import queueDisabledSchema from './validationSchemas/queueDisabled.schema'
 import queueEnabledSchema from './validationSchemas/queueEnabled.schema'
 import {Config} from '../../../systemInterfaces/config'
-import {QueueClient, QueueHandlerSetupEnabled, QueueHandlerSetupDisabled} from '../../../services/queue/interfaces'
 import {InternalSystem} from '../../../systemInterfaces/internalSystem'
 import * as EventHandlerMock from './mocks/eventHandler.mock'
 import * as sinon from 'sinon'
 import {ApiStartSettings} from '../../../systemInterfaces/apiStartSettings'
+import * as LoghandlerMock from '../../mocks/nodeModules/logHandler.mock'
+import {QueueHandlerSetupDisabled} from '../../../services/queue/interfaces/queueHandlerSetupDisabled.interface'
+import {QueueHandlerSetupEnabled} from '../../../services/queue/interfaces/queueHandlerSetupEnabled.interface'
+import {QueueClient} from '../../../services/queue/interfaces/queueClient.interface'
 
 suite('Test QueueHandler (./services/queue/queueHandler.ts)', () => {
   let correctConfig: Config<any> = JSON.parse(JSON.stringify(configMocked.correct.everythingDisabled))
@@ -34,12 +37,15 @@ suite('Test QueueHandler (./services/queue/queueHandler.ts)', () => {
     assert.isFunction(QueueHandler.factory)
   })
 
-  test('factory gets 1 parameter', () => {
-    assert.equal(QueueHandler.factory.length, 1)
+  test('factory gets 2 parameter', () => {
+    assert.equal(QueueHandler.factory.length, 2)
   })
 
   test('factory() returns instance of QueueHandler', () => {
-    assert.instanceOf(QueueHandler.factory(correctConfig), QueueHandler)
+    assert.instanceOf(
+      QueueHandler.factory({Log: new LoghandlerMock.Instance() as unknown as Log}, correctConfig),
+      QueueHandler,
+    )
   })
 
   suite('setup() works as expected', () => {

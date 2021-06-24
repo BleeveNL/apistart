@@ -75,8 +75,7 @@ export const everythingEnabled: Config<
       port: 1234,
     },
     database: {
-      database: faker.random.word(),
-      dialect: 'postgres',
+      type: 'postgresql',
       enabled: true,
       folder: {
         migrations: faker.system.filePath(),
@@ -85,7 +84,7 @@ export const everythingEnabled: Config<
       models: {},
       password: faker.random.alphaNumeric(15),
       port: faker.datatype.number(),
-      username: faker.random.alphaNumeric(15),
+      user: faker.random.alphaNumeric(15),
     },
     queue: {
       enabled: true,
@@ -196,8 +195,7 @@ export const everythingEnabledWithoutVersioning: Config<
       port: 1234,
     },
     database: {
-      database: faker.random.word(),
-      dialect: 'postgres',
+      type: 'postgresql',
       enabled: true,
       folder: {
         migrations: faker.system.filePath(),
@@ -206,7 +204,7 @@ export const everythingEnabledWithoutVersioning: Config<
       models: {},
       password: faker.random.alphaNumeric(15),
       port: faker.datatype.number(),
-      username: faker.random.alphaNumeric(15),
+      user: faker.random.alphaNumeric(15),
     },
     queue: {
       enabled: true,

@@ -15,6 +15,6 @@ export interface Dependencies<TSettings extends ApiStartSettings> {
     readonly database: DatabaseHandler<TSettings>
     readonly cache: CacheHandler<TSettings>
     readonly queue: QueueHandler<TSettings>
-    readonly webserver: WebserverHandler
+    readonly webserver: WebserverHandler<TSettings>
   }
 }

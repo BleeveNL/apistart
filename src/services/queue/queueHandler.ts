@@ -1,18 +1,25 @@
 import * as Amqp from 'amqplib'
-import LogHandler from 'loghandler'
 import * as Process from 'process'
-import {
-  Dependencies,
-  ServiceConfiguratorQueueEnabled,
-  QueueEventListenerList,
-  QueueConfig,
-  QueueExchangeSettings,
-  QueueHandlerSetup,
-} from './interfaces'
 import {Config} from '../../systemInterfaces/config'
 import {InternalSystem} from '../../systemInterfaces/internalSystem'
 import {Dependencies as TDependencies, Dependencies as SystemDependencies} from '../../systemInterfaces/dependencies'
 import {ApiStartSettings} from '../../systemInterfaces/apiStartSettings'
+import {LogHandlerResults} from 'loghandler/lib/interfaces'
+import {QueueHandlerSetup} from './interfaces/queueHandlerSetup.interface'
+import {QueueConfig} from './interfaces/queueConfig.interface'
+import {QueueEventListenerList} from './interfaces/queueEventListenerList.interface'
+import {ServiceConfiguratorQueueEnabled} from './interfaces/serviceConfiguratorQueueEnabled.interface'
+import {QueueExchangeSettings} from './interfaces/queueExchangeSettings.interface'
+
+export interface SysDeps {
+  Log: LogHandlerResults
+}
+
+export interface Dependencies {
+  readonly Amqp: typeof Amqp
+  readonly Log: LogHandlerResults
+  readonly Process: typeof process
+}
 
 export class QueueHandler<TSettings extends ApiStartSettings> {
   private deps: Dependencies
@@ -24,18 +31,21 @@ export class QueueHandler<TSettings extends ApiStartSettings> {
     this.config = config
   }
 
-  public static factory<TSettings extends ApiStartSettings>(config: Config<TSettings>): QueueHandler<TSettings> {
+  public static factory<TSettings extends ApiStartSettings>(
+    sysDeps: SysDeps,
+    config: Config<TSettings>,
+  ): QueueHandler<TSettings> {
     return new this<TSettings>(
       {
+        ...sysDeps,
         Amqp,
-        Log: LogHandler(config.log),
         Process,
       },
       config,
     )
   }
 
-  public async setup<TSettings extends ApiStartSettings>(): Promise<QueueHandlerSetup<TSettings>> {
+  public async setup(): Promise<QueueHandlerSetup<TSettings>> {
     if (this.queueEnabled(this.config)) {
       const settings: QueueConfig = this.config.services.queue
       const connection = await this.setupConnection(settings)
@@ -57,14 +67,14 @@ export class QueueHandler<TSettings extends ApiStartSettings> {
           },
         },
         server:
-          <TSettings extends ApiStartSettings>(
+          (
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
             sysDeps: InternalSystem<TSettings>,
           ) =>
           async (listeners: QueueEventListenerList, callback?: (sysDeps: InternalSystem<TSettings>) => void) => {
             if (this.verifyQueueEventListeners(listeners)) {
               try {
-                await this.startServer<TSettings>(this.deps, sysDeps, settings, connection, listeners)
+                await this.startServer(this.deps, sysDeps, settings, connection, listeners)
                 if (callback) {
                   callback(sysDeps)
                 }
@@ -175,7 +185,7 @@ export class QueueHandler<TSettings extends ApiStartSettings> {
     }
   }
 
-  private async startServer<TSettings extends ApiStartSettings>(
+  private async startServer(
     deps: Dependencies,
     sysDeps: InternalSystem<TSettings>,
     settings: QueueConfig,
@@ -226,18 +236,23 @@ export class QueueHandler<TSettings extends ApiStartSettings> {
   }
 
   private verifyQueueEventListeners(listeners: QueueEventListenerList) {
-    const config = this.config as Config<ApiStartSettings<ServiceConfiguratorQueueEnabled>>
-    const exchangesNames = config.services.queue.exchanges.filter(exchange => exchange.name)
+    if (this.queueEnabled(this.config)) {
+      const config = this.config
+      config.services.queue.exchanges
+      const exchangesNames = config.services.queue.exchanges.filter(exchange => exchange.name)
 
-    for (const listener of listeners) {
-      if (!exchangesNames.map(exchange => exchange.name).includes(listener.exchange)) {
-        throw new Error(
-          `Queue server is stopped because it found an eventHandler that uses the "${listener.exchange}" exchange, while this exchange isn't configured.`,
-        )
+      for (const listener of listeners) {
+        if (!exchangesNames.map(exchange => exchange.name).includes(listener.exchange)) {
+          throw new Error(
+            `Queue server is stopped because it found an eventHandler that uses the "${listener.exchange}" exchange, while this exchange isn't configured.`,
+          )
+        }
       }
+
+      return true
     }
 
-    return true
+    throw new Error(`Something weird happened. Queue is disabled while verifyQueueEventListeners() was running.`)
   }
 }
 

@@ -14,31 +14,20 @@ import {InternalSystem} from '../../../systemInterfaces/internalSystem'
 import {Config} from '../../../systemInterfaces/config'
 import {EnabledService} from '../../../systemInterfaces/services'
 import {WebserverHandlerDeps, WebserverEnabledServiceConfigurator} from '../../../services/webserver/interfaces'
-import {
-  WebserverServiceHttpEnabled,
-  WebserverServiceHttpsEnabled,
-  WebserverServiceEverythingEnabled,
-} from '../../../services/webserver/interfaces/webserverServiceEnabled'
 import {MiddlewareObject} from '../../../services/webserver/interfaces/middleware'
 import {ApiStartSettings} from '../../../systemInterfaces/apiStartSettings'
 import {UserDefinedObject} from '../../../systemInterfaces/userDefinedObject'
 import bodyParser = require('koa-bodyparser')
 
 let dependenciesMock: WebserverHandlerDeps
-let config: Config<ApiStartSettings<WebserverEnabledServiceConfigurator>>
-let webserverHandler: DefaultExport<ApiStartSettings<WebserverEnabledServiceConfigurator>>
-let internalSystem: InternalSystem<ApiStartSettings<WebserverEnabledServiceConfigurator>>
+let config: Config<ApiStartSettings<WebserverEnabledServiceConfigurator<any, any, any>>>
+let webserverHandler: DefaultExport<ApiStartSettings<WebserverEnabledServiceConfigurator<true, true, any>>>
+let internalSystem: InternalSystem<ApiStartSettings<WebserverEnabledServiceConfigurator<true, true, any>>>
 let webserver: (callback?: () => void) => {close: (callback?: () => void) => void}
 
 suite('Test Webserver Handler (./services/webserver/webserverHandler.ts)', () => {
   test('Returns as default a instanceOf the queueHandler Class', () => {
-    assert.instanceOf(
-      new DefaultExport(
-        {} as WebserverHandlerDeps,
-        JSON.parse(JSON.stringify(configMocked.correct.everythingDisabled)),
-      ),
-      WebserverHandler,
-    )
+    assert.instanceOf(new DefaultExport({} as WebserverHandlerDeps), WebserverHandler)
   })
 
   test('Object has an static Factory function', () => {
@@ -50,10 +39,7 @@ suite('Test Webserver Handler (./services/webserver/webserverHandler.ts)', () =>
   })
 
   test('factory() returns instance of WebserverHandler', () => {
-    assert.instanceOf(
-      WebserverHandler.factory(JSON.parse(JSON.stringify(configMocked.correct.everythingDisabled))),
-      WebserverHandler,
-    )
+    assert.instanceOf(WebserverHandler.factory(), WebserverHandler)
   })
 
   suite('setup() works as expected!', () => {
@@ -66,9 +52,9 @@ suite('Test Webserver Handler (./services/webserver/webserverHandler.ts)', () =>
         Log: new ModulesMock.logHandler.Instance(),
         Models: {},
         Queue: QueueHandlerMock.Instance,
-      } as unknown as InternalSystem<ApiStartSettings<WebserverEnabledServiceConfigurator>>
+      } as unknown as InternalSystem<ApiStartSettings<WebserverEnabledServiceConfigurator<true, true, any>>>
 
-      webserverHandler = new WebserverHandler(dependenciesMock, config)
+      webserverHandler = new WebserverHandler(dependenciesMock)
     })
 
     teardown(() => {
@@ -117,10 +103,7 @@ suite('Test Webserver Handler (./services/webserver/webserverHandler.ts)', () =>
           Queue: QueueHandlerMock.Instance,
         } as any
 
-        webserverHandler = new WebserverHandler(
-          dependenciesMock,
-          JSON.parse(JSON.stringify(configMocked.correct.everythingEnabled)),
-        )
+        webserverHandler = new WebserverHandler(dependenciesMock)
       })
 
       teardown(() => {
@@ -153,9 +136,7 @@ suite('Test Webserver Handler (./services/webserver/webserverHandler.ts)', () =>
       suite('Test Http Server connection is enabled', () => {
         setup(() => {
           config = immer(
-            internalSystem.Config as Config<
-              ApiStartSettings<WebserverEnabledServiceConfigurator<WebserverServiceHttpEnabled>>
-            >,
+            internalSystem.Config as Config<ApiStartSettings<WebserverEnabledServiceConfigurator<true, any, any>>>,
             Config => {
               Config.services.webserver.connection.https = {enabled: false}
             },
@@ -176,7 +157,7 @@ suite('Test Webserver Handler (./services/webserver/webserverHandler.ts)', () =>
 
         test('Http Server is Created an stared with listening to correct port', () => {
           const settings = config as unknown as Config<
-            ApiStartSettings<WebserverEnabledServiceConfigurator<WebserverServiceHttpEnabled>>
+            ApiStartSettings<WebserverEnabledServiceConfigurator<true, any, any>>
           >
           if (settings.services.webserver.connection.http.enabled) {
             assert.isTrue(ModulesMock.koa.stubs.callback.callCount === 0)
@@ -199,7 +180,7 @@ suite('Test Webserver Handler (./services/webserver/webserverHandler.ts)', () =>
 
         test('Http Server calls given callback function when system started listening', () => {
           const settings = config as unknown as Config<
-            ApiStartSettings<WebserverEnabledServiceConfigurator<WebserverServiceHttpEnabled>>
+            ApiStartSettings<WebserverEnabledServiceConfigurator<true, any, any>>
           >
           if (settings.services.webserver.connection.http.enabled) {
             const callbackstub = sinon.stub()
@@ -218,7 +199,7 @@ suite('Test Webserver Handler (./services/webserver/webserverHandler.ts)', () =>
         test('Http Server Logs on info level that server is started and on which port', () => {
           if (config.services.webserver.connection.http.enabled) {
             const settings = config as unknown as Config<
-              ApiStartSettings<WebserverEnabledServiceConfigurator<WebserverServiceHttpEnabled>>
+              ApiStartSettings<WebserverEnabledServiceConfigurator<true, any, any>>
             >
             webserver()
 
@@ -247,9 +228,7 @@ suite('Test Webserver Handler (./services/webserver/webserverHandler.ts)', () =>
 
         test('Http Server is Created an stared with listening to correct port when port is not configured', () => {
           config = immer(
-            internalSystem.Config as Config<
-              ApiStartSettings<WebserverEnabledServiceConfigurator<WebserverServiceHttpEnabled>>
-            >,
+            internalSystem.Config as Config<ApiStartSettings<WebserverEnabledServiceConfigurator<true, any, any>>>,
             Config => {
               Config.services.webserver.connection.https = {enabled: false}
               Config.services.webserver.connection.http = {enabled: true}
@@ -278,9 +257,7 @@ suite('Test Webserver Handler (./services/webserver/webserverHandler.ts)', () =>
 
         test('Http Server Logs on info level that server is started and on which port when port is not configured', () => {
           config = immer(
-            internalSystem.Config as Config<
-              ApiStartSettings<WebserverEnabledServiceConfigurator<WebserverServiceHttpEnabled>>
-            >,
+            internalSystem.Config as Config<ApiStartSettings<WebserverEnabledServiceConfigurator<true, any, any>>>,
             Config => {
               Config.services.webserver.connection.https = {enabled: false}
               Config.services.webserver.connection.http = {enabled: true}
@@ -327,9 +304,7 @@ suite('Test Webserver Handler (./services/webserver/webserverHandler.ts)', () =>
       suite('Test Https Server connection is enabled', () => {
         setup(() => {
           config = immer(
-            internalSystem.Config as Config<
-              ApiStartSettings<WebserverEnabledServiceConfigurator<WebserverServiceHttpsEnabled>>
-            >,
+            internalSystem.Config as Config<ApiStartSettings<WebserverEnabledServiceConfigurator<any, true, any>>>,
             Config => {
               Config.services.webserver.connection.http = {enabled: false}
             },
@@ -350,7 +325,7 @@ suite('Test Webserver Handler (./services/webserver/webserverHandler.ts)', () =>
 
         test('Https Server is Created an stared with listening to correct port', () => {
           const settings = config as unknown as Config<
-            ApiStartSettings<WebserverEnabledServiceConfigurator<WebserverServiceHttpsEnabled>>
+            ApiStartSettings<WebserverEnabledServiceConfigurator<any, true, any>>
           >
           if (settings.services.webserver.connection.https.enabled) {
             assert.isTrue(ModulesMock.koa.stubs.callback.callCount === 0)
@@ -379,7 +354,7 @@ suite('Test Webserver Handler (./services/webserver/webserverHandler.ts)', () =>
 
         test('Https Server calls given callback function when system started listening', () => {
           const settings = config as unknown as Config<
-            ApiStartSettings<WebserverEnabledServiceConfigurator<WebserverServiceHttpEnabled>>
+            ApiStartSettings<WebserverEnabledServiceConfigurator<any, true, any>>
           >
           if (settings.services.webserver.connection.https.enabled) {
             const callbackstub = sinon.stub()
@@ -397,7 +372,7 @@ suite('Test Webserver Handler (./services/webserver/webserverHandler.ts)', () =>
 
         test('Https Server Logs on info level that server is started and on which port', () => {
           const settings = config as unknown as Config<
-            ApiStartSettings<WebserverEnabledServiceConfigurator<WebserverServiceHttpsEnabled>>
+            ApiStartSettings<WebserverEnabledServiceConfigurator<any, true, any>>
           >
           if (settings.services.webserver.connection.https.enabled) {
             webserver()
@@ -427,9 +402,7 @@ suite('Test Webserver Handler (./services/webserver/webserverHandler.ts)', () =>
 
         test('Https Server is Created an stared with listening to correct port when port is not configured', () => {
           config = immer(
-            internalSystem.Config as Config<
-              ApiStartSettings<WebserverEnabledServiceConfigurator<WebserverServiceHttpsEnabled>>
-            >,
+            internalSystem.Config as Config<ApiStartSettings<WebserverEnabledServiceConfigurator<any, true, any>>>,
             Config => {
               Config.services.webserver.connection.http = {enabled: false}
               Config.services.webserver.connection.https = {
@@ -465,11 +438,9 @@ suite('Test Webserver Handler (./services/webserver/webserverHandler.ts)', () =>
           assert.isTrue(ModulesMock.https.stubs.listen.args[0][0] === 443)
         })
 
-        test('Http Server Logs on info level that server is started and on which port when port is not configured', () => {
+        test('Https Server Logs on info level that server is started and on which port when port is not configured', () => {
           config = immer(
-            internalSystem.Config as Config<
-              ApiStartSettings<WebserverEnabledServiceConfigurator<WebserverServiceHttpsEnabled>>
-            >,
+            internalSystem.Config as Config<ApiStartSettings<WebserverEnabledServiceConfigurator<any, true, any>>>,
             Config => {
               Config.services.webserver.connection.http = {enabled: false}
               Config.services.webserver.connection.https = {
@@ -523,13 +494,13 @@ suite('Test Webserver Handler (./services/webserver/webserverHandler.ts)', () =>
         setup(() => {
           config = immer(
             JSON.parse(JSON.stringify(configMocked.correct.everythingEnabled)) as Config<
-              ApiStartSettings<WebserverEnabledServiceConfigurator<WebserverServiceEverythingEnabled>>
+              ApiStartSettings<WebserverEnabledServiceConfigurator<true, true, any>>
             >,
             config => {
               config.services.webserver.connection.http = {enabled: true, port: faker.datatype.number()}
             },
           )
-          webserverHandler = new WebserverHandler(dependenciesMock, config)
+          webserverHandler = new WebserverHandler(dependenciesMock)
           webserverHandler.setup(internalSystem)
         })
 
@@ -552,14 +523,14 @@ suite('Test Webserver Handler (./services/webserver/webserverHandler.ts)', () =>
         test("Koa subDomainOffset is correctly set when it isn't given", () => {
           const config = immer(
             JSON.parse(JSON.stringify(configMocked.correct.everythingEnabled)) as Config<
-              ApiStartSettings<WebserverEnabledServiceConfigurator<WebserverServiceEverythingEnabled>>
+              ApiStartSettings<WebserverEnabledServiceConfigurator<true, true, any>>
             >,
             config => {
               config.services.webserver.settings.subdomainOffset = undefined
             },
           )
 
-          const webserverHandler = new WebserverHandler(dependenciesMock, config)
+          const webserverHandler = new WebserverHandler(dependenciesMock)
           webserverHandler.setup({
             ...internalSystem,
             Config: config,
@@ -570,7 +541,7 @@ suite('Test Webserver Handler (./services/webserver/webserverHandler.ts)', () =>
         })
 
         test("Koa proxy is correctly set when it isn't given", () => {
-          const webserverHandler = new WebserverHandler(dependenciesMock, config)
+          const webserverHandler = new WebserverHandler(dependenciesMock)
           webserverHandler.setup(internalSystem)()
 
           assert.exists(ModulesMock.koa.stubs._vars.proxy)
@@ -580,14 +551,14 @@ suite('Test Webserver Handler (./services/webserver/webserverHandler.ts)', () =>
         test('Koa proxy is correctly set when it is given', () => {
           const config = immer(
             JSON.parse(JSON.stringify(configMocked.correct.everythingEnabled)) as Config<
-              ApiStartSettings<WebserverEnabledServiceConfigurator<WebserverServiceEverythingEnabled>>
+              ApiStartSettings<WebserverEnabledServiceConfigurator<true, true, any>>
             >,
             config => {
               config.services.webserver.settings.proxy = true
             },
           )
 
-          const webserverHandler = new WebserverHandler(dependenciesMock, config)
+          const webserverHandler = new WebserverHandler(dependenciesMock)
           webserverHandler.setup({
             ...internalSystem,
             Config: config,
@@ -600,14 +571,14 @@ suite('Test Webserver Handler (./services/webserver/webserverHandler.ts)', () =>
         test('Koa silent is correctly set when it is given', () => {
           const config = immer(
             JSON.parse(JSON.stringify(configMocked.correct.everythingEnabled)) as Config<
-              ApiStartSettings<WebserverEnabledServiceConfigurator<WebserverServiceEverythingEnabled>>
+              ApiStartSettings<WebserverEnabledServiceConfigurator<true, true, any>>
             >,
             config => {
               config.services.webserver.settings.silent = faker.datatype.boolean()
             },
           )
 
-          const webserverHandler = new WebserverHandler(dependenciesMock, config)
+          const webserverHandler = new WebserverHandler(dependenciesMock)
           webserverHandler.setup({
             ...internalSystem,
             Config: config,
@@ -620,7 +591,7 @@ suite('Test Webserver Handler (./services/webserver/webserverHandler.ts)', () =>
         test('Koa silent is correctly set when it is not given given, but env is production', () => {
           const config = immer(
             JSON.parse(JSON.stringify(configMocked.correct.everythingEnabled)) as Config<
-              ApiStartSettings<WebserverEnabledServiceConfigurator<WebserverServiceEverythingEnabled>>
+              ApiStartSettings<WebserverEnabledServiceConfigurator<true, true, any>>
             >,
             config => {
               config.app.env = 'production'
@@ -628,7 +599,7 @@ suite('Test Webserver Handler (./services/webserver/webserverHandler.ts)', () =>
             },
           )
 
-          const webserverHandler = new WebserverHandler(dependenciesMock, config)
+          const webserverHandler = new WebserverHandler(dependenciesMock)
           webserverHandler.setup({
             ...internalSystem,
             Config: config,
@@ -672,7 +643,7 @@ suite('Test Webserver Handler (./services/webserver/webserverHandler.ts)', () =>
 
           const config = immer(
             JSON.parse(JSON.stringify(configMocked.correct.everythingEnabled)) as Config<
-              ApiStartSettings<WebserverEnabledServiceConfigurator<WebserverServiceEverythingEnabled>>
+              ApiStartSettings<WebserverEnabledServiceConfigurator<true, true, any>>
             >,
             config => {
               config.services.webserver.settings.bodyParser = bodyParserSettings
@@ -682,7 +653,7 @@ suite('Test Webserver Handler (./services/webserver/webserverHandler.ts)', () =>
           const returnedData = faker.random.alphaNumeric(8)
           ModulesMock.koaBodyParser.stubs.fn.returns(returnedData)
 
-          const webserverHandler = new WebserverHandler(dependenciesMock, config)
+          const webserverHandler = new WebserverHandler(dependenciesMock)
           webserverHandler.setup({
             ...internalSystem,
             Config: config,
@@ -711,7 +682,7 @@ suite('Test Webserver Handler (./services/webserver/webserverHandler.ts)', () =>
             setup(() => {
               config = immer(
                 JSON.parse(JSON.stringify(configMocked.correct.everythingEnabled)) as Config<
-                  ApiStartSettings<WebserverEnabledServiceConfigurator<WebserverServiceEverythingEnabled>>
+                  ApiStartSettings<WebserverEnabledServiceConfigurator<true, true, any>>
                 >,
                 config => {
                   const middlewareList = []
@@ -724,11 +695,11 @@ suite('Test Webserver Handler (./services/webserver/webserverHandler.ts)', () =>
               )
 
               MiddlewareMock.stubs.middleware.returns(returnValues)
-              webserverHandler = new WebserverHandler(dependenciesMock, config)
+              webserverHandler = new WebserverHandler(dependenciesMock)
               webserverHandler.setup({
                 ...internalSystem,
                 Config: config,
-              } as InternalSystem<ApiStartSettings<WebserverEnabledServiceConfigurator>>)
+              } as InternalSystem<ApiStartSettings<WebserverEnabledServiceConfigurator<true, true, any>>>)
             })
 
             teardown(() => {
@@ -776,7 +747,7 @@ suite('Test Webserver Handler (./services/webserver/webserverHandler.ts)', () =>
 
               config = immer(
                 JSON.parse(JSON.stringify(configMocked.correct.everythingEnabled)) as Config<
-                  ApiStartSettings<WebserverEnabledServiceConfigurator<WebserverServiceEverythingEnabled>>
+                  ApiStartSettings<WebserverEnabledServiceConfigurator<true, true, any>>
                 >,
                 config => {
                   const middlewareList = []
@@ -789,16 +760,16 @@ suite('Test Webserver Handler (./services/webserver/webserverHandler.ts)', () =>
                     middlewareList.push(middleware)
                   }
 
-                  config.services.webserver.middleware = middlewareList
+                  config.services.webserver.middleware = middlewareList as any
                 },
               )
 
               MiddlewareMock.stubs.middleware.returns(returnValues)
-              webserverHandler = new WebserverHandler(dependenciesMock, config)
+              webserverHandler = new WebserverHandler(dependenciesMock)
               webserverHandler.setup({
                 ...internalSystem,
                 Config: config,
-              } as InternalSystem<ApiStartSettings<WebserverEnabledServiceConfigurator>>)
+              } as InternalSystem<ApiStartSettings<WebserverEnabledServiceConfigurator<true, true, any>>>)
             })
 
             teardown(() => {
@@ -833,7 +804,7 @@ suite('Test Webserver Handler (./services/webserver/webserverHandler.ts)', () =>
 
               config = immer(
                 JSON.parse(JSON.stringify(configMocked.correct.everythingEnabled)) as Config<
-                  ApiStartSettings<WebserverEnabledServiceConfigurator<WebserverServiceEverythingEnabled>>
+                  ApiStartSettings<WebserverEnabledServiceConfigurator<true, true, any>>
                 >,
                 config => {
                   const middlewareList = []
@@ -846,16 +817,16 @@ suite('Test Webserver Handler (./services/webserver/webserverHandler.ts)', () =>
                     middlewareList.push(middleware)
                   }
 
-                  config.services.webserver.middleware = middlewareList
+                  config.services.webserver.middleware = middlewareList as any
                 },
               )
 
               MiddlewareMock.stubs.middleware.returns(returnValues)
-              webserverHandler = new WebserverHandler(dependenciesMock, config)
+              webserverHandler = new WebserverHandler(dependenciesMock)
               webserverHandler.setup({
                 ...internalSystem,
                 Config: config,
-              } as InternalSystem<ApiStartSettings<WebserverEnabledServiceConfigurator>>)
+              } as InternalSystem<ApiStartSettings<WebserverEnabledServiceConfigurator<true, true, any>>>)
 
               assert.equal(MiddlewareMock.stubs.setup.callCount, numberOfMiddleware)
               assert.equal(MiddlewareMock.stubs.setup.args[0].length, 1)
@@ -885,7 +856,7 @@ suite('Test Webserver Handler (./services/webserver/webserverHandler.ts)', () =>
 
               config = immer(
                 JSON.parse(JSON.stringify(configMocked.correct.everythingEnabled)) as Config<
-                  ApiStartSettings<WebserverEnabledServiceConfigurator<WebserverServiceEverythingEnabled>>
+                  ApiStartSettings<WebserverEnabledServiceConfigurator<true, true, any>>
                 >,
                 config => {
                   config.services.webserver.middleware = [
@@ -898,11 +869,11 @@ suite('Test Webserver Handler (./services/webserver/webserverHandler.ts)', () =>
               )
 
               MiddlewareMock.stubs.middleware.returns(returnValues)
-              webserverHandler = new WebserverHandler(dependenciesMock, config)
+              webserverHandler = new WebserverHandler(dependenciesMock)
               webserverHandler.setup({
                 ...internalSystem,
                 Config: config,
-              } as InternalSystem<ApiStartSettings<WebserverEnabledServiceConfigurator>>)
+              } as InternalSystem<ApiStartSettings<WebserverEnabledServiceConfigurator<true, true, any>>>)
 
               assert.equal(middlewareDependencyStub.callCount, 1)
               assert.equal(middlewareDependencyStub.args[0].length, 1)
