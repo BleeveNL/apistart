@@ -87,7 +87,6 @@ export class DatabaseHandler<TSettings extends ApiStartSettings> {
           requireEntitiesArray: true,
           alwaysAnalyseProperties: false,
         },
-        ensureIndexes: true,
         implicitTransactions: config.type === 'mongo',
         logger: this.getLogger(config.logger),
         propagateToOneOwner: true,

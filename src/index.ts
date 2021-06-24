@@ -42,6 +42,21 @@ export {QueueEventListenerHandler} from './services/queue/interfaces/queueEventL
 export {QueueService} from './services/queue/interfaces/queueService.interface'
 export {QueueEventListenerList} from './services/queue/interfaces/QueueEventListenerList.interface'
 export {WebserverServiceEnabled} from './services/webserver/interfaces/webserverServiceEnabled'
-export {Model as BaseModel} from 'sequelize'
 export {Context} from 'koa'
 export {Dependencies as SystemDependencies} from './systemInterfaces/dependencies'
+export {
+  Entity as Model,
+  Property,
+  ManyToOne,
+  OneToMany,
+  OneToOne,
+  ManyToMany,
+  SerializedPrimaryKey,
+  PrimaryKey,
+  Enum,
+  Formula,
+  Index,
+  Unique,
+  BaseEntity as BaseModel,
+} from '@mikro-orm/core'
+export {Models} from './services/database/interfaces/models.interface'

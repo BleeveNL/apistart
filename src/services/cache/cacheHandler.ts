@@ -1,6 +1,6 @@
 import {Config} from '../../systemInterfaces/config'
 import Immer from 'immer'
-import * as redis from 'ioredis'
+import redis from 'ioredis'
 import {ApiStartSettings} from '../../systemInterfaces/apiStartSettings'
 import ServiceConfiguratorCacheEnabled from './interfaces/ServiceConfiguratorCacheEnabled.interface'
 import CacheConfig from './interfaces/cacheConfig.interface'
@@ -41,8 +41,8 @@ export class CacheHandler<TSettings extends ApiStartSettings> {
       const cacheConfig: CacheConfig = config.services.cache
 
       const client: redis.Redis = cacheConfig.url
-        ? new (this.deps.Redis as any)(cacheConfig.url, cacheConfig)
-        : new (this.deps.Redis as any)(cacheConfig)
+        ? new this.deps.Redis(cacheConfig.url, cacheConfig)
+        : new this.deps.Redis(cacheConfig)
 
       this.setListeners(client)
       return client

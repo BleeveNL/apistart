@@ -37,7 +37,7 @@ export default joi.object({
     .optional(),
   models: joi.object().required(),
   subscribers: joi.array().items(joi.object()).optional(),
-  typs: joi.allow('mongo', 'mysql', 'mariadb', 'postgresql', 'sqlite').required(),
+  type: joi.allow('mongo', 'mysql', 'mariadb', 'postgresql', 'sqlite').required(),
   forceUtcTimezone: joi.boolean().optional(),
   forceUndefined: joi.boolean().optional(),
   timezone: joi.string().optional(),

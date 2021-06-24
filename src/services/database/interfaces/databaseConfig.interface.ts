@@ -3,6 +3,7 @@ import {EnabledService} from '../../../systemInterfaces/services'
 import {Models} from './models.interface'
 
 export interface DatabaseConfig<TEntityList extends Models> extends EnabledService, ConnectionOptions {
+  readonly ensureIndexes?: boolean
   readonly models: TEntityList
   readonly subscribers?: EventSubscriber[]
   readonly type: keyof typeof Configuration.PLATFORMS
