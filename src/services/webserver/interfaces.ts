@@ -1,13 +1,13 @@
 import * as http from 'http'
 import * as https from 'https'
 import immer from 'immer'
-import * as Koa from 'koa'
-import * as KoaBodyParser from 'koa-bodyparser'
+import Koa from 'koa'
+import KoaBodyParser from 'koa-bodyparser'
 import Router from 'koa-advanced-router'
-import {ServiceConfigurator, QueueService} from '../../systemInterfaces/serviceConfigurator'
-import {WebserverServiceEnabled} from './interfaces/webserverServiceEnabled'
+import {ServiceConfigurator} from '../../systemInterfaces/serviceConfigurator'
 import {ApiStartSettings} from '../../systemInterfaces/apiStartSettings'
 import {InternalSystem} from '../../systemInterfaces/internalSystem'
+import {RequestContext} from '@mikro-orm/core'
 
 export interface WebserverHandlerDeps {
   readonly Http: typeof http
@@ -16,11 +16,20 @@ export interface WebserverHandlerDeps {
   readonly Koa: typeof Koa
   readonly KoaBodyParser: typeof KoaBodyParser
   readonly KoaRouter: typeof Router
+  readonly DBMiddleware: typeof RequestContext
 }
 
-export type WebserverEnabledServiceConfigurator<
-  TWebserverConfig extends WebserverServiceEnabled = WebserverServiceEnabled,
-> = ServiceConfigurator<boolean, boolean, false | QueueService, TWebserverConfig>
+export interface WebserverEnabledServiceConfigurator<
+  Thttp extends boolean = boolean,
+  Thttps extends boolean = boolean,
+  TversionHandling extends boolean = boolean,
+> extends ServiceConfigurator {
+  webserver: {
+    readonly http: Thttp
+    readonly https: Thttps
+    readonly versionHandling: TversionHandling
+  }
+}
 
 export interface WebserverStartResponse {
   close: (callback?: () => void) => void

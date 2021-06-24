@@ -1,6 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import {Config} from '../../../systemInterfaces/config'
-import {WebserverServiceVersionHandlingEnabled} from '../../../services/webserver/interfaces/webserverServiceEnabled'
 import {WebserverEnabledServiceConfigurator, WebserverHandlerDeps} from '../../../services/webserver/interfaces'
 import immer from 'immer'
 import configMocked from '../../mocks/config.mock'
@@ -19,11 +18,12 @@ import WebserverHandler from '../../../services/webserver/webserverHandler'
 import {Version} from '../../../services/webserver/interfaces/version'
 import {ApiStartSettings} from '../../../systemInterfaces/apiStartSettings'
 
-let config: Config<ApiStartSettings<WebserverEnabledServiceConfigurator<WebserverServiceVersionHandlingEnabled>>> =
-  JSON.parse(JSON.stringify(configMocked.correct.everythingEnabled))
+let config: Config<ApiStartSettings<WebserverEnabledServiceConfigurator<true, true, true>>> = JSON.parse(
+  JSON.stringify(configMocked.correct.everythingEnabled),
+)
 let dependenciesMock: WebserverHandlerDeps
-let webserverHandler: WebserverHandler<ApiStartSettings<WebserverEnabledServiceConfigurator>>
-let internalSystem: InternalSystem<ApiStartSettings<WebserverEnabledServiceConfigurator>>
+let webserverHandler: WebserverHandler<ApiStartSettings<WebserverEnabledServiceConfigurator<true, true, true>>>
+let internalSystem: InternalSystem<ApiStartSettings<WebserverEnabledServiceConfigurator<true, true, true>>>
 let webserver: (callback?: () => void) => {close: (callback?: () => void) => void}
 
 suite('Test Webserver Handler (./services/webserver/webserverHandler.ts)', () => {
@@ -81,12 +81,7 @@ suite('Test Webserver Handler (./services/webserver/webserverHandler.ts)', () =>
         Queue: QueueHandlerMock.Instance,
       } as unknown as any
 
-      webserverHandler = new WebserverHandler(
-        dependenciesMock,
-        JSON.parse(
-          JSON.stringify(configMocked.correct.everythingEnabled),
-        ) as typeof configMocked['correct']['everythingEnabled'],
-      )
+      webserverHandler = new WebserverHandler(dependenciesMock)
 
       webserver = webserverHandler.setup(internalSystem)
     })
@@ -214,13 +209,13 @@ suite('Test Webserver Handler (./services/webserver/webserverHandler.ts)', () =>
                   dependencies: dependencies,
                 },
               ],
-            })
+            } as any)
           }
 
-          draftConfig.services.webserver.versions = versions
+          draftConfig.services.webserver.versions = versions as any
         })
 
-        webserverHandler = new WebserverHandler(dependenciesMock, config)
+        webserverHandler = new WebserverHandler(dependenciesMock)
         internalSystem = {
           ...internalSystem,
           Config: config,
@@ -248,16 +243,16 @@ suite('Test Webserver Handler (./services/webserver/webserverHandler.ts)', () =>
                   path,
                 },
               ],
-            })
+            } as any)
           }
 
-          draftConfig.services.webserver.versions = versions
+          draftConfig.services.webserver.versions = versions as any
         })
 
         ModulesMock.reset()
         MiddlewareMock.reset()
         ControllerMock.reset()
-        webserverHandler = new WebserverHandler(dependenciesMock, config)
+        webserverHandler = new WebserverHandler(dependenciesMock)
         webserver = webserverHandler.setup({
           ...internalSystem,
           Config: config,
@@ -292,16 +287,16 @@ suite('Test Webserver Handler (./services/webserver/webserverHandler.ts)', () =>
                   method: methods,
                 },
               ],
-            })
+            } as any)
           }
 
-          draftConfig.services.webserver.versions = versions
+          draftConfig.services.webserver.versions = versions as any
         })
 
         ModulesMock.reset()
         MiddlewareMock.reset()
         ControllerMock.reset()
-        webserverHandler = new WebserverHandler(dependenciesMock, config)
+        webserverHandler = new WebserverHandler(dependenciesMock)
         webserver = webserverHandler.setup({
           ...internalSystem,
           Config: config,
@@ -344,16 +339,16 @@ suite('Test Webserver Handler (./services/webserver/webserverHandler.ts)', () =>
                   middleware: middlewareList,
                 },
               ],
-            })
+            } as any)
           }
-          draftConfig.services.webserver.versions = versions
+          draftConfig.services.webserver.versions = versions as any
           draftConfig.services.webserver.middleware = []
         })
 
         ModulesMock.reset()
         MiddlewareMock.reset()
         ControllerMock.reset()
-        webserverHandler = new WebserverHandler(dependenciesMock, config)
+        webserverHandler = new WebserverHandler(dependenciesMock)
         webserver = webserverHandler.setup({
           ...internalSystem,
           Config: config,
@@ -433,12 +428,9 @@ suite('Test Webserver Handler (./services/webserver/webserverHandler.ts)', () =>
             Log: new ModulesMock.logHandler.Instance(),
             Models: {},
             Queue: QueueHandlerMock.Instance,
-          } as unknown as InternalSystem<ApiStartSettings<WebserverEnabledServiceConfigurator>>
+          } as unknown as InternalSystem<ApiStartSettings<WebserverEnabledServiceConfigurator<true, true, true>>>
 
-          webserverHandler = new WebserverHandler(
-            dependenciesMock,
-            JSON.parse(JSON.stringify(configMocked.correct.everythingEnabled)),
-          )
+          webserverHandler = new WebserverHandler(dependenciesMock)
         })
 
         teardown(() => {
@@ -462,16 +454,16 @@ suite('Test Webserver Handler (./services/webserver/webserverHandler.ts)', () =>
                     },
                   },
                 ],
-              })
+              } as any)
             }
 
-            draftConfig.services.webserver.versions = versions
+            draftConfig.services.webserver.versions = versions as any
           })
 
           ModulesMock.reset()
           MiddlewareMock.reset()
           ControllerMock.reset()
-          webserverHandler = new WebserverHandler(dependenciesMock, config)
+          webserverHandler = new WebserverHandler(dependenciesMock)
           webserver = webserverHandler.setup({
             ...internalSystem,
             Config: config,
@@ -505,16 +497,16 @@ suite('Test Webserver Handler (./services/webserver/webserverHandler.ts)', () =>
                     },
                   },
                 ],
-              })
+              } as any)
             }
 
-            draftConfig.services.webserver.versions = versions
+            draftConfig.services.webserver.versions = versions as any
           })
 
           ModulesMock.reset()
           MiddlewareMock.reset()
           ControllerMock.reset()
-          webserverHandler = new WebserverHandler(dependenciesMock, config)
+          webserverHandler = new WebserverHandler(dependenciesMock)
           webserver = webserverHandler.setup({
             ...internalSystem,
             Config: config,
@@ -548,16 +540,16 @@ suite('Test Webserver Handler (./services/webserver/webserverHandler.ts)', () =>
                     },
                   },
                 ],
-              })
+              } as any)
             }
 
-            draftConfig.services.webserver.versions = versions
+            draftConfig.services.webserver.versions = versions as any
           })
 
           ModulesMock.reset()
           MiddlewareMock.reset()
           ControllerMock.reset()
-          webserverHandler = new WebserverHandler(dependenciesMock, config)
+          webserverHandler = new WebserverHandler(dependenciesMock)
           webserver = webserverHandler.setup({
             ...internalSystem,
             Config: config,

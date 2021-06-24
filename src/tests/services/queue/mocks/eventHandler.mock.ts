@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable @typescript-eslint/explicit-module-boundary-types */
 
-import {QueueEventListener} from '../../../../services/queue/interfaces'
+import {QueueEventListener} from '../../../../services/queue/interfaces/queueEventListener.interface'
 import * as sinon from 'sinon'
 import * as faker from 'faker'
 

@@ -1,12 +1,14 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import {assert} from 'chai'
+import * as LoghandlerMock from '../../mocks/nodeModules/logHandler.mock'
+import {Log} from 'loghandler'
 import * as faker from 'faker'
 import immer from 'immer'
 import DefaultExport, {CacheHandler} from '../../../services/cache/cacheHandler'
 import configMocked from '../../mocks/config.mock'
 import DependencyMock from './mocks/dependencies.mock'
 import {Config} from '../../../systemInterfaces/config'
-import {ServiceConfiguratorCacheEnabled} from '../../../services/cache/interfaces'
+import {ServiceConfiguratorCacheEnabled} from '../../../services/cache/interfaces/serviceConfiguratorCacheEnabled.interface'
 import {Instance as RedisInstance} from '../../mocks/nodeModules/redis.mock'
 import {ApiStartSettings} from '../../../systemInterfaces/apiStartSettings'
 
@@ -14,6 +16,7 @@ suite('Test CacheHandler (./services/cache/cacheHandler.ts)', () => {
   let correctConfig: Config<any> = JSON.parse(JSON.stringify(configMocked.correct.everythingDisabled))
 
   setup(() => {
+    LoghandlerMock.reset()
     correctConfig = JSON.parse(JSON.stringify(configMocked.correct.everythingDisabled))
   })
 
@@ -25,12 +28,15 @@ suite('Test CacheHandler (./services/cache/cacheHandler.ts)', () => {
     assert.isFunction(CacheHandler.factory)
   })
 
-  test('factory gets 1 parameter', () => {
-    assert.equal(CacheHandler.factory.length, 1)
+  test('factory gets 2 parameter', () => {
+    assert.equal(CacheHandler.factory.length, 2)
   })
 
   test('factory() returns instance of cacheHanlder', () => {
-    assert.instanceOf(CacheHandler.factory(correctConfig), CacheHandler)
+    assert.instanceOf(
+      CacheHandler.factory({Log: new LoghandlerMock.Instance() as unknown as Log}, correctConfig),
+      CacheHandler,
+    )
   })
 
   suite('Test setup()', () => {

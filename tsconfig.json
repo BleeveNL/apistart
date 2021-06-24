@@ -21,7 +21,10 @@
     "noEmitOnError": true,
     "rootDir": "src",
     "preserveConstEnums": true,
-    "typeRoots": ["node_modules/@types"]
+    "typeRoots": ["node_modules/@types"],
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true,
+    "esModuleInterop": true
   },
   "exclude": ["node_modules", "lib"],
   "include": [ "src",],

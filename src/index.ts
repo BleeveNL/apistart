@@ -37,17 +37,11 @@ export {IMiddleware, MiddlewareFunction} from './services/webserver/interfaces/m
 export {IParam, ParamFunction} from './services/webserver/interfaces/param'
 export {IRoute} from './services/webserver/interfaces/route'
 export {Version as IVersion} from './services/webserver/interfaces/version'
-export {Models, ModelAbstract, Model} from './services/database/interfaces/model'
-export {Migration} from './services/database/interfaces/migration'
-export {Seed} from './services/database/interfaces/seed'
-export {
-  QueueEventListener,
-  QueueEventListenerHandler,
-  QueueService,
-  QueueEventListenerList,
-} from './services/queue/interfaces'
+export {QueueEventListener} from './services/queue/interfaces/queueEventListener.interface'
+export {QueueEventListenerHandler} from './services/queue/interfaces/queueEventListenerHandler.interface'
+export {QueueService} from './services/queue/interfaces/queueService.interface'
+export {QueueEventListenerList} from './services/queue/interfaces/QueueEventListenerList.interface'
 export {WebserverServiceEnabled} from './services/webserver/interfaces/webserverServiceEnabled'
-export {DBDataTypes} from './services/database/interfaces'
 export {Model as BaseModel} from 'sequelize'
 export {Context} from 'koa'
 export {Dependencies as SystemDependencies} from './systemInterfaces/dependencies'
