@@ -57,6 +57,7 @@ export {
   Formula,
   Index,
   Unique,
+  Collection,
   BaseEntity as BaseModel,
 } from '@mikro-orm/core'
 export {Models} from './services/database/interfaces/models.interface'
