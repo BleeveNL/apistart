@@ -287,7 +287,7 @@ export class WebserverHandler<
   private WebserverIsEnabled(
     system: InternalSystem<any>,
   ): system is InternalSystem<ApiStartSettings<WebserverEnabledServiceConfigurator<true, true, boolean>>> {
-    return system.Config.services.database.enabled
+    return system.Config.services.webserver.enabled
   }
 
   private versionHandlerIsEnabled(
