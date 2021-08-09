@@ -17,14 +17,22 @@ interface Dependencies {
   dotEnv: typeof config
 }
 
+interface DotenvError extends Error {
+  readonly code: string
+}
+
 export const loadEnv = <TEnvvars extends DotenvParseOutput = DotenvParseOutput>(
   deps: Dependencies,
   opts?: EnvOptions,
 ): TEnvvars => {
   const result = deps.dotEnv(opts)
 
+  // https://github.com/motdotla/dotenv/issues/320
   if (result.error) {
-    throw result.error
+    const error = result.error as DotenvError
+    if (process.env.NODE_ENV !== 'production' || error.code !== 'ENOENT') {
+      throw error
+    }
   }
 
   if (opts) {
