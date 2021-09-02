@@ -99,7 +99,7 @@
     "@types/validator": "13.1.4",
     "amqplib": "0.8.0",
     "dotenv": "10.0.0",
-    "immer": "9.0.3",
+    "immer": "9.0.6",
     "ioredis": "4.27.6",
     "joi": "^17.4.0",
     "koa": "2.13.1",
