@@ -1,10 +1,10 @@
-import {object as obj, func} from 'joi'
+import Joi from 'joi';
 
-export default obj({
-  client: obj()
+export default Joi.object({
+  client: Joi.object()
     .keys({
-      publish: func().minArity(3).maxArity(4).required(),
+      publish: Joi.func().minArity(3).maxArity(4).required(),
     })
     .required(),
-  server: func().arity(1).required(),
+  server: Joi.func().arity(1).required(),
 }).required()
