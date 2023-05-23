@@ -38,7 +38,7 @@ export class CacheHandler<TSettings extends ApiStartSettings> {
   public async setup() {
     if (this.CacheIsEnabled(this.config)) {
       const config = this.config
-      const cacheConfig: CacheConfig = config.services.cache 
+      const cacheConfig: CacheConfig = config.services.cache
 
       const client: redis.Redis = cacheConfig.url
         ? new this.deps.Redis(cacheConfig.url, cacheConfig)

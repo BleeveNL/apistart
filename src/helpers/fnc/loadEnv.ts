@@ -23,24 +23,21 @@ export const loadEnv = <TEnvvars extends DotenvParseOutput = DotenvParseOutput>(
 ): TEnvvars => {
   const result = deps.dotEnv(opts)
 
-
   if (opts) {
-    if ('UndefinedAllowed' in opts && opts.UndefinedAllowed === false && !result.parsed ) {
-      if(result.error){
-        const error: Error & {errno?: number, syscall?: string, code?: string, path?:string} = result.error
-      
-        if(error.syscall === 'open' && error.code === 'ENOENT'){
-          if(error.path){
+    if ('UndefinedAllowed' in opts && opts.UndefinedAllowed === false && !result.parsed) {
+      if (result.error) {
+        const error: Error & {errno?: number; syscall?: string; code?: string; path?: string} = result.error
+
+        if (error.syscall === 'open' && error.code === 'ENOENT') {
+          if (error.path) {
             throw new Error(`Couldn't load .env file because file "${error.path}" isn't found`)
           }
           throw new Error(`Couldn't load .env file because file isn't found`)
         }
-          throw error
+        throw error
       }
 
       throw new Error(`Couldn't parse .env file, because of an unknown error!`)
-      
- 
     }
 
     if (opts.schema !== undefined && result.parsed !== undefined) {
