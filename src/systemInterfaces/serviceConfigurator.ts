@@ -1,4 +1,4 @@
-import {WebserverServiceEnabled} from '../services/webserver/interfaces/webserverServiceEnabled'
+import { WebserverServiceEnabled } from '../services/webserver/interfaces/webserverServiceEnabled'
 
 export interface QueueService {
   readonly enabled: true
