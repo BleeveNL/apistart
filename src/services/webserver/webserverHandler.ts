@@ -1,29 +1,29 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
-import { RequestContext } from '@mikro-orm/core'
+import {RequestContext} from '@mikro-orm/core'
 import * as http from 'http'
 import * as https from 'https'
 import immer from 'immer'
 import Koa from 'koa'
-import KoaRouter, { Params, Router } from 'koa-advanced-router'
+import KoaRouter, {Params, Router} from 'koa-advanced-router'
 import KoaBodyParser from 'koa-bodyparser'
-import { ApiStartSettings } from '../../systemInterfaces/apiStartSettings'
-import { Dependencies, DependencyFunction } from '../../systemInterfaces/dependencies'
-import { InternalSystem } from '../../systemInterfaces/internalSystem'
-import { ServiceConfigurator } from '../../systemInterfaces/serviceConfigurator'
-import { UserDefinedObject } from '../../systemInterfaces/userDefinedObject'
+import {ApiStartSettings} from '../../systemInterfaces/apiStartSettings'
+import {Dependencies, DependencyFunction} from '../../systemInterfaces/dependencies'
+import {InternalSystem} from '../../systemInterfaces/internalSystem'
+import {ServiceConfigurator} from '../../systemInterfaces/serviceConfigurator'
+import {UserDefinedObject} from '../../systemInterfaces/userDefinedObject'
 import {
   WebServerObject,
   WebserverEnabledServiceConfigurator,
   WebserverFunction,
   WebserverHandlerDeps,
 } from './interfaces'
-import { IMiddleware } from './interfaces/middleware'
-import { IParam } from './interfaces/param'
-import { IRoute } from './interfaces/route'
-import { Version } from './interfaces/version'
-import { WebserverCallbackFunction } from './interfaces/webserverCallbackFunction'
-import { WebserverServiceEnabled } from './interfaces/webserverServiceEnabled'
+import {IMiddleware} from './interfaces/middleware'
+import {IParam} from './interfaces/param'
+import {IRoute} from './interfaces/route'
+import {Version} from './interfaces/version'
+import {WebserverCallbackFunction} from './interfaces/webserverCallbackFunction'
+import {WebserverServiceEnabled} from './interfaces/webserverServiceEnabled'
 
 export class WebserverHandler<
   TSettings extends ApiStartSettings = ApiStartSettings<WebserverEnabledServiceConfigurator<any, any, any>>,
@@ -293,7 +293,9 @@ export class WebserverHandler<
   private versionHandlerIsEnabled(
     system: InternalSystem<ApiStartSettings<WebserverEnabledServiceConfigurator<true, true, any>>>,
   ): system is InternalSystem<ApiStartSettings<WebserverEnabledServiceConfigurator<true, true, true>>> {
-    return system.Config.services.webserver.enabled && system.Config.services.webserver.settings.versionHandler !== false
+    return (
+      system.Config.services.webserver.enabled && system.Config.services.webserver.settings.versionHandler !== false
+    )
   }
 }
 
