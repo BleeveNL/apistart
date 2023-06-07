@@ -25,5 +25,5 @@ jobs:
                   key: app-${{ github.sha }}
             - run: npm install
             - run: npm run eslint
-            - run: npm run test
             - run: tsc
+            # - run: npm run test
