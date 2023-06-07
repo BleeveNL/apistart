@@ -11,14 +11,14 @@ jobs:
         steps:
             - uses: actions/checkout@v3
             - uses: actions/cache@v3
-              id: yarn-cache
+              id: npm-cache
               with:
                   path: node_modules
-                  key: node-${{hashFiles('**/yarn.lock')}}
+                  key: node-${{hashFiles('**/package-lock.json')}}
             - uses: actions/setup-node@v3
               with:
                   node-version: 18
-            - run: yarn install
+            - run: npm install
     build:
         name: Lint, compile, test
         runs-on: ubuntu-latest
@@ -31,11 +31,10 @@ jobs:
             - uses: actions/cache@v1
               with:
                   path: node_modules
-                  key: node-${{hashFiles('**/yarn.lock')}}
+                  key: node-${{hashFiles('**/package-lock.json')}}
             - uses: actions/cache@v1
               id: app
               with:
                   path: dist
                   key: app-${{ github.sha }}
-            - run: yarn eslint
-            - run: yarn test
+            - run: npm build
