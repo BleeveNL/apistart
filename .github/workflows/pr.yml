@@ -37,4 +37,5 @@ jobs:
               with:
                   path: dist
                   key: app-${{ github.sha }}
-            - run: yarn build
+            - run: yarn eslint
+            - run: yarn test
