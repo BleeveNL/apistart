@@ -95,8 +95,8 @@
     "@mikro-orm/sqlite": "^4.5.9",
     "@types/amqplib": "0.8.2",
     "@types/ioredis": "4.27.5",
-    "@types/koa__cors": "3.0.3",
     "@types/koa-bodyparser": "4.3.3",
+    "@types/koa__cors": "3.0.3",
     "@types/validator": "13.6.3",
     "amqplib": "0.8.0",
     "dotenv": "10.0.0",
@@ -107,6 +107,7 @@
     "koa-advanced-router": "0.4.4",
     "koa-bodyparser": "4.3.0",
     "loghandler": "1.1.11",
+    "node-gyp": "^9.3.1",
     "pg": "8.7.1",
     "sequelize": "6.6.5"
   }
