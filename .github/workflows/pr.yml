@@ -5,29 +5,16 @@ on:
       branches:
           - master
 jobs:
-    setup:
-        name: Setup
-        runs-on: ubuntu-latest
-        steps:
-            - uses: actions/checkout@v3
-            - uses: actions/cache@v3
-              id: npm-cache
-              with:
-                  path: node_modules
-                  key: node-${{hashFiles('**/package-lock.json')}}
-            - uses: actions/setup-node@v3
-              with:
-                  node-version: 18
     build:
         name: Lint, compile, test
         runs-on: ubuntu-latest
-        needs: setup
         steps:
             - uses: actions/checkout@v3
             - uses: actions/setup-node@v3
               with:
                   node-version: 18
-            - uses: actions/cache@v1
+            - uses: actions/cache@v3
+              id: npm-cache
               with:
                   path: node_modules
                   key: node-${{hashFiles('**/package-lock.json')}}
@@ -37,4 +24,6 @@ jobs:
                   path: dist
                   key: app-${{ github.sha }}
             - run: npm install
-            - run: npm run build
+            - run: npm run eslint
+            - run: npm run test
+            - run: tsc
