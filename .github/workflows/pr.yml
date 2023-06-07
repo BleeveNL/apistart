@@ -1,0 +1,29 @@
+name: Build PR workflow
+on:
+    pull_request:
+    push:
+      branches:
+          - master
+jobs:
+    build:
+        name: Lint, compile, test
+        runs-on: ubuntu-latest
+        steps:
+            - uses: actions/checkout@v3
+            - uses: actions/setup-node@v3
+              with:
+                  node-version: 18
+            - uses: actions/cache@v3
+              id: yarn-cache
+              with:
+                  path: node_modules
+                  key: node-${{hashFiles('**/yarn.lock')}}
+            - uses: actions/cache@v1
+              id: app
+              with:
+                  path: dist
+                  key: app-${{ github.sha }}
+            - run: yarn install
+            - run: yarn eslint
+            - run: yarn tsc
+            # - run: yarn test
