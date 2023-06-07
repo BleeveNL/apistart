@@ -20,7 +20,7 @@ jobs:
                   node-version: 18
             - run: yarn install
     build:
-        name: Compile the source
+        name: Lint, compile, test
         runs-on: ubuntu-latest
         needs: setup
         steps:
@@ -38,18 +38,3 @@ jobs:
                   path: dist
                   key: app-${{ github.sha }}
             - run: yarn build
-    verify:
-        name: Run tests
-        runs-on: ubuntu-latest
-        needs: setup
-        steps:
-            - uses: actions/checkout@v3
-            - uses: actions/setup-node@v3
-              with:
-                  node-version: 18
-            - uses: actions/cache@v1
-              with:
-                path: node_modules
-                key: node-${{hashFiles('**/yarn.lock')}}
-              id: test
-            - run: yarn test
