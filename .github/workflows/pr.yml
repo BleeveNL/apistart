@@ -37,4 +37,4 @@ jobs:
               with:
                   path: dist
                   key: app-${{ github.sha }}
-            - run: npm build
+            - run: npm run build
