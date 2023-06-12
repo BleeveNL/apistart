@@ -1,6 +1,6 @@
 {
   "name": "apistart",
-  "version": "0.11.4",
+  "version": "0.11.5",
   "description": "Fully tested and strongly typed nodeJS framework to create microservices lightning fast!",
   "files": [
     "lib"
