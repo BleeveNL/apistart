@@ -12,3 +12,7 @@ ApiStart is a framework that is build to minimalize the time to market for Back-
 However we're using this framework already internaly. This framework isn't ready for production yet. We're currently in
  the development stage. So please don't use this framework in production environments. We're trying to bring this
  framework as soon as possible to a stable version. Please stay tuned until then.
+
+## TODO
+- Review and update dependencies
+- Automate release
