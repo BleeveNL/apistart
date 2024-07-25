@@ -15,7 +15,6 @@
     "eslint": "./node_modules/.bin/eslint ./src --fix --ext ts,js",
     "deleteTestResults": "(rm -rf ./coverage & rm -rf ./test-results.xml)",
     "test": "npm run deleteTestResults && nyc --reporter=html --reporter=text  npx mocha --require ts-node/register --extensions ts,tsx --recursive --prof --ui tdd --throw-deprecation 'src/tests/**/*.test.{ts,tsx}'",
-    "coverage": "nyc report --reporter=text-lcov | coveralls",
     "dev": "./node_modules/nodemon/bin/nodemon.js --config ./.nodemoncfg -x \"(reset &&  yarn build) || exit 1\""
   },
   "repository": {
@@ -52,7 +51,6 @@
     "@typescript-eslint/parser": "4.32.0",
     "chai": "4.3.4",
     "chai-as-promised": "7.1.1",
-    "coveralls": "3.1.1",
     "eslint": "7.32.0",
     "eslint-config-prettier": "8.3.0",
     "eslint-config-standard": "16.0.3",
