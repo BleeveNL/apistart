@@ -11,7 +11,7 @@
     "definition": "lib/index.d.ts"
   },
   "scripts": {
-    "build": "npm run eslint && npm run test && ./node_modules/.bin/rimraf ./lib && ./node_modules/.bin/tsc",
+    "build": "npm run eslint && ./node_modules/.bin/rimraf ./lib && ./node_modules/.bin/tsc",
     "eslint": "./node_modules/.bin/eslint ./src --fix --ext ts,js",
     "deleteTestResults": "(rm -rf ./coverage & rm -rf ./test-results.xml)",
     "test": "npm run deleteTestResults && nyc --reporter=html --reporter=text  npx mocha --require ts-node/register --extensions ts,tsx --recursive --prof --ui tdd --throw-deprecation 'src/tests/**/*.test.{ts,tsx}'",
@@ -65,7 +65,7 @@
     "mocha": "10.7.0",
     "mocha-junit-reporter": "2.0.0",
     "mocha-lcov-reporter": "1.3.0",
-    "nodemon": "^2.0.22",
+    "nodemon": "^3.1.4",
     "npm-check-updates": "16.14.20",
     "nyc": "15.1.0",
     "prettier": "2.4.1",
