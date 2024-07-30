@@ -2,21 +2,21 @@
 import {assert} from 'chai'
 import * as faker from 'faker'
 import immer from 'immer'
-import DefaultExport, {WebserverHandler} from '../../../services/webserver/webserverHandler'
-import configMocked from '../../mocks/config.mock'
-import * as CacheHandlerMock from '../../mocks/cacheHandler.mock'
-import * as DatabaseHandlerMock from '../../mocks/databaseHandler.mock'
 import * as sinon from 'sinon'
+import {WebserverEnabledServiceConfigurator, WebserverHandlerDeps} from '../../../services/webserver/interfaces'
+import {MiddlewareObject} from '../../../services/webserver/interfaces/middleware'
+import DefaultExport, {WebserverHandler} from '../../../services/webserver/webserverHandler'
+import {ApiStartSettings} from '../../../systemInterfaces/apiStartSettings'
+import {Config} from '../../../systemInterfaces/config'
+import {InternalSystem} from '../../../systemInterfaces/internalSystem'
+import {EnabledService} from '../../../systemInterfaces/services'
+import {UserDefinedObject} from '../../../systemInterfaces/userDefinedObject'
+import * as CacheHandlerMock from '../../mocks/cacheHandler.mock'
+import configMocked from '../../mocks/config.mock'
+import * as DatabaseHandlerMock from '../../mocks/databaseHandler.mock'
 import * as ModulesMock from '../../mocks/nodeModules'
 import * as QueueHandlerMock from '../../mocks/queueHandler.mock'
 import * as MiddlewareMock from '../../mocks/webserver/middleware.mock'
-import {InternalSystem} from '../../../systemInterfaces/internalSystem'
-import {Config} from '../../../systemInterfaces/config'
-import {EnabledService} from '../../../systemInterfaces/services'
-import {WebserverHandlerDeps, WebserverEnabledServiceConfigurator} from '../../../services/webserver/interfaces'
-import {MiddlewareObject} from '../../../services/webserver/interfaces/middleware'
-import {ApiStartSettings} from '../../../systemInterfaces/apiStartSettings'
-import {UserDefinedObject} from '../../../systemInterfaces/userDefinedObject'
 import bodyParser = require('koa-bodyparser')
 
 let dependenciesMock: WebserverHandlerDeps
@@ -638,7 +638,6 @@ suite('Test Webserver Handler (./services/webserver/webserverHandler.ts)', () =>
           ModulesMock.reset()
           const bodyParserSettings: bodyParser.Options & EnabledService = {
             enabled: true,
-            encode: faker.random.alphaNumeric(12),
           }
 
           const config = immer(
