@@ -911,10 +911,10 @@
   resolved "https://registry.yarnpkg.com/@types/keygrip/-/keygrip-1.0.6.tgz#1749535181a2a9b02ac04a797550a8787345b740"
   integrity sha512-lZuNAY9xeJt7Bx4t4dx0rYCDqGPW8RXhQZK1td7d4H6E9zYbLoOtjBvfwdTKpsyxQI/2jv+armjX/RW+ZNpXOQ==
 
-"@types/koa-bodyparser@4.3.12":
-  version "4.3.12"
-  resolved "https://registry.yarnpkg.com/@types/koa-bodyparser/-/koa-bodyparser-4.3.12.tgz#c19355e504422fd2a8fdb3496a32da48cd29133c"
-  integrity sha512-hKMmRMVP889gPIdLZmmtou/BijaU1tHPyMNmcK7FAHAdATnRcGQQy78EqTTxLH1D4FTsrxIzklAQCso9oGoebQ==
+"@types/koa-bodyparser@4.3.3":
+  version "4.3.3"
+  resolved "https://registry.yarnpkg.com/@types/koa-bodyparser/-/koa-bodyparser-4.3.3.tgz#9c7d4295576bc863d550002f732f1c57dd88cc58"
+  integrity sha512-/ileIpXsy1fFEzgZhZ07eZH8rAVL7jwuk/kaoVEfauO6s80g2LIDIJKEyDbuAL9S/BWflKzEC0PHD6aXkmaSbw==
   dependencies:
     "@types/koa" "*"
 
@@ -4896,9 +4896,9 @@ path-scurry@^1.11.1:
     minipass "^5.0.0 || ^6.0.2 || ^7.0.0"
 
 path-to-regexp@*:
-  version "7.1.0"
-  resolved "https://registry.yarnpkg.com/path-to-regexp/-/path-to-regexp-7.1.0.tgz#f4ee387b4ff85829e3f863ecb63f61a57aa635a1"
-  integrity sha512-ZToe+MbUF4lBqk6dV8GKot4DKfzrxXsplOddH8zN3YK+qw9/McvP7+4ICjZvOne0jQhN4eJwHsX6tT0Ns19fvw==
+  version "8.3.0"
+  resolved "https://registry.yarnpkg.com/path-to-regexp/-/path-to-regexp-8.3.0.tgz#aa818a6981f99321003a08987d3cec9c3474cd1f"
+  integrity sha512-7jdwVIRtsP8MYpdXSwOS0YdD0Du+qOoF/AEPIt88PcCFrZCzx41oxku1jD88hZBwbNUIEfpqvuhjFaMAqMTWnA==
 
 path-to-regexp@6.2.0:
   version "6.2.0"

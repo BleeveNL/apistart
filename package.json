@@ -1,6 +1,6 @@
 {
   "name": "apistart",
-  "version": "0.11.11",
+  "version": "0.11.12",
   "description": "Fully tested and strongly typed nodeJS framework to create microservices lightning fast!",
   "files": [
     "lib"
@@ -91,7 +91,7 @@
     "@mikro-orm/sqlite": "^5.9.8",
     "@types/amqplib": "^0.10.7",
     "@types/ioredis": "4.27.5",
-    "@types/koa-bodyparser": "4.3.12",
+    "@types/koa-bodyparser": "4.3.3",
     "@types/koa__cors": "3.3.0",
     "@types/validator": "13.12.0",
     "amqplib": "^0.10.8",
