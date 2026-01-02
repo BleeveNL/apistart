@@ -99,7 +99,7 @@
     "immer": "9.0.6",
     "ioredis": "4.27.9",
     "joi": "^17.4.2",
-    "koa": "2.13.3",
+    "koa": "3.0.1",
     "koa-advanced-router": "0.4.4",
     "koa-bodyparser": "4.3.0",
     "loghandler": "1.1.12",
