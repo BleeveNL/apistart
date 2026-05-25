@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import {assert} from 'chai'
 import * as faker from 'faker'
 import immer from 'immer'
@@ -667,7 +666,6 @@ suite('Test Webserver Handler (./services/webserver/webserverHandler.ts)', () =>
           assert.equal(ModulesMock.koa.stubs.use.args[0][0], returnedData)
         })
 
-        // eslint-disable-next-line @typescript-eslint/no-empty-function
         suite('System Middleware is loaded correctly', () => {
           const numberOfMiddleware = faker.datatype.number(8) + 2
           const returnValues = faker.random.alphaNumeric(24)

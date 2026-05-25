@@ -1,6 +1,3 @@
-/* eslint-disable accessor-pairs */
-/* eslint-disable @typescript-eslint/no-explicit-any */
-/* eslint-disable @typescript-eslint/explicit-module-boundary-types */
 import * as sinon from 'sinon'
 
 interface KoaStubs {

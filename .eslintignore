@@ -1,6 +1,0 @@
-node_modules
-lib/
-coverage/
-yarn.lock
-prettier.config.js
-wallaby.conf.js

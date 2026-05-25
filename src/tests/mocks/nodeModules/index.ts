@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/explicit-module-boundary-types */
 import * as amqp from './amqp.mock'
 import * as http from './http.mock'
 import * as https from './https.mock'

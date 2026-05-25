@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import {Config} from '../../../systemInterfaces/config'
 import {WebserverEnabledServiceConfigurator, WebserverHandlerDeps} from '../../../services/webserver/interfaces'
 import immer from 'immer'

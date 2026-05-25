@@ -55,7 +55,7 @@ export class QueueHandler<TSettings extends ApiStartSettings> {
           publish: async (
             exchangeName: string,
             routingKey: string,
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+
             data: Record<number | string | symbol, any> | any[] | boolean | number | string,
             options?: Amqp.Options.Publish,
           ) => {
@@ -67,10 +67,7 @@ export class QueueHandler<TSettings extends ApiStartSettings> {
           },
         },
         server:
-          (
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            sysDeps: InternalSystem<TSettings>,
-          ) =>
+          (sysDeps: InternalSystem<TSettings>) =>
           async (listeners: QueueEventListenerList, callback?: (sysDeps: InternalSystem<TSettings>) => void) => {
             if (this.verifyQueueEventListeners(listeners)) {
               try {
@@ -144,7 +141,7 @@ export class QueueHandler<TSettings extends ApiStartSettings> {
     channel: Amqp.Channel,
     exchangeName: string,
     routingKey: string,
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+
     data: Record<number | string | symbol, any> | any[] | boolean | number | string,
     options?: Amqp.Options.Publish,
   ) {
@@ -211,7 +208,6 @@ export class QueueHandler<TSettings extends ApiStartSettings> {
           async msg => {
             try {
               if (msg !== null) {
-                // eslint-disable-next-line @typescript-eslint/no-explicit-any
                 const insertedDependencies: TDependencies<TSettings> = {
                   ...sysDeps,
                   Dependencies: dependencies,

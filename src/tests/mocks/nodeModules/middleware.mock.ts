@@ -1,5 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
-/* eslint-disable @typescript-eslint/explicit-module-boundary-types */
 import * as sinon from 'sinon'
 
 const stubs = {
@@ -12,7 +10,7 @@ const reset = () => {
 
 const fnc = (...middlewareArgs: any[]) => {
   stubs.fnc(...middlewareArgs)
-  // eslint-disable-next-line @typescript-eslint/no-use-before-define
+
   return new Instance()
 }
 

@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any, sort-keys */
 import * as amqp from 'amqplib'
 import {assert} from 'chai'
 import * as faker from 'faker'

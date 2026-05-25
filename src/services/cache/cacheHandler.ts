@@ -16,7 +16,10 @@ export interface Dependencies extends SysDeps {
 }
 
 export class CacheHandler<TSettings extends ApiStartSettings> {
-  public constructor(private deps: Dependencies, private config: Config<TSettings>) {
+  public constructor(
+    private deps: Dependencies,
+    private config: Config<TSettings>,
+  ) {
     this.deps = deps
     this.config = config
   }

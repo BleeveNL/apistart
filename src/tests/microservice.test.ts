@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import {assert} from 'chai'
 import DefaultExport, {Microservice} from '../microservice'
 import * as mockedLogHandler from './mocks/nodeModules/logHandler.mock'
@@ -41,7 +40,6 @@ suite('Test plugin (microservice.ts).', () => {
   })
 
   test('Returns as default a instanceOf the Microservice Class', () => {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     assert.instanceOf(
       new DefaultExport(
         {
@@ -71,7 +69,6 @@ suite('Test plugin (microservice.ts).', () => {
     })
 
     test('factory() return instanceOf MicroService Class', () => {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       assert.instanceOf(Microservice.factory(mockedConfig.correct.everythingDisabled, {}), Microservice)
     })
   })

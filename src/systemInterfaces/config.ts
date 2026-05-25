@@ -8,7 +8,6 @@ import CacheConfig from '../services/cache/interfaces/cacheConfig.interface'
 import {DatabaseConfig} from '../services/database/interfaces/databaseConfig.interface'
 import {QueueConfig} from '../services/queue/interfaces/queueConfig.interface'
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export interface Config<TSettings extends ApiStartSettings = any> {
   readonly app: {
     readonly env: string

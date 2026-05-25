@@ -3,7 +3,6 @@ import configSchema from './validationSchemas/config.schema'
 import {ApiStartSettings} from './systemInterfaces/apiStartSettings'
 import * as Joi from 'joi'
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const apiStart = <TSettings extends ApiStartSettings<any>>(
   config: unknown,
   helpers: TSettings['Helpers'],
