@@ -1,5 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
-
 import {RequestContext} from '@mikro-orm/core'
 import * as http from 'http'
 import * as https from 'https'
@@ -28,7 +26,6 @@ import {WebserverServiceEnabled} from './interfaces/webserverServiceEnabled'
 export class WebserverHandler<
   TSettings extends ApiStartSettings = ApiStartSettings<WebserverEnabledServiceConfigurator<any, any, any>>,
 > {
-  // eslint-disable-next-line no-useless-constructor
   public constructor(private deps: WebserverHandlerDeps) {}
 
   public static factory<TSettings extends ApiStartSettings>(): WebserverHandler<TSettings> {
@@ -47,7 +44,7 @@ export class WebserverHandler<
     if (this.WebserverIsEnabled(system)) {
       const internalSystem = system
       const configuration = this.MakeWebserviceInstance(internalSystem)
-      // eslint-disable-next-line @typescript-eslint/no-empty-function
+
       return (callback =>
         this.start(internalSystem, configuration, callback) as unknown) as WebserverFunction<TSettings>
     }
@@ -60,7 +57,7 @@ export class WebserverHandler<
   private start(
     system: InternalSystem<ApiStartSettings<WebserverEnabledServiceConfigurator<true, true, boolean>>>,
     instance: Koa,
-    // eslint-disable-next-line @typescript-eslint/no-empty-function
+
     callback: WebserverCallbackFunction<TSettings> = () => {},
   ) {
     const server: WebServerObject = {}
@@ -101,7 +98,6 @@ export class WebserverHandler<
     }
 
     return {
-      // eslint-disable-next-line @typescript-eslint/no-empty-function
       close: (callback = () => {}) => {
         if (server.http) {
           server.http.emit('close')

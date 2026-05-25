@@ -18,7 +18,10 @@ export interface Dependencies extends SysDeps {
 export class DatabaseHandler<TSettings extends ApiStartSettings> {
   private orm?: MikroORM<IDatabaseDriver<Connection>>
 
-  public constructor(private deps: Dependencies, private config: Config<TSettings>) {}
+  public constructor(
+    private deps: Dependencies,
+    private config: Config<TSettings>,
+  ) {}
 
   public static factory<TSettings extends ApiStartSettings>(sysDeps: SysDeps, config: Config<TSettings>) {
     return new this<TSettings>(

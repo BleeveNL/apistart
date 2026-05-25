@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import {assert} from 'chai'
 import * as LoghandlerMock from '../../mocks/nodeModules/logHandler.mock'
 import {Log} from 'loghandler'

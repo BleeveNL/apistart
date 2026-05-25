@@ -4,9 +4,7 @@ import {ApiStartSettings} from '../../../systemInterfaces/apiStartSettings'
 import {UserDefinedObject} from '../../../systemInterfaces/userDefinedObject'
 
 export type IController<
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   TSettings extends ApiStartSettings<any> = ApiStartSettings,
   TDependencies extends UserDefinedObject = UserDefinedObject,
   TCustomState extends Koa.Context = Koa.Context,
-> = (deps: Dependencies<TSettings, TDependencies>) => // eslint-disable-next-line @typescript-eslint/no-explicit-any
-(ctx: TCustomState, next: () => Promise<any>) => Promise<any>
+> = (deps: Dependencies<TSettings, TDependencies>) => (ctx: TCustomState, next: () => Promise<any>) => Promise<any>

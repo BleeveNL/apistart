@@ -1,5 +1,3 @@
-/* eslint-disable @typescript-eslint/explicit-module-boundary-types */
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import * as sinon from 'sinon'
 
 const stubs = {
@@ -76,5 +74,3 @@ const Instance = class {
 }
 
 export {stubs, Instance, reset}
-
-/* eslint-enable @typescript-eslint/no-explicit-any */

@@ -41,9 +41,8 @@ export interface WebserverConfigDefault<
     readonly https: TWebserverService['https'] extends true ? HttpsSettings : DisabledService
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   readonly middleware: IMiddleware<TSettings, any>[]
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+
   readonly router: IRoute<TSettings, any, any>[]
 }
 

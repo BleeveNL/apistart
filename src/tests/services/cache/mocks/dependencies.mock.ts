@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/explicit-module-boundary-types */
 import {Dependencies} from '../../../../services/cache/cacheHandler'
 import Redis from 'ioredis'
 import Immer from 'immer'

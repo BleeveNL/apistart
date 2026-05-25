@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import * as faker from 'faker'
 import {Config} from '../../systemInterfaces/config'
 import {Methods} from 'koa-advanced-router'

@@ -12,7 +12,6 @@ const middlewareSchema = joi.array().items(
   ),
 )
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
 const AllowedOriginValues = joi.alternatives().try(joi.string(), (joi.object() as any).regex(), joi.function().arity(1))
 
 const CorsOptions = joi.object({
@@ -37,7 +36,7 @@ const routerSchema = joi.array().items({
   params: joi.object().optional(),
   path: joi
     .alternatives()
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+
     .try((joi.object() as any).regex(), joi.string())
     .required(),
 })

@@ -5,7 +5,6 @@ import {ApiStartSettings} from '../../../systemInterfaces/apiStartSettings'
 import {UserDefinedObject} from '../../../systemInterfaces/userDefinedObject'
 
 export type ParamFunction<
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   TSettings extends ApiStartSettings<any> = ApiStartSettings,
   TDependencies extends UserDefinedObject = UserDefinedObject,
   TCustomState extends DefaultState = DefaultState,
@@ -13,7 +12,6 @@ export type ParamFunction<
 > = (deps: Dependencies<TSettings, TDependencies>) => KoaRouter.Param<TCustomState, DefaultContext, TParam>
 
 export interface ParamMiddlewareObject<
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   TSettings extends ApiStartSettings<any> = ApiStartSettings,
   TDependencies extends UserDefinedObject = UserDefinedObject,
 > {
@@ -22,7 +20,6 @@ export interface ParamMiddlewareObject<
 }
 
 export type IParam<
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   TSettings extends ApiStartSettings<any> = ApiStartSettings,
   TDependencies extends UserDefinedObject = UserDefinedObject,
 > = ParamFunction<TSettings, TDependencies> | ParamMiddlewareObject<TSettings, TDependencies>
