@@ -7,7 +7,6 @@ import Router from 'koa-advanced-router'
 import {ServiceConfigurator} from '../../systemInterfaces/serviceConfigurator'
 import {ApiStartSettings} from '../../systemInterfaces/apiStartSettings'
 import {InternalSystem} from '../../systemInterfaces/internalSystem'
-import {RequestContext} from '@mikro-orm/core'
 
 export interface WebserverHandlerDeps {
   readonly Http: typeof http
@@ -16,7 +15,6 @@ export interface WebserverHandlerDeps {
   readonly Koa: typeof Koa
   readonly KoaBodyParser: typeof KoaBodyParser
   readonly KoaRouter: typeof Router
-  readonly DBMiddleware: typeof RequestContext
 }
 
 export interface WebserverEnabledServiceConfigurator<

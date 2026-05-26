@@ -123,9 +123,6 @@ suite('Test CacheHandler (./services/cache/cacheHandler.ts)', () => {
             host: 'example.com',
             port: 1234,
           },
-          database: {
-            enabled: false,
-          },
           queue: {
             enabled: false,
           },

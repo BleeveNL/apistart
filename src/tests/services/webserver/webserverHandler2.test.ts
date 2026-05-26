@@ -6,7 +6,6 @@ import * as MiddlewareMock from '../../mocks/webserver/middleware.mock'
 import * as ParamMock from '../../mocks/webserver/param.mock'
 import * as ControllerMock from '../../mocks/webserver/controller.mock'
 import * as CacheHandlerMock from '../../mocks/cacheHandler.mock'
-import * as DatabaseHandlerMock from '../../mocks/databaseHandler.mock'
 import * as QueueHandlerMock from '../../mocks/queueHandler.mock'
 import * as faker from 'faker'
 import * as ModulesMock from '../../mocks/nodeModules'
@@ -74,9 +73,7 @@ suite('Test Webserver Handler (./services/webserver/webserverHandler.ts)', () =>
       internalSystem = {
         Cache: CacheHandlerMock.Instance,
         Config: config,
-        DB: DatabaseHandlerMock.Instance,
         Log: new ModulesMock.logHandler.Instance(),
-        Models: {},
         Queue: QueueHandlerMock.Instance,
       } as unknown as any
 
@@ -423,9 +420,7 @@ suite('Test Webserver Handler (./services/webserver/webserverHandler.ts)', () =>
           internalSystem = {
             Cache: CacheHandlerMock.Instance,
             Config: config,
-            DB: DatabaseHandlerMock.Instance,
             Log: new ModulesMock.logHandler.Instance(),
-            Models: {},
             Queue: QueueHandlerMock.Instance,
           } as unknown as InternalSystem<ApiStartSettings<WebserverEnabledServiceConfigurator<true, true, true>>>
 

@@ -1,4 +1,3 @@
-import {RequestContext} from '@mikro-orm/core'
 import * as http from 'http'
 import * as https from 'https'
 import immer from 'immer'
@@ -8,7 +7,6 @@ import KoaBodyParser from 'koa-bodyparser'
 import {ApiStartSettings} from '../../systemInterfaces/apiStartSettings'
 import {Dependencies, DependencyFunction} from '../../systemInterfaces/dependencies'
 import {InternalSystem} from '../../systemInterfaces/internalSystem'
-import {ServiceConfigurator} from '../../systemInterfaces/serviceConfigurator'
 import {UserDefinedObject} from '../../systemInterfaces/userDefinedObject'
 import {
   WebServerObject,
@@ -21,7 +19,6 @@ import {IParam} from './interfaces/param'
 import {IRoute} from './interfaces/route'
 import {Version} from './interfaces/version'
 import {WebserverCallbackFunction} from './interfaces/webserverCallbackFunction'
-import {WebserverServiceEnabled} from './interfaces/webserverServiceEnabled'
 
 export class WebserverHandler<
   TSettings extends ApiStartSettings = ApiStartSettings<WebserverEnabledServiceConfigurator<any, any, any>>,
@@ -36,7 +33,6 @@ export class WebserverHandler<
       Koa: Koa,
       KoaBodyParser: KoaBodyParser,
       KoaRouter: KoaRouter,
-      DBMiddleware: RequestContext,
     })
   }
 
@@ -140,13 +136,6 @@ export class WebserverHandler<
       system.Config.services.webserver.settings.bodyParser.enabled
     ) {
       app.use(this.deps.KoaBodyParser(system.Config.services.webserver.settings.bodyParser))
-    }
-
-    if (system.Config.services.database.enabled) {
-      const system2 = system as InternalSystem<
-        ApiStartSettings<ServiceConfigurator<any, true, any, WebserverServiceEnabled<true, true, any>>>
-      >
-      app.use(({}, next) => this.deps.DBMiddleware.createAsync(system2.DB.em, next))
     }
 
     if (system.Config.services.webserver.middleware.length > 0) {

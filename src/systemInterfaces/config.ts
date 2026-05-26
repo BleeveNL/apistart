@@ -5,7 +5,6 @@ import {WebserverConfig} from '../services/webserver/interfaces/config/webserver
 import {WebserverServiceEnabled} from '../services/webserver/interfaces/webserverServiceEnabled'
 import {ApiStartSettings} from './apiStartSettings'
 import CacheConfig from '../services/cache/interfaces/cacheConfig.interface'
-import {DatabaseConfig} from '../services/database/interfaces/databaseConfig.interface'
 import {QueueConfig} from '../services/queue/interfaces/queueConfig.interface'
 
 export interface Config<TSettings extends ApiStartSettings = any> {
@@ -18,9 +17,6 @@ export interface Config<TSettings extends ApiStartSettings = any> {
   readonly log: logHandlerConfig
   readonly services: {
     readonly cache: TSettings['ServiceConfigurator']['cache'] extends true ? CacheConfig : DisabledService
-    readonly database: TSettings['ServiceConfigurator']['database'] extends true
-      ? DatabaseConfig<TSettings['Models']>
-      : DisabledService
     readonly queue: TSettings['ServiceConfigurator']['queue'] extends QueueService
       ? QueueConfig<TSettings['ServiceConfigurator']['queue']['exchanges']>
       : DisabledService

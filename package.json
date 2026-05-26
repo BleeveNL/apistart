@@ -25,11 +25,7 @@
     "NodeJS",
     "TypeScript",
     "Framework",
-    "Sequelize",
-    "MySQL",
-    "PostgresSQL",
     "Redis",
-    "Sqlite",
     "RabbitMQ",
     "amqp"
   ],
@@ -84,11 +80,6 @@
   },
   "dependencies": {
     "@koa/cors": "^5.0.0",
-    "@mikro-orm/core": "^5.9.8",
-    "@mikro-orm/mariadb": "^5.9.8",
-    "@mikro-orm/mongodb": "^5.9.8",
-    "@mikro-orm/postgresql": "^5.9.8",
-    "@mikro-orm/sqlite": "^5.9.8",
     "@types/amqplib": "^0.10.7",
     "@types/ioredis": "^4.27.5",
     "@types/koa-bodyparser": "^4.3.3",
@@ -102,9 +93,6 @@
     "koa": "^2.13.3",
     "koa-advanced-router": "^0.4.4",
     "koa-bodyparser": "^4.3.0",
-    "loghandler": "^1.1.12",
-    "node-gyp": "^9.3.1",
-    "pg": "^8.7.1",
-    "sequelize": "^6.29.0"
+    "loghandler": "^1.1.12"
   }
 }
