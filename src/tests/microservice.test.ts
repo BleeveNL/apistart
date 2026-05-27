@@ -5,11 +5,9 @@ import * as joi from 'joi'
 import {Log} from 'loghandler'
 import mockedConfig from './mocks/config.mock'
 import * as CacheHandlerMock from './mocks/cacheHandler.mock'
-import * as DatabaseHandlerMock from './mocks/databaseHandler.mock'
 import * as QueueHandlerMock from './mocks/queueHandler.mock'
 import * as WebserverHandlerMock from './mocks/webserverHandler.mock'
 import CacheHandler from '../services/cache/cacheHandler'
-import DatabaseHandler from '../services/database/databaseHandler'
 import QueueHandler from '../services/queue/queueHandler'
 import WebserverHandler from '../services/webserver/webserverHandler'
 import {Helpers} from '../systemInterfaces/helpers'
@@ -23,7 +21,6 @@ suite('Test plugin (microservice.ts).', () => {
       log: new mockedLogHandler.Instance() as unknown as Log,
       services: {
         cache: new CacheHandlerMock.Instance() as any as CacheHandler<any>,
-        database: new DatabaseHandlerMock.Instance() as any as DatabaseHandler<any>,
         queue: new QueueHandlerMock.Instance(false) as any as QueueHandler<any>,
         webserver: new WebserverHandlerMock.Instance() as any as WebserverHandler,
       },
@@ -34,7 +31,6 @@ suite('Test plugin (microservice.ts).', () => {
   teardown(() => {
     mockedLogHandler.reset()
     CacheHandlerMock.reset()
-    DatabaseHandlerMock.reset()
     QueueHandlerMock.reset()
     WebserverHandlerMock.reset()
   })
@@ -48,7 +44,6 @@ suite('Test plugin (microservice.ts).', () => {
           log: new mockedLogHandler.Instance() as unknown as Log,
           services: {
             cache: new CacheHandlerMock.Instance() as any as CacheHandler<any>,
-            database: new DatabaseHandlerMock.Instance() as any as DatabaseHandler<any>,
             queue: new QueueHandlerMock.Instance(true) as any as QueueHandler<any>,
             webserver: new WebserverHandlerMock.Instance() as any as WebserverHandler,
           },
@@ -93,17 +88,11 @@ suite('Test plugin (microservice.ts).', () => {
       assert.isTrue('Config' in microservice)
       assert.deepEqual(microservice.Config, mockedConfig.correct.everythingDisabled)
 
-      assert.isTrue('DB' in microservice)
-      assert.isUndefined(microservice.DB)
-
       assert.isTrue('Events' in microservice)
       assert.isUndefined(microservice.Events)
 
       assert.isTrue('Log' in microservice)
       assert.instanceOf(microservice.Log, mockedLogHandler.Instance)
-
-      assert.isTrue('Models' in microservice)
-      assert.isUndefined(microservice.Models)
 
       assert.isTrue('EventListener' in microservice)
       assert.isTrue(QueueHandlerMock.stubs.setup.calledOnce)
@@ -113,15 +102,13 @@ suite('Test plugin (microservice.ts).', () => {
 
       Object.keys(microservice).forEach(key => {
         assert.isTrue(
-          ['Cache', 'Config', 'DB', 'Helpers', 'Events', 'Log', 'Models', 'EventListener', 'Webserver'].includes(key),
+          ['Cache', 'Config', 'Helpers', 'Events', 'Log', 'EventListener', 'Webserver'].includes(key),
           `${key} isn't part of object schema`,
         )
       })
     })
 
     test('When all services are enabled. Setup() returns object according schema', async () => {
-      DatabaseHandlerMock.stubs.setup.returns(true)
-
       const helpers = {[faker.random.alphaNumeric()]: faker.random.alphaNumeric()} as unknown as Helpers
       const MicroserviceClass: Microservice = new Microservice(
         {
@@ -130,7 +117,6 @@ suite('Test plugin (microservice.ts).', () => {
           log: new mockedLogHandler.Instance() as unknown as Log,
           services: {
             cache: new CacheHandlerMock.Instance() as any as CacheHandler<any>,
-            database: new DatabaseHandlerMock.Instance() as any as DatabaseHandler<any>,
             queue: new QueueHandlerMock.Instance(true) as any as QueueHandler<any>,
             webserver: new WebserverHandlerMock.Instance() as any as WebserverHandler,
           },
@@ -150,17 +136,11 @@ suite('Test plugin (microservice.ts).', () => {
       assert.isTrue('Helpers' in microservice)
       assert.deepEqual(microservice.Helpers, helpers)
 
-      assert.isTrue('DB' in microservice)
-      assert.isTrue(DatabaseHandlerMock.stubs.setup.calledOnce)
-
       assert.isTrue('Events' in microservice)
       assert.isTrue(QueueHandlerMock.stubs.setup.calledOnce)
 
       assert.isTrue('Log' in microservice)
       assert.instanceOf(microservice.Log, mockedLogHandler.Instance)
-
-      assert.isTrue('Models' in microservice)
-      assert.isTrue(DatabaseHandlerMock.stubs.getModels.calledOnce)
 
       assert.isTrue('EventListener' in microservice)
       assert.isTrue(QueueHandlerMock.stubs.setup.calledOnce)
@@ -170,7 +150,7 @@ suite('Test plugin (microservice.ts).', () => {
 
       Object.keys(microservice).forEach(key => {
         assert.isTrue(
-          ['Cache', 'Config', 'DB', 'Helpers', 'Events', 'Log', 'Models', 'EventListener', 'Webserver'].includes(key),
+          ['Cache', 'Config', 'Helpers', 'Events', 'Log', 'EventListener', 'Webserver'].includes(key),
           `${key} isn't part of object schema`,
         )
       })

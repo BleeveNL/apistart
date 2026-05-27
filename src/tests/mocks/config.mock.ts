@@ -19,9 +19,6 @@ export const everythingDisabled: Config = {
     cache: {
       enabled: false,
     },
-    database: {
-      enabled: false,
-    },
     queue: {
       enabled: false,
     },
@@ -44,7 +41,6 @@ export const error = {
 export const everythingEnabled: Config<
   ApiStartSettings<{
     cache: true
-    database: true
     queue: {
       enabled: true
       exchanges: 'test' | 'test2'
@@ -72,18 +68,6 @@ export const everythingEnabled: Config<
       enabled: true,
       host: faker.internet.domainName(),
       port: 1234,
-    },
-    database: {
-      type: 'postgresql',
-      enabled: true,
-      folder: {
-        migrations: faker.system.filePath(),
-        seeds: faker.system.filePath(),
-      },
-      models: {},
-      password: faker.random.alphaNumeric(15),
-      port: faker.datatype.number(),
-      user: faker.random.alphaNumeric(15),
     },
     queue: {
       enabled: true,
@@ -164,7 +148,6 @@ export const everythingEnabled: Config<
 export const everythingEnabledWithoutVersioning: Config<
   ApiStartSettings<{
     cache: true
-    database: true
     queue: {
       enabled: true
       exchanges: 'test' | 'test2'
@@ -192,18 +175,6 @@ export const everythingEnabledWithoutVersioning: Config<
       enabled: true,
       host: faker.internet.domainName(),
       port: 1234,
-    },
-    database: {
-      type: 'postgresql',
-      enabled: true,
-      folder: {
-        migrations: faker.system.filePath(),
-        seeds: faker.system.filePath(),
-      },
-      models: {},
-      password: faker.random.alphaNumeric(15),
-      port: faker.datatype.number(),
-      user: faker.random.alphaNumeric(15),
     },
     queue: {
       enabled: true,

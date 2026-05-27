@@ -4,7 +4,6 @@ import configSchema from './validationSchemas/config.schema'
 import {Config} from './systemInterfaces/config'
 import {Dependencies} from './interfaces'
 import CacheHandler from './services/cache/cacheHandler'
-import DatabaseHandler from './services/database/databaseHandler'
 import QueueHandler from './services/queue/queueHandler'
 import {InternalSystem} from './systemInterfaces/internalSystem'
 import {Redis} from 'ioredis'
@@ -12,8 +11,6 @@ import WebserverHandler from './services/webserver/webserverHandler'
 import {ApiStartSettings} from './systemInterfaces/apiStartSettings'
 import SystemHelpers from './helpers/index'
 import {ApiStart} from './systemInterfaces/apiStart'
-import {EntityRepositoryList} from './services/database/interfaces/entityRepositoryList.interface'
-import {MikroORM, IDatabaseDriver, Connection} from '@mikro-orm/core'
 export class Microservice<TSettings extends ApiStartSettings = ApiStartSettings<any>> {
   private readonly deps: Dependencies<TSettings>
 
@@ -37,7 +34,6 @@ export class Microservice<TSettings extends ApiStartSettings = ApiStartSettings<
         log: logHandler(config.log),
         services: {
           cache: CacheHandler.factory<TSettings>({Log}, config),
-          database: DatabaseHandler.factory<TSettings>({Log}, config),
           queue: QueueHandler.factory<TSettings>({Log}, config),
           webserver: WebserverHandler.factory<TSettings>(),
         },
@@ -57,16 +53,14 @@ export class Microservice<TSettings extends ApiStartSettings = ApiStartSettings<
   }
 
   public async setup(): Promise<ApiStart<TSettings>> {
-    const [cache, DB, Queue] = await Promise.all([this.GetCache(), this.getDB(), this.getQueue()])
+    const [cache, Queue] = await Promise.all([this.GetCache(), this.getQueue()])
 
     const system = {
       Cache: cache,
       Config: this.config,
-      DB,
       Events: Queue.client,
       Helpers: this.deps.helpers,
       Log: this.deps.log,
-      Models: await this.GetModels(),
     } as InternalSystem<TSettings>
 
     return {
@@ -82,24 +76,8 @@ export class Microservice<TSettings extends ApiStartSettings = ApiStartSettings<
     >
   }
 
-  private async getDB() {
-    return (this.config.services.database.enabled
-      ? this.deps.services.database.setup()
-      : undefined) as unknown as TSettings['ServiceConfigurator']['database'] extends true
-      ? MikroORM<IDatabaseDriver<Connection>>
-      : undefined
-  }
-
   private async getQueue() {
     return this.deps.services.queue.setup()
-  }
-
-  private async GetModels() {
-    return (this.config.services.database.enabled
-      ? this.deps.services.database.getModels()
-      : undefined) as unknown as TSettings['ServiceConfigurator']['database'] extends true
-      ? EntityRepositoryList<TSettings['Models']>
-      : undefined
   }
 }
 

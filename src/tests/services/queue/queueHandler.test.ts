@@ -145,7 +145,6 @@ suite('Test QueueHandler (./services/queue/queueHandler.ts)', () => {
             ApiStartSettings<{
               queue: {enabled: true; exchanges: any}
               cache: false
-              database: false
               webserver: false
             }>
           > = immer(JSON.parse(JSON.stringify(correctConfig)) as Config<any>, (draft: any) => {
@@ -192,7 +191,6 @@ suite('Test QueueHandler (./services/queue/queueHandler.ts)', () => {
             ApiStartSettings<{
               queue: {enabled: true; exchanges: any}
               cache: false
-              database: false
               webserver: false
             }>
           > = immer(JSON.parse(JSON.stringify(correctConfig)) as Config<any>, (draft: any) => {
@@ -238,7 +236,6 @@ suite('Test QueueHandler (./services/queue/queueHandler.ts)', () => {
             ApiStartSettings<{
               queue: {enabled: true; exchanges: any}
               cache: false
-              database: false
               webserver: false
             }>
           > = immer(JSON.parse(JSON.stringify(correctConfig)) as Config<any>, (draft: any) => {
@@ -297,7 +294,6 @@ suite('Test QueueHandler (./services/queue/queueHandler.ts)', () => {
             ApiStartSettings<{
               queue: {enabled: true; exchanges: any}
               cache: false
-              database: false
               webserver: false
             }>
           > = immer(JSON.parse(JSON.stringify(correctConfig)) as Config<any>, (draft: any) => {
@@ -351,11 +347,9 @@ suite('Test QueueHandler (./services/queue/queueHandler.ts)', () => {
 
       suite('test client functionality', () => {
         suite('publish a message works as expected', () => {
-          let config: Config<
-            ApiStartSettings<{queue: {enabled: true; exchanges: any}; cache: false; database: false; webserver: false}>
-          >
+          let config: Config<ApiStartSettings<{queue: {enabled: true; exchanges: any}; cache: false; webserver: false}>>
           let queueHandler: QueueHandler<
-            ApiStartSettings<{queue: {enabled: true; exchanges: any}; cache: false; database: false; webserver: false}>
+            ApiStartSettings<{queue: {enabled: true; exchanges: any}; cache: false; webserver: false}>
           >
           let client: QueueClient<any>
 
@@ -488,9 +482,7 @@ suite('Test QueueHandler (./services/queue/queueHandler.ts)', () => {
       })
 
       suite('test server functionality', () => {
-        let config: Config<
-          ApiStartSettings<{queue: {enabled: true; exchanges: any}; cache: false; database: false; webserver: false}>
-        >
+        let config: Config<ApiStartSettings<{queue: {enabled: true; exchanges: any}; cache: false; webserver: false}>>
 
         setup(async () => {
           config = immer(JSON.parse(JSON.stringify(correctConfig)) as Config<any>, (draft: any) => {

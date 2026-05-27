@@ -12,7 +12,6 @@ import {EnabledService} from '../../../systemInterfaces/services'
 import {UserDefinedObject} from '../../../systemInterfaces/userDefinedObject'
 import * as CacheHandlerMock from '../../mocks/cacheHandler.mock'
 import configMocked from '../../mocks/config.mock'
-import * as DatabaseHandlerMock from '../../mocks/databaseHandler.mock'
 import * as ModulesMock from '../../mocks/nodeModules'
 import * as QueueHandlerMock from '../../mocks/queueHandler.mock'
 import * as MiddlewareMock from '../../mocks/webserver/middleware.mock'
@@ -47,9 +46,7 @@ suite('Test Webserver Handler (./services/webserver/webserverHandler.ts)', () =>
       internalSystem = {
         Cache: CacheHandlerMock.Instance,
         Config: configMocked.correct.everythingDisabled,
-        DB: DatabaseHandlerMock.Instance,
         Log: new ModulesMock.logHandler.Instance(),
-        Models: {},
         Queue: QueueHandlerMock.Instance,
       } as unknown as InternalSystem<ApiStartSettings<WebserverEnabledServiceConfigurator<true, true, any>>>
 
@@ -58,7 +55,6 @@ suite('Test Webserver Handler (./services/webserver/webserverHandler.ts)', () =>
 
     teardown(() => {
       CacheHandlerMock.reset()
-      DatabaseHandlerMock.reset()
       QueueHandlerMock.reset()
       ModulesMock.reset()
       MiddlewareMock.reset()
@@ -96,9 +92,7 @@ suite('Test Webserver Handler (./services/webserver/webserverHandler.ts)', () =>
         internalSystem = {
           Cache: CacheHandlerMock.Instance,
           Config: configMocked.correct.everythingEnabled,
-          DB: DatabaseHandlerMock.Instance,
           Log: new ModulesMock.logHandler.Instance(),
-          Models: {},
           Queue: QueueHandlerMock.Instance,
         } as any
 
@@ -107,7 +101,6 @@ suite('Test Webserver Handler (./services/webserver/webserverHandler.ts)', () =>
 
       teardown(() => {
         CacheHandlerMock.reset()
-        DatabaseHandlerMock.reset()
         QueueHandlerMock.reset()
         ModulesMock.reset()
       })
@@ -149,7 +142,6 @@ suite('Test Webserver Handler (./services/webserver/webserverHandler.ts)', () =>
 
         teardown(() => {
           CacheHandlerMock.reset()
-          DatabaseHandlerMock.reset()
           QueueHandlerMock.reset()
           ModulesMock.reset()
         })
@@ -317,7 +309,6 @@ suite('Test Webserver Handler (./services/webserver/webserverHandler.ts)', () =>
 
         teardown(() => {
           CacheHandlerMock.reset()
-          DatabaseHandlerMock.reset()
           QueueHandlerMock.reset()
           ModulesMock.reset()
         })

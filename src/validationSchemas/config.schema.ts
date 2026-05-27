@@ -1,6 +1,5 @@
 import * as joi from 'joi'
 import cacheEnabledConfigSchema from '../services/cache/validationSchemas/cacheEnabledConfig.schema'
-import databaseEnabledConfigSchema from '../services/database/validationSchemas/databaseEnabledConfig.schema'
 import queueEnabledConfigSchema from '../services/queue/validationSchemas/queueEnabledConfig.schema'
 import webserverConfigSchema from '../services/webserver/interfaces/config/webserverConfig.schema'
 
@@ -46,15 +45,6 @@ const schema = joi.object({
             enabled: joi.valid(false).required(),
           }),
           cacheEnabledConfigSchema,
-        )
-        .required(),
-      database: joi
-        .alternatives()
-        .try(
-          joi.object({
-            enabled: joi.valid(false).required(),
-          }),
-          databaseEnabledConfigSchema,
         )
         .required(),
       queue: joi
