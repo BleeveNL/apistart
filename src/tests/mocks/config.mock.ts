@@ -1,6 +1,6 @@
 import {faker} from '@faker-js/faker'
 import {Config} from '../../systemInterfaces/config'
-import {Methods} from 'koa-advanced-router'
+import {Methods} from '../../services/webserver/interfaces/routerTypes'
 import {ApiStartSettings} from '../../systemInterfaces/apiStartSettings'
 
 export const everythingDisabled: Config = {

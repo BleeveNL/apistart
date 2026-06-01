@@ -1,4 +1,4 @@
-import * as KoaRouter from 'koa-advanced-router'
+import Router from '@koa/router'
 import {DefaultState, DefaultContext} from 'koa'
 import {Dependencies, DependencyFunction} from '../../../systemInterfaces/dependencies'
 import {ApiStartSettings} from '../../../systemInterfaces/apiStartSettings'
@@ -8,8 +8,7 @@ export type ParamFunction<
   TSettings extends ApiStartSettings<any> = ApiStartSettings,
   TDependencies extends UserDefinedObject = UserDefinedObject,
   TCustomState extends DefaultState = DefaultState,
-  TParam = unknown,
-> = (deps: Dependencies<TSettings, TDependencies>) => KoaRouter.Param<TCustomState, DefaultContext, TParam>
+> = (deps: Dependencies<TSettings, TDependencies>) => Router.IParamMiddleware
 
 export interface ParamMiddlewareObject<
   TSettings extends ApiStartSettings<any> = ApiStartSettings,

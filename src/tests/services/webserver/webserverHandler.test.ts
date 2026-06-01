@@ -32,8 +32,8 @@ suite('Test Webserver Handler (./services/webserver/webserverHandler.ts)', () =>
     assert.isFunction(WebserverHandler.factory)
   })
 
-  test('factory gets 1 parameter', () => {
-    assert.equal(WebserverHandler.factory.length, 1)
+  test('factory gets 0 parameters', () => {
+    assert.equal(WebserverHandler.factory.length, 0)
   })
 
   test('factory() returns instance of WebserverHandler', () => {
@@ -652,9 +652,9 @@ suite('Test Webserver Handler (./services/webserver/webserverHandler.ts)', () =>
           assert.equal(ModulesMock.koaBodyParser.stubs.fn.args[0].length, 1)
           assert.deepEqual(ModulesMock.koaBodyParser.stubs.fn.args[0][0], bodyParserSettings)
 
-          assert.equal(ModulesMock.koa.stubs.use.callCount, 2)
-          assert.equal(ModulesMock.koa.stubs.use.args[0].length, 1)
-          assert.equal(ModulesMock.koa.stubs.use.args[0][0], returnedData)
+          assert.equal(ModulesMock.koa.stubs.use.callCount, 4) // cors + bodyParser + routes + allowedMethods
+          assert.equal(ModulesMock.koa.stubs.use.args[1].length, 1)
+          assert.equal(ModulesMock.koa.stubs.use.args[1][0], returnedData)
         })
 
         suite('System Middleware is loaded correctly', () => {

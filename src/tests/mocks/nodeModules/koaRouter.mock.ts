@@ -2,6 +2,7 @@ import * as sinon from 'sinon'
 
 const stubs = {
   all: sinon.stub(),
+  allowedMethods: sinon.stub(),
   connect: sinon.stub(),
   constructor: sinon.stub(),
   delete: sinon.stub(),
@@ -12,18 +13,18 @@ const stubs = {
   patch: sinon.stub(),
   post: sinon.stub(),
   put: sinon.stub(),
-  route: sinon.stub(),
+  register: sinon.stub(),
   routes: sinon.stub(),
   routesMiddleware: sinon.stub(),
   trace: sinon.stub(),
   use: sinon.stub(),
-  version: sinon.stub(),
 }
 
 const reset = () => {
   stubs.constructor.resetHistory()
-  stubs.route.resetHistory()
+  stubs.register.resetHistory()
   stubs.all.resetHistory()
+  stubs.allowedMethods.resetHistory()
   stubs.connect.resetHistory()
   stubs.delete.resetHistory()
   stubs.get.resetHistory()
@@ -37,7 +38,6 @@ const reset = () => {
   stubs.param.resetHistory()
   stubs.routes.resetHistory()
   stubs.routesMiddleware.resetHistory()
-  stubs.version.resetHistory()
 }
 
 class Router {
@@ -45,8 +45,8 @@ class Router {
     stubs.constructor(...args)
   }
 
-  public route(...args: any[]) {
-    stubs.route(...args)
+  public register(...args: any[]) {
+    stubs.register(...args)
     return this
   }
 
@@ -110,16 +110,16 @@ class Router {
     return this
   }
 
-  public version(...args: any[]) {
-    stubs.version(...args)
-    return this
+  public routes(...args: any[]) {
+    stubs.routes(...args)
+    return (...innerArgs: any[]) => {
+      return stubs.routesMiddleware(...innerArgs)
+    }
   }
 
-  public get routes() {
-    stubs.routes()
-    return (...args: any[]) => {
-      return stubs.routesMiddleware(...args)
-    }
+  public allowedMethods(...args: any[]) {
+    stubs.allowedMethods(...args)
+    return () => {}
   }
 }
 

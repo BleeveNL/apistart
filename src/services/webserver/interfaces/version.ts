@@ -1,6 +1,6 @@
 import {IMiddleware} from './middleware'
 import {IRoute} from './route'
-import {VersionOptions} from 'koa-advanced-router'
+import {VersionOptions} from './routerTypes'
 import {ApiStartSettings} from '../../../systemInterfaces/apiStartSettings'
 
 export interface Version<TSettings extends ApiStartSettings<any> = ApiStartSettings> {

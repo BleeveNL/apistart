@@ -3,7 +3,7 @@ import {DependencyFunction} from '../../../systemInterfaces/dependencies'
 import {IController} from './controller'
 import {IMiddleware} from './middleware'
 import {IParam} from './param'
-import {Methods, RouterOptions} from 'koa-advanced-router'
+import {Methods, RouterOptions} from './routerTypes'
 import {ApiStartSettings} from '../../../systemInterfaces/apiStartSettings'
 import {UserDefinedObject} from '../../../systemInterfaces/userDefinedObject'
 
