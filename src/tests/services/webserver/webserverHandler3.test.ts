@@ -8,7 +8,7 @@ import * as ControllerMock from '../../mocks/webserver/controller.mock'
 import * as CacheHandlerMock from '../../mocks/cacheHandler.mock'
 import * as QueueHandlerMock from '../../mocks/queueHandler.mock'
 
-import * as faker from 'faker'
+import {faker} from '@faker-js/faker'
 import * as ModulesMock from '../../mocks/nodeModules'
 import {Methods} from 'koa-advanced-router'
 import {assert} from 'chai'
