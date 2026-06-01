@@ -73,9 +73,7 @@ suite('Test Webserver Handler (./services/webserver/webserverHandler.ts)', () =>
       const path = config.services.webserver.router[0].path as string
 
       assert.equal(ModulesMock.koaRouter.stubs.register.callCount, 1)
-      assert.deepEqual(ModulesMock.koaRouter.stubs.register.args[0][1], [
-        config.services.webserver.router[0].method,
-      ])
+      assert.deepEqual(ModulesMock.koaRouter.stubs.register.args[0][1], [config.services.webserver.router[0].method])
       assert.equal(ModulesMock.koaRouter.stubs.register.args[0][2].length, 1)
       assert.equal(ModulesMock.koaRouter.stubs.param.callCount, 0)
       assert.deepEqual(ModulesMock.koaRouter.stubs.register.args[0][0], path)
@@ -144,9 +142,7 @@ suite('Test Webserver Handler (./services/webserver/webserverHandler.ts)', () =>
       webserver()
 
       assert.equal(ModulesMock.koaRouter.stubs.register.callCount, 1)
-      assert.deepEqual(ModulesMock.koaRouter.stubs.register.args[0][1], [
-        config.services.webserver.router[0].method,
-      ])
+      assert.deepEqual(ModulesMock.koaRouter.stubs.register.args[0][1], [config.services.webserver.router[0].method])
       assert.equal(ModulesMock.koaRouter.stubs.register.args[0][2].length, 1)
       assert.equal(ModulesMock.koaRouter.stubs.param.callCount, 0)
       assert.deepEqual(ModulesMock.koaRouter.stubs.register.args[0][0], path)

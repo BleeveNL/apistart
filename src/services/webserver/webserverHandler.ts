@@ -257,12 +257,7 @@ export class WebserverHandler<
         }
       }
 
-      router.register(
-        route.path as string | RegExp,
-        methods,
-        middlewareList as any,
-        route.options as any,
-      )
+      router.register(route.path as string | RegExp, methods, middlewareList as any, route.options as any)
     }
   }
 
