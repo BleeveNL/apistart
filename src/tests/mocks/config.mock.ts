@@ -1,4 +1,4 @@
-import * as faker from 'faker'
+import {faker} from '@faker-js/faker'
 import {Config} from '../../systemInterfaces/config'
 import {Methods} from 'koa-advanced-router'
 import {ApiStartSettings} from '../../systemInterfaces/apiStartSettings'

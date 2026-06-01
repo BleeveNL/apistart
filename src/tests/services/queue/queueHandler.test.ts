@@ -1,6 +1,6 @@
 import * as amqp from 'amqplib'
 import {assert} from 'chai'
-import * as faker from 'faker'
+import {faker} from '@faker-js/faker'
 import immer from 'immer'
 import * as joi from 'joi'
 import {Log} from 'loghandler'
@@ -161,7 +161,7 @@ suite('Test QueueHandler (./services/queue/queueHandler.ts)', () => {
                 internal: Boolean(Math.round(Math.random())),
                 autoDelete: Boolean(Math.round(Math.random())),
                 alternateExchange: faker.random.alphaNumeric(12),
-                arguments: faker.random.arrayElement(),
+                arguments: faker.helpers.arrayElement(['a', 'b', 'c']),
               },
               type: 'default',
             }
@@ -207,7 +207,7 @@ suite('Test QueueHandler (./services/queue/queueHandler.ts)', () => {
                 internal: Boolean(Math.round(Math.random())),
                 autoDelete: Boolean(Math.round(Math.random())),
                 alternateExchange: faker.random.alphaNumeric(12),
-                arguments: faker.random.arrayElement(),
+                arguments: faker.helpers.arrayElement(['a', 'b', 'c']),
               },
               type: 'default',
             }
@@ -252,7 +252,7 @@ suite('Test QueueHandler (./services/queue/queueHandler.ts)', () => {
                 internal: Boolean(Math.round(Math.random())),
                 autoDelete: Boolean(Math.round(Math.random())),
                 alternateExchange: faker.random.alphaNumeric(12),
-                arguments: faker.random.arrayElement(),
+                arguments: faker.helpers.arrayElement(['a', 'b', 'c']),
               },
               type: faker.random.alphaNumeric(8),
             }

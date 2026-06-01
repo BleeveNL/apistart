@@ -1,7 +1,7 @@
 import {assert} from 'chai'
 import * as LoghandlerMock from '../../mocks/nodeModules/logHandler.mock'
 import {Log} from 'loghandler'
-import * as faker from 'faker'
+import {faker} from '@faker-js/faker'
 import immer from 'immer'
 import DefaultExport, {CacheHandler} from '../../../services/cache/cacheHandler'
 import configMocked from '../../mocks/config.mock'

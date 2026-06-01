@@ -1,5 +1,5 @@
 import {assert} from 'chai'
-import * as faker from 'faker'
+import {faker} from '@faker-js/faker'
 import immer from 'immer'
 import * as sinon from 'sinon'
 import {WebserverEnabledServiceConfigurator, WebserverHandlerDeps} from '../../../services/webserver/interfaces'
@@ -728,7 +728,7 @@ suite('Test Webserver Handler (./services/webserver/webserverHandler.ts)', () =>
 
             setup(() => {
               dependencyObj = {
-                id: faker.random.uuid,
+                id: faker.string.uuid,
                 test: faker.random.alphaNumeric(24),
                 test2: faker.random.words(5),
               }

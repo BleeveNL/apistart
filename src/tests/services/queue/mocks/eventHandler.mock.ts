@@ -1,6 +1,6 @@
 import {QueueEventListener} from '../../../../services/queue/interfaces/queueEventListener.interface'
 import * as sinon from 'sinon'
-import * as faker from 'faker'
+import {faker} from '@faker-js/faker'
 
 const stubs = {
   dependencies: sinon.stub(),

@@ -11,7 +11,7 @@ import CacheHandler from '../services/cache/cacheHandler'
 import QueueHandler from '../services/queue/queueHandler'
 import WebserverHandler from '../services/webserver/webserverHandler'
 import {Helpers} from '../systemInterfaces/helpers'
-import * as faker from 'faker'
+import {faker} from '@faker-js/faker'
 
 suite('Test plugin (microservice.ts).', () => {
   const MicroserviceClass: Microservice = new Microservice(
