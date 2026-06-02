@@ -728,7 +728,7 @@ suite('Test Webserver Handler (./services/webserver/webserverHandler.ts)', () =>
 
             setup(() => {
               dependencyObj = {
-                id: faker.string.uuid,
+                id: faker.string.uuid(),
                 test: faker.random.alphaNumeric(24),
                 test2: faker.random.words(5),
               }

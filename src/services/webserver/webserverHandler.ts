@@ -214,6 +214,9 @@ export class WebserverHandler<
           prefix: version.identifier,
           ...(version.options?.sensitive !== undefined ? {sensitive: version.options.sensitive} : {}),
         })
+        if (version.options?.cors) {
+          versionRouter.use(this.deps.KoaCors(version.options.cors) as any)
+        }
         this.HandleSingleVersion(system, versionRouter, version)
         router.use(versionRouter.routes(), versionRouter.allowedMethods())
       }
