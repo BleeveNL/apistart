@@ -32,9 +32,7 @@ export interface WebserverConfigDefault<
     readonly silent?: boolean
     readonly subdomainOffset?: number
     readonly sensitive?: boolean
-    readonly versionHandler: TWebserverService['versionHandling'] extends true
-      ? 'url' | 'header' | VersionMatchingFunction
-      : false
+    readonly versionHandler: TWebserverService['versionHandling'] extends true ? 'url' | VersionMatchingFunction : false
   }
   readonly connection: {
     readonly http: TWebserverService['http'] extends true ? HttpSettings : DisabledService

@@ -23,5 +23,5 @@ export interface RouterOptions {
   readonly expose?: boolean
   readonly prefix?: string
   readonly sensitive?: boolean
-  readonly versionHandler?: 'url' | 'header' | VersionMatchingFunction | false
+  readonly versionHandler?: 'url' | VersionMatchingFunction | false
 }

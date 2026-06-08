@@ -156,7 +156,7 @@ suite('Test Webserver Handler (./services/webserver/webserverHandler.ts)', () =>
       // constructor called twice: main router (args[0]) + version router (args[1])
       assert.equal(ModulesMock.koaRouter.stubs.constructor.callCount, 2)
       assert.deepEqual(ModulesMock.koaRouter.stubs.constructor.args[1][0], {
-        prefix: config.services.webserver.versions[0].identifier,
+        prefix: `/${config.services.webserver.versions[0].identifier}`,
       })
     })
 

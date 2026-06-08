@@ -211,7 +211,7 @@ export class WebserverHandler<
     for (const version of system.Config.services.webserver.versions) {
       if (version.enabled) {
         const versionRouter = new this.deps.KoaRouter({
-          prefix: version.identifier,
+          prefix: version.identifier.startsWith('/') ? version.identifier : `/${version.identifier}`,
           ...(version.options?.sensitive !== undefined ? {sensitive: version.options.sensitive} : {}),
         })
         if (version.options?.cors) {
