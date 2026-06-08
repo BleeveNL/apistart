@@ -218,7 +218,11 @@ export class WebserverHandler<
           versionRouter.use(this.deps.KoaCors(version.options.cors) as any)
         }
         this.HandleSingleVersion(system, versionRouter, version)
-        router.use(versionRouter.routes(), versionRouter.allowedMethods())
+        const mounts: Koa.Middleware[] = [versionRouter.routes()]
+        if (system.Config.services.webserver.settings.allowedMethods) {
+          mounts.push(versionRouter.allowedMethods())
+        }
+        router.use(...mounts)
       }
     }
   }
