@@ -103,7 +103,7 @@ const versions = {
       sensitive: joi.boolean().optional(),
       silent: joi.boolean().optional(),
       subdomainOffset: joi.number().optional(),
-      versionHandler: joi.alternatives().try(joi.valid('url', 'header'), joi.function().arity(1)).required(),
+      versionHandler: joi.alternatives().try(joi.valid('url'), joi.function().arity(1)).required(),
     })
     .required(),
   versions: joi

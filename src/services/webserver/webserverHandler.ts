@@ -2,7 +2,8 @@ import * as http from 'http'
 import * as https from 'https'
 import immer from 'immer'
 import Koa from 'koa'
-import KoaRouter, {Params, Router} from 'koa-advanced-router'
+import cors from '@koa/cors'
+import Router from '@koa/router'
 import KoaBodyParser from 'koa-bodyparser'
 import {ApiStartSettings} from '../../systemInterfaces/apiStartSettings'
 import {Dependencies, DependencyFunction} from '../../systemInterfaces/dependencies'
@@ -32,7 +33,8 @@ export class WebserverHandler<
       Immer: immer,
       Koa: Koa,
       KoaBodyParser: KoaBodyParser,
-      KoaRouter: KoaRouter,
+      KoaCors: cors,
+      KoaRouter: Router,
     })
   }
 
@@ -111,7 +113,6 @@ export class WebserverHandler<
     system: InternalSystem<ApiStartSettings<WebserverEnabledServiceConfigurator<true, true, boolean>>>,
   ) {
     const app = new this.deps.Koa()
-    // settings
     app.env = system.Config.app.env
     app.proxy = system.Config.services.webserver.settings.proxy
       ? system.Config.services.webserver.settings.proxy
@@ -130,6 +131,10 @@ export class WebserverHandler<
       system.Log.err(err, ctx)
     })
 
+    if (system.Config.services.webserver.settings.cors) {
+      app.use(this.deps.KoaCors(system.Config.services.webserver.settings.cors))
+    }
+
     if (
       system.Config.services.webserver.settings &&
       system.Config.services.webserver.settings.bodyParser &&
@@ -144,13 +149,9 @@ export class WebserverHandler<
       }
     }
 
-    const router = this.deps.KoaRouter({
-      allowedMethods: system.Config.services.webserver.settings.allowedMethods,
-      cors: system.Config.services.webserver.settings.cors,
-      expose: system.Config.services.webserver.settings.expose,
+    const router = new this.deps.KoaRouter({
       prefix: system.Config.services.webserver.settings.prefix,
-      sensitive: system.Config.services.webserver.settings.sensitive,
-      versionHandler: system.Config.services.webserver.settings.versionHandler,
+      sensitive: system.Config.services.webserver.settings.sensitive as boolean | undefined,
     })
 
     this.HandleRoutes(system, system.Config.services.webserver.router, router)
@@ -159,7 +160,12 @@ export class WebserverHandler<
       this.HandleVersions(system, router)
     }
 
-    app.use(router.routes)
+    app.use(router.routes())
+
+    if (system.Config.services.webserver.settings.allowedMethods) {
+      app.use(router.allowedMethods())
+    }
+
     return app
   }
 
@@ -168,7 +174,7 @@ export class WebserverHandler<
     middlewareList2Handle: IMiddleware<ApiStartSettings<WebserverEnabledServiceConfigurator<true, true, any>>>[],
   ) {
     const middlewareList: Koa.Middleware[] = []
-    if (system.Config.services.webserver.middleware.length > 0) {
+    if (middlewareList2Handle.length > 0) {
       for (const middleware of middlewareList2Handle) {
         if (typeof middleware === 'function') {
           middlewareList.push(middleware(this.HandleDependencies(system, {}) as any))
@@ -204,8 +210,19 @@ export class WebserverHandler<
   ) {
     for (const version of system.Config.services.webserver.versions) {
       if (version.enabled) {
-        const versionRouter = router.version(version.identifier, version.options)
+        const versionRouter = new this.deps.KoaRouter({
+          prefix: version.identifier.startsWith('/') ? version.identifier : `/${version.identifier}`,
+          ...(version.options?.sensitive !== undefined ? {sensitive: version.options.sensitive} : {}),
+        })
+        if (version.options?.cors) {
+          versionRouter.use(this.deps.KoaCors(version.options.cors) as any)
+        }
         this.HandleSingleVersion(system, versionRouter, version)
+        const mounts: Koa.Middleware[] = [versionRouter.routes()]
+        if (system.Config.services.webserver.settings.allowedMethods) {
+          mounts.push(versionRouter.allowedMethods())
+        }
+        router.use(...mounts)
       }
     }
   }
@@ -231,7 +248,6 @@ export class WebserverHandler<
       const methods = typeof route.method === 'string' ? [route.method] : route.method
 
       let middlewareList: Koa.Middleware[] = []
-      const params: Params = {}
 
       if (route.middleware && route.middleware.length > 0) {
         middlewareList = middlewareList.concat(this.HandleMiddleware(system, route.middleware))
@@ -244,17 +260,11 @@ export class WebserverHandler<
 
       if (route.params) {
         for (const paramKey in route.params) {
-          params[paramKey] = this.handleParam(system, route.params[paramKey])
+          router.param(paramKey, this.handleParam(system, route.params[paramKey]))
         }
       }
 
-      router.route({
-        methods,
-        middleware: middlewareList as any,
-        options: route.options,
-        params,
-        path: route.path,
-      })
+      router.register(route.path as string | RegExp, methods, middlewareList as any, route.options as any)
     }
   }
 

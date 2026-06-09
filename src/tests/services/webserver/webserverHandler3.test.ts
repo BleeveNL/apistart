@@ -10,7 +10,7 @@ import * as QueueHandlerMock from '../../mocks/queueHandler.mock'
 
 import {faker} from '@faker-js/faker'
 import * as ModulesMock from '../../mocks/nodeModules'
-import {Methods} from 'koa-advanced-router'
+import {Methods} from '../../../services/webserver/interfaces/routerTypes'
 import {assert} from 'chai'
 import {InternalSystem} from '../../../systemInterfaces/internalSystem'
 import WebserverHandler from '../../../services/webserver/webserverHandler'
@@ -72,16 +72,14 @@ suite('Test Webserver Handler (./services/webserver/webserverHandler.ts)', () =>
     test('in default test case', () => {
       const path = config.services.webserver.router[0].path as string
 
-      assert.equal(ModulesMock.koaRouter.stubs.route.callCount, 1)
-      assert.deepEqual(ModulesMock.koaRouter.stubs.route.args[0][0].methods, [
-        config.services.webserver.router[0].method,
-      ])
-      assert.equal(ModulesMock.koaRouter.stubs.route.args[0][0].middleware.length, 1)
-      assert.deepEqual(ModulesMock.koaRouter.stubs.route.args[0][0].params, {})
-      assert.deepEqual(ModulesMock.koaRouter.stubs.route.args[0][0].path, path)
+      assert.equal(ModulesMock.koaRouter.stubs.register.callCount, 1)
+      assert.deepEqual(ModulesMock.koaRouter.stubs.register.args[0][1], [config.services.webserver.router[0].method])
+      assert.equal(ModulesMock.koaRouter.stubs.register.args[0][2].length, 1)
+      assert.equal(ModulesMock.koaRouter.stubs.param.callCount, 0)
+      assert.deepEqual(ModulesMock.koaRouter.stubs.register.args[0][0], path)
 
       assert.equal(ControllerMock.stubs.controller.callCount, 0)
-      ModulesMock.koaRouter.stubs.route.args[0][0].middleware[0]()
+      ModulesMock.koaRouter.stubs.register.args[0][2][0]()
       assert.equal(ControllerMock.stubs.controller.callCount, 1)
       assert.deepEqual(ControllerMock.stubs.setup.args[0][0], {...internalSystem, Dependencies: {}})
     })
@@ -115,7 +113,7 @@ suite('Test Webserver Handler (./services/webserver/webserverHandler.ts)', () =>
       webserver = webserverHandler.setup(internalSystem)
 
       assert.equal(ControllerMock.stubs.controller.callCount, 0)
-      ModulesMock.koaRouter.stubs.route.args[0][0].middleware[0]()
+      ModulesMock.koaRouter.stubs.register.args[0][2][0]()
       assert.equal(ControllerMock.stubs.controller.callCount, 1)
 
       assert.equal(ControllerMock.stubs.setup.callCount, 1)
@@ -143,16 +141,14 @@ suite('Test Webserver Handler (./services/webserver/webserverHandler.ts)', () =>
       })
       webserver()
 
-      assert.equal(ModulesMock.koaRouter.stubs.route.callCount, 1)
-      assert.deepEqual(ModulesMock.koaRouter.stubs.route.args[0][0].methods, [
-        config.services.webserver.router[0].method,
-      ])
-      assert.equal(ModulesMock.koaRouter.stubs.route.args[0][0].middleware.length, 1)
-      assert.deepEqual(ModulesMock.koaRouter.stubs.route.args[0][0].params, {})
-      assert.deepEqual(ModulesMock.koaRouter.stubs.route.args[0][0].path, path)
+      assert.equal(ModulesMock.koaRouter.stubs.register.callCount, 1)
+      assert.deepEqual(ModulesMock.koaRouter.stubs.register.args[0][1], [config.services.webserver.router[0].method])
+      assert.equal(ModulesMock.koaRouter.stubs.register.args[0][2].length, 1)
+      assert.equal(ModulesMock.koaRouter.stubs.param.callCount, 0)
+      assert.deepEqual(ModulesMock.koaRouter.stubs.register.args[0][0], path)
 
       assert.equal(ControllerMock.stubs.controller.callCount, 0)
-      ModulesMock.koaRouter.stubs.route.args[0][0].middleware[0]()
+      ModulesMock.koaRouter.stubs.register.args[0][2][0]()
       assert.equal(ControllerMock.stubs.controller.callCount, 1)
     })
 
@@ -178,7 +174,7 @@ suite('Test Webserver Handler (./services/webserver/webserverHandler.ts)', () =>
       })
       webserver()
 
-      assert.deepEqual(ModulesMock.koaRouter.stubs.route.args[0][0].methods, methods)
+      assert.deepEqual(ModulesMock.koaRouter.stubs.register.args[0][1], methods)
     })
 
     test('when route has middleware', () => {
@@ -211,12 +207,12 @@ suite('Test Webserver Handler (./services/webserver/webserverHandler.ts)', () =>
       })
       webserver()
 
-      assert.equal(ModulesMock.koaRouter.stubs.route.args[0][0].middleware.length, numberOfMiddleware + 1) // Controller is added as middleware in router
+      assert.equal(ModulesMock.koaRouter.stubs.register.args[0][2].length, numberOfMiddleware + 1) // Controller is added as middleware in router
 
       assert.equal(ControllerMock.stubs.controller.callCount, 0)
       assert.equal(MiddlewareMock.stubs.middleware.callCount, 0)
 
-      for (const middleware of ModulesMock.koaRouter.stubs.route.args[0][0].middleware) {
+      for (const middleware of ModulesMock.koaRouter.stubs.register.args[0][2]) {
         middleware()
       }
 
@@ -249,7 +245,7 @@ suite('Test Webserver Handler (./services/webserver/webserverHandler.ts)', () =>
 
         assert.equal(ParamMock.stubs.setup.callCount, 1)
         assert.equal(ParamMock.stubs.param.callCount, 0)
-        ModulesMock.koaRouter.stubs.route.args[0][0].params.hajhfdkjhdkfh()
+        ModulesMock.koaRouter.stubs.param.args[0][1]()
         assert.equal(ParamMock.stubs.param.callCount, 1)
       })
 
@@ -284,7 +280,7 @@ suite('Test Webserver Handler (./services/webserver/webserverHandler.ts)', () =>
 
         assert.equal(ParamMock.stubs.setup.callCount, 1)
         assert.equal(ParamMock.stubs.param.callCount, 0)
-        ModulesMock.koaRouter.stubs.route.args[0][0].params.hajhfdkjhdkfh()
+        ModulesMock.koaRouter.stubs.param.args[0][1]()
         assert.equal(ParamMock.stubs.param.callCount, 1)
       })
 
