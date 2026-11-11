@@ -153,7 +153,7 @@ suite('Test Webserver Handler (./services/webserver/webserverHandler.ts)', () =>
           if (settings.services.webserver.connection.http.enabled) {
             assert.isTrue(ModulesMock.koa.stubs.callback.callCount === 0)
 
-            const koaCallBackReturnValue = faker.random.alphaNumeric(24)
+            const koaCallBackReturnValue = faker.string.alphanumeric(24)
             ModulesMock.koa.stubs.callback.returns(koaCallBackReturnValue)
             webserver()
 
@@ -233,7 +233,7 @@ suite('Test Webserver Handler (./services/webserver/webserverHandler.ts)', () =>
 
           assert.isTrue(ModulesMock.koa.stubs.callback.callCount === 0)
 
-          const koaCallBackReturnValue = faker.random.alphaNumeric(24)
+          const koaCallBackReturnValue = faker.string.alphanumeric(24)
           ModulesMock.koa.stubs.callback.returns(koaCallBackReturnValue)
           webserver()
 
@@ -320,7 +320,7 @@ suite('Test Webserver Handler (./services/webserver/webserverHandler.ts)', () =>
           if (settings.services.webserver.connection.https.enabled) {
             assert.isTrue(ModulesMock.koa.stubs.callback.callCount === 0)
 
-            const koaCallBackReturnValue = faker.random.alphaNumeric(24)
+            const koaCallBackReturnValue = faker.string.alphanumeric(24)
             ModulesMock.koa.stubs.callback.returns(koaCallBackReturnValue)
             webserver()
 
@@ -397,8 +397,8 @@ suite('Test Webserver Handler (./services/webserver/webserverHandler.ts)', () =>
               Config.services.webserver.connection.http = {enabled: false}
               Config.services.webserver.connection.https = {
                 cert: {
-                  cert: faker.random.alphaNumeric(48),
-                  key: faker.random.alphaNumeric(48),
+                  cert: faker.string.alphanumeric(48),
+                  key: faker.string.alphanumeric(48),
                 },
                 enabled: true,
               }
@@ -412,7 +412,7 @@ suite('Test Webserver Handler (./services/webserver/webserverHandler.ts)', () =>
 
           assert.isTrue(ModulesMock.koa.stubs.callback.callCount === 0)
 
-          const koaCallBackReturnValue = faker.random.alphaNumeric(24)
+          const koaCallBackReturnValue = faker.string.alphanumeric(24)
           ModulesMock.koa.stubs.callback.returns(koaCallBackReturnValue)
           webserver()
 
@@ -435,8 +435,8 @@ suite('Test Webserver Handler (./services/webserver/webserverHandler.ts)', () =>
               Config.services.webserver.connection.http = {enabled: false}
               Config.services.webserver.connection.https = {
                 cert: {
-                  cert: faker.random.alphaNumeric(48),
-                  key: faker.random.alphaNumeric(48),
+                  cert: faker.string.alphanumeric(48),
+                  key: faker.string.alphanumeric(48),
                 },
                 enabled: true,
               }
@@ -487,7 +487,7 @@ suite('Test Webserver Handler (./services/webserver/webserverHandler.ts)', () =>
               ApiStartSettings<WebserverEnabledServiceConfigurator<true, true, any>>
             >,
             config => {
-              config.services.webserver.connection.http = {enabled: true, port: faker.datatype.number()}
+              config.services.webserver.connection.http = {enabled: true, port: faker.number.int({max: 99999})}
             },
           )
           webserverHandler = new WebserverHandler(dependenciesMock)
@@ -609,8 +609,8 @@ suite('Test Webserver Handler (./services/webserver/webserverHandler.ts)', () =>
               assert.isFunction(call[1])
 
               const errorCount = ModulesMock.logHandler.stubs.err.callCount
-              const testError = new Error(faker.random.words(5))
-              const testObject = {test: faker.random.alphaNumeric()}
+              const testError = new Error(faker.word.words(5))
+              const testObject = {test: faker.string.alphanumeric()}
 
               call[1](testError, testObject)
               assert.equal(ModulesMock.logHandler.stubs.err.callCount, errorCount + 1)
@@ -639,7 +639,7 @@ suite('Test Webserver Handler (./services/webserver/webserverHandler.ts)', () =>
             },
           )
 
-          const returnedData = faker.random.alphaNumeric(8)
+          const returnedData = faker.string.alphanumeric(8)
           ModulesMock.koaBodyParser.stubs.fn.returns(returnedData)
 
           const webserverHandler = new WebserverHandler(dependenciesMock)
@@ -658,8 +658,8 @@ suite('Test Webserver Handler (./services/webserver/webserverHandler.ts)', () =>
         })
 
         suite('System Middleware is loaded correctly', () => {
-          const numberOfMiddleware = faker.datatype.number(8) + 2
-          const returnValues = faker.random.alphaNumeric(24)
+          const numberOfMiddleware = faker.number.int(8) + 2
+          const returnValues = faker.string.alphanumeric(24)
 
           teardown(() => {
             ModulesMock.reset()
@@ -729,8 +729,8 @@ suite('Test Webserver Handler (./services/webserver/webserverHandler.ts)', () =>
             setup(() => {
               dependencyObj = {
                 id: faker.string.uuid(),
-                test: faker.random.alphaNumeric(24),
-                test2: faker.random.words(5),
+                test: faker.string.alphanumeric(24),
+                test2: faker.word.words(5),
               }
 
               config = immer(

@@ -16,7 +16,7 @@ import {faker} from '@faker-js/faker'
 suite('Test plugin (microservice.ts).', () => {
   const MicroserviceClass: Microservice = new Microservice(
     {
-      helpers: {[faker.random.alphaNumeric()]: faker.random.alphaNumeric()} as unknown as Helpers,
+      helpers: {[faker.string.alphanumeric()]: faker.string.alphanumeric()} as unknown as Helpers,
       joi,
       log: new mockedLogHandler.Instance() as unknown as Log,
       services: {
@@ -109,7 +109,7 @@ suite('Test plugin (microservice.ts).', () => {
     })
 
     test('When all services are enabled. Setup() returns object according schema', async () => {
-      const helpers = {[faker.random.alphaNumeric()]: faker.random.alphaNumeric()} as unknown as Helpers
+      const helpers = {[faker.string.alphanumeric()]: faker.string.alphanumeric()} as unknown as Helpers
       const MicroserviceClass: Microservice = new Microservice(
         {
           helpers,

@@ -31,7 +31,7 @@ suite('Test Webserver Handler (./services/webserver/webserverHandler.ts)', () =>
         draftConfig.services.webserver.versions = [
           {
             enabled: true,
-            identifier: faker.random.alphaNumeric(6),
+            identifier: faker.string.alphanumeric(6),
             middleware: [MiddlewareMock.Instance],
             router: [
               {
@@ -39,13 +39,13 @@ suite('Test Webserver Handler (./services/webserver/webserverHandler.ts)', () =>
                 dependencies: {},
                 method: Methods.get,
                 params: {},
-                path: `/${faker.random.alphaNumeric(8)}/`,
+                path: `/${faker.string.alphanumeric(8)}/`,
               },
             ],
           },
           {
             enabled: false,
-            identifier: faker.random.alphaNumeric(6),
+            identifier: faker.string.alphanumeric(6),
             middleware: [MiddlewareMock.Instance],
             router: [
               {
@@ -53,7 +53,7 @@ suite('Test Webserver Handler (./services/webserver/webserverHandler.ts)', () =>
                 dependencies: {},
                 method: Methods.get,
                 params: {},
-                path: `/${faker.random.alphaNumeric(8)}/`,
+                path: `/${faker.string.alphanumeric(8)}/`,
               },
             ],
           },
@@ -193,7 +193,7 @@ suite('Test Webserver Handler (./services/webserver/webserverHandler.ts)', () =>
         ParamMock.reset()
 
         const dependencies = {
-          id: faker.random.alphaNumeric(12),
+          id: faker.string.alphanumeric(12),
         }
 
         config = immer(config, draftConfig => {
@@ -313,8 +313,8 @@ suite('Test Webserver Handler (./services/webserver/webserverHandler.ts)', () =>
       })
 
       test('when route has middleware', () => {
-        const numberOfMiddleware = faker.datatype.number(8) + 2
-        const returnValues = faker.random.alphaNumeric(24)
+        const numberOfMiddleware = faker.number.int(8) + 2
+        const returnValues = faker.string.alphanumeric(24)
         MiddlewareMock.stubs.middleware.returns(returnValues)
 
         const path = config.services.webserver.versions[0].router[0].path as string
@@ -378,7 +378,7 @@ suite('Test Webserver Handler (./services/webserver/webserverHandler.ts)', () =>
             draftConfig.services.webserver.versions = [
               {
                 enabled: true,
-                identifier: faker.random.alphaNumeric(6),
+                identifier: faker.string.alphanumeric(6),
                 middleware: [MiddlewareMock.Instance],
                 router: [
                   {
@@ -387,13 +387,13 @@ suite('Test Webserver Handler (./services/webserver/webserverHandler.ts)', () =>
                     method: Methods.get,
                     middleware: [],
                     params: {},
-                    path: `/${faker.random.alphaNumeric(8)}/`,
+                    path: `/${faker.string.alphanumeric(8)}/`,
                   },
                 ],
               },
               {
                 enabled: false,
-                identifier: faker.random.alphaNumeric(6),
+                identifier: faker.string.alphanumeric(6),
                 middleware: [MiddlewareMock.Instance],
                 router: [
                   {
@@ -402,7 +402,7 @@ suite('Test Webserver Handler (./services/webserver/webserverHandler.ts)', () =>
                     method: Methods.get,
                     middleware: [],
                     params: {},
-                    path: `/${faker.random.alphaNumeric(8)}/`,
+                    path: `/${faker.string.alphanumeric(8)}/`,
                   },
                 ],
               },
@@ -474,7 +474,7 @@ suite('Test Webserver Handler (./services/webserver/webserverHandler.ts)', () =>
 
         test('when route has a param is an object with dependencies', () => {
           const dependencies = {
-            id: faker.random.alphaNumeric(12),
+            id: faker.string.alphanumeric(12),
           }
 
           config = immer(config, draftConfig => {
@@ -517,7 +517,7 @@ suite('Test Webserver Handler (./services/webserver/webserverHandler.ts)', () =>
 
         test('Param Function gets copy of Internal System', () => {
           const dependencies = {
-            id: faker.random.alphaNumeric(12),
+            id: faker.string.alphanumeric(12),
           }
 
           config = immer(config, draftConfig => {

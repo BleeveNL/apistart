@@ -35,7 +35,7 @@ suite('Test Webserver Handler (./services/webserver/webserverHandler.ts)', () =>
             controller: ControllerMock.Instance,
             method: Methods.get,
             params: {},
-            path: `/${faker.random.alphaNumeric(8)}/`,
+            path: `/${faker.string.alphanumeric(8)}/`,
           },
         ]
       })
@@ -91,7 +91,7 @@ suite('Test Webserver Handler (./services/webserver/webserverHandler.ts)', () =>
       ParamMock.reset()
 
       const dependencies = {
-        id: faker.random.alphaNumeric(12),
+        id: faker.string.alphanumeric(12),
       }
 
       config = immer(config, draftConfig => {
@@ -178,8 +178,8 @@ suite('Test Webserver Handler (./services/webserver/webserverHandler.ts)', () =>
     })
 
     test('when route has middleware', () => {
-      const numberOfMiddleware = faker.datatype.number(8) + 2
-      const returnValues = faker.random.alphaNumeric(24)
+      const numberOfMiddleware = faker.number.int(8) + 2
+      const returnValues = faker.string.alphanumeric(24)
       MiddlewareMock.stubs.middleware.returns(returnValues)
 
       config = immer(config, draftConfig => {
@@ -253,7 +253,7 @@ suite('Test Webserver Handler (./services/webserver/webserverHandler.ts)', () =>
         const params = {
           hajhfdkjhdkfh: {
             dependencies: {
-              key: faker.random.alphaNumeric(12),
+              key: faker.string.alphanumeric(12),
             },
             fnc: ParamMock.Instance,
           },
@@ -288,7 +288,7 @@ suite('Test Webserver Handler (./services/webserver/webserverHandler.ts)', () =>
         const params = {
           hajhfdkjhdkfh: {
             dependencies: {
-              key: faker.random.alphaNumeric(12),
+              key: faker.string.alphanumeric(12),
             },
             fnc: ParamMock.Instance,
           },
