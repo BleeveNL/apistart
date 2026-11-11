@@ -20,11 +20,11 @@ const Instance: QueueEventListener<any, any> = {
   handler: async (...args: any) => {
     return stubs.handler(args)
   },
-  routingKey: faker.random.alphaNumeric(8),
+  routingKey: faker.string.alphanumeric(8),
   settings: {
     consume: {},
     queue: {
-      name: faker.random.alphaNumeric(8),
+      name: faker.string.alphanumeric(8),
     },
   },
 }

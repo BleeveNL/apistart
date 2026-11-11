@@ -155,12 +155,12 @@ suite('Test QueueHandler (./services/queue/queueHandler.ts)', () => {
           const MaximalExchanges = Math.round(Math.random() * 5) + 2
           for (let i = 0; i < MaximalExchanges; i++) {
             const exchangeItem = {
-              name: faker.random.alphaNumeric(8),
+              name: faker.string.alphanumeric(8),
               options: {
                 durable: Boolean(Math.round(Math.random())),
                 internal: Boolean(Math.round(Math.random())),
                 autoDelete: Boolean(Math.round(Math.random())),
-                alternateExchange: faker.random.alphaNumeric(12),
+                alternateExchange: faker.string.alphanumeric(12),
                 arguments: faker.helpers.arrayElement(['a', 'b', 'c']),
               },
               type: 'default',
@@ -201,12 +201,12 @@ suite('Test QueueHandler (./services/queue/queueHandler.ts)', () => {
           const MaximalExchanges = Math.round(Math.random() * 5) + 2
           for (let i = 0; i < MaximalExchanges; i++) {
             const exchangeItem = {
-              name: faker.random.alphaNumeric(8),
+              name: faker.string.alphanumeric(8),
               options: {
                 durable: Boolean(Math.round(Math.random())),
                 internal: Boolean(Math.round(Math.random())),
                 autoDelete: Boolean(Math.round(Math.random())),
-                alternateExchange: faker.random.alphaNumeric(12),
+                alternateExchange: faker.string.alphanumeric(12),
                 arguments: faker.helpers.arrayElement(['a', 'b', 'c']),
               },
               type: 'default',
@@ -246,15 +246,15 @@ suite('Test QueueHandler (./services/queue/queueHandler.ts)', () => {
           const MaximalExchanges = Math.round(Math.random() * 5) + 2
           for (let i = 0; i < MaximalExchanges; i++) {
             const exchangeItem = {
-              name: faker.random.alphaNumeric(8),
+              name: faker.string.alphanumeric(8),
               options: {
                 durable: Boolean(Math.round(Math.random())),
                 internal: Boolean(Math.round(Math.random())),
                 autoDelete: Boolean(Math.round(Math.random())),
-                alternateExchange: faker.random.alphaNumeric(12),
+                alternateExchange: faker.string.alphanumeric(12),
                 arguments: faker.helpers.arrayElement(['a', 'b', 'c']),
               },
-              type: faker.random.alphaNumeric(8),
+              type: faker.string.alphanumeric(8),
             }
 
             config = immer(config, (draft: any) => {
@@ -300,22 +300,22 @@ suite('Test QueueHandler (./services/queue/queueHandler.ts)', () => {
             draft.services.queue.enabled = true
             draft.services.queue.exchanges = [
               {
-                name: faker.random.alphaNumeric(8),
+                name: faker.string.alphanumeric(8),
               },
               {
-                name: faker.random.alphaNumeric(8),
+                name: faker.string.alphanumeric(8),
                 options: {
                   durable: false,
                 },
               },
               {
-                name: faker.random.alphaNumeric(8),
+                name: faker.string.alphanumeric(8),
                 options: {
                   durable: true,
                 },
               },
               {
-                name: faker.random.alphaNumeric(8),
+                name: faker.string.alphanumeric(8),
                 options: {
                   internal: Boolean(Math.round(Math.random())),
                 },
@@ -358,10 +358,10 @@ suite('Test QueueHandler (./services/queue/queueHandler.ts)', () => {
               draft.services.queue.enabled = true
               draft.services.queue.exchanges = [
                 {
-                  name: faker.random.alphaNumeric(8),
+                  name: faker.string.alphanumeric(8),
                 },
                 {
-                  name: faker.random.alphaNumeric(8),
+                  name: faker.string.alphanumeric(8),
                 },
               ]
             })
@@ -383,9 +383,9 @@ suite('Test QueueHandler (./services/queue/queueHandler.ts)', () => {
           })
 
           test("publish() reports an error when given exchange isn't configured in config", async () => {
-            const exchangeName = faker.random.alphaNumeric(16)
+            const exchangeName = faker.string.alphanumeric(16)
 
-            await client.publish(exchangeName, faker.random.alphaNumeric(8), {})
+            await client.publish(exchangeName, faker.string.alphanumeric(8), {})
             assert.equal(loghandlerMock.stubs.err.calledOnce, true)
             assert.equal(loghandlerMock.stubs.err.args[0][0].name, 'Error')
             assert.equal(
@@ -397,9 +397,9 @@ suite('Test QueueHandler (./services/queue/queueHandler.ts)', () => {
           test('Message is correctly published to Exchange', async () => {
             const exchange = config.services.queue.exchanges[0]
             const msg = {
-              routingKey: faker.random.alphaNumeric(8),
-              data: faker.random.alphaNumeric(8),
-              options: {persistent: true, test: faker.random.alphaNumeric(8)},
+              routingKey: faker.string.alphanumeric(8),
+              data: faker.string.alphanumeric(8),
+              options: {persistent: true, test: faker.string.alphanumeric(8)},
             }
 
             await client.publish(exchange.name, msg.routingKey, msg.data, msg.options)
@@ -422,20 +422,20 @@ suite('Test QueueHandler (./services/queue/queueHandler.ts)', () => {
             const exchange = config.services.queue.exchanges[0]
             const msgs = [
               {
-                routingKey: faker.random.alphaNumeric(8),
-                data: faker.random.alphaNumeric(8),
-                options: {persistent: false, test: faker.random.alphaNumeric(8)},
+                routingKey: faker.string.alphanumeric(8),
+                data: faker.string.alphanumeric(8),
+                options: {persistent: false, test: faker.string.alphanumeric(8)},
                 persist: false,
               },
               {
-                routingKey: faker.random.alphaNumeric(8),
-                data: faker.random.alphaNumeric(8),
-                options: {test: faker.random.alphaNumeric(8)},
+                routingKey: faker.string.alphanumeric(8),
+                data: faker.string.alphanumeric(8),
+                options: {test: faker.string.alphanumeric(8)},
                 persist: true,
               },
               {
-                routingKey: faker.random.alphaNumeric(8),
-                data: faker.random.alphaNumeric(8),
+                routingKey: faker.string.alphanumeric(8),
+                data: faker.string.alphanumeric(8),
                 options: undefined,
                 persist: true,
               },
@@ -458,9 +458,9 @@ suite('Test QueueHandler (./services/queue/queueHandler.ts)', () => {
           test('Message is correctly published to Exchange when message is send to a second exchange', async () => {
             const exchange = config.services.queue.exchanges[1]
             const msg = {
-              routingKey: faker.random.alphaNumeric(8),
-              data: faker.random.alphaNumeric(8),
-              options: {persistent: true, test: faker.random.alphaNumeric(8)},
+              routingKey: faker.string.alphanumeric(8),
+              data: faker.string.alphanumeric(8),
+              options: {persistent: true, test: faker.string.alphanumeric(8)},
             }
 
             await client.publish(exchange.name, msg.routingKey, msg.data, msg.options)
@@ -489,10 +489,10 @@ suite('Test QueueHandler (./services/queue/queueHandler.ts)', () => {
             draft.services.queue.enabled = true
             draft.services.queue.exchanges = [
               {
-                name: faker.random.alphaNumeric(8),
+                name: faker.string.alphanumeric(8),
               },
               {
-                name: faker.random.alphaNumeric(8),
+                name: faker.string.alphanumeric(8),
               },
             ]
           })
@@ -533,7 +533,7 @@ suite('Test QueueHandler (./services/queue/queueHandler.ts)', () => {
           const eventHandlerMock = EventHandlerMock
 
           const eventHandler = eventHandlerMock.Instance as any
-          const exchangeName = faker.random.alphaNumeric(8)
+          const exchangeName = faker.string.alphanumeric(8)
           eventHandler.exchange = exchangeName
 
           const server = queue.server(Deps)
@@ -590,18 +590,18 @@ suite('Test QueueHandler (./services/queue/queueHandler.ts)', () => {
           const eventHandler1 = eventHandlerMock1.Instance as any
           eventHandler1.exchange = config.services.queue.exchanges[0].name
           eventHandler1.settings.consume = {
-            test: faker.random.alphaNumeric(14),
+            test: faker.string.alphanumeric(14),
           }
 
           const eventHandlerMock2 = EventHandlerMock
           const eventHandler2 = eventHandlerMock2.Instance as any
           eventHandler2.exchange = config.services.queue.exchanges[1].name
           eventHandler2.settings.consume = {
-            test: faker.random.alphaNumeric(14),
+            test: faker.string.alphanumeric(14),
           }
 
           const assertQueueReturnValue = {
-            queue: faker.random.alphaNumeric(14),
+            queue: faker.string.alphanumeric(14),
           }
           AmqpLibMock.stubs.assertQueue.returns(assertQueueReturnValue)
 
@@ -660,7 +660,7 @@ suite('Test QueueHandler (./services/queue/queueHandler.ts)', () => {
           assert.equal(AmqpLibMock.stubs.nack.callCount, 0)
 
           const handler = AmqpLibMock.stubs.consume.args[0][1]
-          const msg = faker.random.alphaNumeric(21)
+          const msg = faker.string.alphanumeric(21)
           await handler(msg)
 
           assert.equal(eventHandlerMock1.stubs.handler.callCount, 1)
@@ -685,7 +685,7 @@ suite('Test QueueHandler (./services/queue/queueHandler.ts)', () => {
           assert.equal(AmqpLibMock.stubs.nack.callCount, 0)
 
           const handler = AmqpLibMock.stubs.consume.args[0][1]
-          const msg = faker.random.alphaNumeric(21)
+          const msg = faker.string.alphanumeric(21)
           await handler(msg)
 
           assert.equal(eventHandlerMock1.stubs.handler.callCount, 1)
@@ -696,11 +696,11 @@ suite('Test QueueHandler (./services/queue/queueHandler.ts)', () => {
         test('server calls EventHandler correctly', async () => {
           const queue = (await queueHandler.setup()) as unknown as QueueHandlerSetupEnabled<ApiStartSettings>
           const Deps = {
-            sysDeps: faker.random.alphaNumeric(16),
+            sysDeps: faker.string.alphanumeric(16),
           } as unknown as InternalSystem<ApiStartSettings>
 
           const dependencies = {
-            handlerDeps: faker.random.alphaNumeric(16),
+            handlerDeps: faker.string.alphanumeric(16),
           }
 
           const eventHandlerMock1 = EventHandlerMock
@@ -714,7 +714,7 @@ suite('Test QueueHandler (./services/queue/queueHandler.ts)', () => {
 
           const handler = AmqpLibMock.stubs.consume.args[0][1]
 
-          const msg = faker.random.alphaNumeric(21)
+          const msg = faker.string.alphanumeric(21)
           await handler(msg)
 
           assert.equal(eventHandlerMock1.stubs.handler.callCount, 1)
@@ -742,7 +742,7 @@ suite('Test QueueHandler (./services/queue/queueHandler.ts)', () => {
           assert.equal(AmqpLibMock.stubs.nack.callCount, 0)
 
           const handler = AmqpLibMock.stubs.consume.args[0][1]
-          const msg = faker.random.alphaNumeric(21)
+          const msg = faker.string.alphanumeric(21)
           await handler(msg)
 
           assert.equal(eventHandlerMock1.stubs.handler.callCount, 1)
@@ -759,7 +759,7 @@ suite('Test QueueHandler (./services/queue/queueHandler.ts)', () => {
           const eventHandlerMock1 = EventHandlerMock
           const eventHandler1 = eventHandlerMock1.Instance as any
           eventHandler1.exchange = config.services.queue.exchanges[0].name
-          const error = new Error(faker.random.words(10))
+          const error = new Error(faker.word.words(10))
           eventHandlerMock1.stubs.handler.throws(error)
 
           const server = queue.server(Deps)
@@ -775,7 +775,7 @@ suite('Test QueueHandler (./services/queue/queueHandler.ts)', () => {
           assert.equal(loghandlerMock.stubs.warn.callCount, 0)
 
           const handler = AmqpLibMock.stubs.consume.args[0][1]
-          const msg = faker.random.alphaNumeric(21)
+          const msg = faker.string.alphanumeric(21)
           await handler(msg)
 
           assert.equal(loghandlerMock.stubs.alert.callCount, 0)
@@ -792,14 +792,14 @@ suite('Test QueueHandler (./services/queue/queueHandler.ts)', () => {
         test('EventHandler can have a dependency object that gets available in handler', async () => {
           const queue = (await queueHandler.setup()) as unknown as QueueHandlerSetupEnabled<ApiStartSettings>
           const Deps = {
-            test: faker.random.alphaNumeric(31),
+            test: faker.string.alphanumeric(31),
           } as unknown as InternalSystem<ApiStartSettings>
 
           const eventHandlerMock1 = EventHandlerMock
           const eventHandler1 = eventHandlerMock1.Instance as any
           eventHandler1.exchange = config.services.queue.exchanges[0].name
           eventHandler1.dependencies = {
-            test2: faker.random.alphaNumeric(31),
+            test2: faker.string.alphanumeric(31),
           }
 
           assert.equal(eventHandlerMock1.stubs.dependencies.callCount, 0)
@@ -809,7 +809,7 @@ suite('Test QueueHandler (./services/queue/queueHandler.ts)', () => {
 
           const handler = AmqpLibMock.stubs.consume.args[0][1]
 
-          const msg = faker.random.alphaNumeric(21)
+          const msg = faker.string.alphanumeric(21)
           await handler(msg)
 
           assert.equal(eventHandlerMock1.stubs.dependencies.callCount, 0)
@@ -825,7 +825,7 @@ suite('Test QueueHandler (./services/queue/queueHandler.ts)', () => {
         test('Eventhandler can have undefined queue name', async () => {
           const queue = (await queueHandler.setup()) as unknown as QueueHandlerSetupEnabled<ApiStartSettings>
           const Deps = {
-            test: faker.random.alphaNumeric(31),
+            test: faker.string.alphanumeric(31),
           } as unknown as InternalSystem<ApiStartSettings>
 
           const eventHandlerMock1 = EventHandlerMock
@@ -836,7 +836,7 @@ suite('Test QueueHandler (./services/queue/queueHandler.ts)', () => {
           const eventHandlerMock2 = EventHandlerMock
           const eventHandler2 = eventHandlerMock2.Instance as any
           eventHandler2.exchange = config.services.queue.exchanges[0].name
-          eventHandler2.settings.queue.name = faker.random.alphaNumeric(8)
+          eventHandler2.settings.queue.name = faker.string.alphanumeric(8)
 
           const server = queue.server(Deps)
           await server([eventHandler1, eventHandler2])

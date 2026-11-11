@@ -5,8 +5,8 @@ import {ApiStartSettings} from '../../systemInterfaces/apiStartSettings'
 
 export const everythingDisabled: Config = {
   app: {
-    env: faker.random.alphaNumeric(8),
-    name: faker.random.alphaNumeric(8),
+    env: faker.string.alphanumeric(8),
+    name: faker.string.alphanumeric(8),
     version: faker.system.semver(),
   },
   log: {
@@ -53,8 +53,8 @@ export const everythingEnabled: Config<
   }>
 > = {
   app: {
-    env: faker.random.alphaNumeric(8),
-    name: faker.random.alphaNumeric(8),
+    env: faker.string.alphanumeric(8),
+    name: faker.string.alphanumeric(8),
     version: faker.system.semver(),
   },
   log: {
@@ -86,15 +86,15 @@ export const everythingEnabled: Config<
       connection: {
         http: {
           enabled: true,
-          port: faker.datatype.number(),
+          port: faker.number.int({max: 99999}),
         },
         https: {
           cert: {
-            cert: faker.random.alphaNumeric(48),
-            key: faker.random.alphaNumeric(48),
+            cert: faker.string.alphanumeric(48),
+            key: faker.string.alphanumeric(48),
           },
           enabled: true,
-          port: faker.datatype.number(),
+          port: faker.number.int({max: 99999}),
         },
       },
 
@@ -102,23 +102,23 @@ export const everythingEnabled: Config<
       middleware: [],
       router: [],
       settings: {
-        allowedMethods: faker.random.alphaNumeric(8) as any,
-        bodyParser: faker.random.alphaNumeric(8) as any,
+        allowedMethods: faker.string.alphanumeric(8) as any,
+        bodyParser: faker.string.alphanumeric(8) as any,
         cors: {
           allowCredentials: true,
-          allowedHeaders: [faker.random.alphaNumeric(8)],
+          allowedHeaders: [faker.string.alphanumeric(8)],
           allowedMethods: [Methods.put],
           allowedOrigin: faker.internet.url(),
-          exposedHeaders: [faker.random.alphaNumeric(8)],
-          maxAge: faker.datatype.number(),
+          exposedHeaders: [faker.string.alphanumeric(8)],
+          maxAge: faker.number.int({max: 99999}),
         },
-        expose: faker.random.alphaNumeric(8) as any,
-        prefix: faker.random.alphaNumeric(8),
+        expose: faker.string.alphanumeric(8) as any,
+        prefix: faker.string.alphanumeric(8),
         proxy: false,
-        sensitive: faker.random.alphaNumeric(8) as any,
-        silent: faker.random.alphaNumeric(8) as any,
-        subdomainOffset: faker.datatype.number(),
-        versionHandler: faker.random.alphaNumeric(8) as any,
+        sensitive: faker.string.alphanumeric(8) as any,
+        silent: faker.string.alphanumeric(8) as any,
+        subdomainOffset: faker.number.int({max: 99999}),
+        versionHandler: faker.string.alphanumeric(8) as any,
       },
       versions: [
         {
@@ -129,11 +129,11 @@ export const everythingEnabled: Config<
             cors: [
               {
                 allowCredentials: true,
-                allowedHeaders: [faker.random.alphaNumeric(8)],
+                allowedHeaders: [faker.string.alphanumeric(8)],
                 allowedMethods: [Methods.get],
                 allowedOrigin: [faker.internet.url()],
-                exposedHeaders: [faker.random.alphaNumeric(8)],
-                maxAge: faker.datatype.number(),
+                exposedHeaders: [faker.string.alphanumeric(8)],
+                maxAge: faker.number.int({max: 99999}),
               },
             ],
             sensitive: true,
@@ -160,8 +160,8 @@ export const everythingEnabledWithoutVersioning: Config<
   }>
 > = {
   app: {
-    env: faker.random.alphaNumeric(8),
-    name: faker.random.alphaNumeric(8),
+    env: faker.string.alphanumeric(8),
+    name: faker.string.alphanumeric(8),
     version: faker.system.semver(),
   },
   log: {
@@ -193,15 +193,15 @@ export const everythingEnabledWithoutVersioning: Config<
       connection: {
         http: {
           enabled: true,
-          port: faker.datatype.number(),
+          port: faker.number.int({max: 99999}),
         },
         https: {
           cert: {
-            cert: faker.random.alphaNumeric(48),
-            key: faker.random.alphaNumeric(48),
+            cert: faker.string.alphanumeric(48),
+            key: faker.string.alphanumeric(48),
           },
           enabled: true,
-          port: faker.datatype.number(),
+          port: faker.number.int({max: 99999}),
         },
       },
 
@@ -209,21 +209,21 @@ export const everythingEnabledWithoutVersioning: Config<
       middleware: [],
       router: [],
       settings: {
-        allowedMethods: faker.random.alphaNumeric(8) as any,
-        bodyParser: faker.random.alphaNumeric(8) as any,
+        allowedMethods: faker.string.alphanumeric(8) as any,
+        bodyParser: faker.string.alphanumeric(8) as any,
         cors: {
           allowCredentials: true,
-          allowedHeaders: [faker.random.alphaNumeric(8)],
+          allowedHeaders: [faker.string.alphanumeric(8)],
           allowedMethods: [Methods.put],
           allowedOrigin: faker.internet.url(),
-          exposedHeaders: [faker.random.alphaNumeric(8)],
-          maxAge: faker.datatype.number(),
+          exposedHeaders: [faker.string.alphanumeric(8)],
+          maxAge: faker.number.int({max: 99999}),
         },
-        expose: faker.random.alphaNumeric(8) as any,
+        expose: faker.string.alphanumeric(8) as any,
         proxy: false,
-        sensitive: faker.random.alphaNumeric(8) as any,
-        silent: faker.random.alphaNumeric(8) as any,
-        subdomainOffset: faker.datatype.number(),
+        sensitive: faker.string.alphanumeric(8) as any,
+        silent: faker.string.alphanumeric(8) as any,
+        subdomainOffset: faker.number.int({max: 99999}),
         versionHandler: false,
       },
     },
